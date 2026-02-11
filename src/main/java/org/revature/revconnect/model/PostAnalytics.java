@@ -1,8 +1,9 @@
-package org.revconnect.model;
+package org.revature.revconnect.model;
 
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.revature.revconnect.model.Post;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
