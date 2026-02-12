@@ -1,5 +1,5 @@
-package org.revature.revconnect.Repository;
-import com.revconnect.model.Comment;
+package org.revature.revconnect.repository;
+import org.revature.revconnect.model.Comment;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
