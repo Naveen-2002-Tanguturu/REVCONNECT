@@ -5,6 +5,7 @@ import org.revature.revconnect.dto.response.PagedResponse;
 import org.revature.revconnect.dto.response.UserResponse;
 import org.revature.revconnect.enums.ConnectionStatus;
 import org.revature.revconnect.enums.Privacy;
+import org.revature.revconnect.exception.BadRequestException;
 import org.revature.revconnect.exception.ResourceNotFoundException;
 import org.revature.revconnect.exception.UnauthorizedException;
 import org.revature.revconnect.model.User;
@@ -38,7 +39,8 @@ public class UserService {
 
         User currentUser = authService.getCurrentUser();
 
-        if (user.getPrivacy() == Privacy.PRIVATE && !user.getId().equals(currentUser.getId())) {
+        if (user.getPrivacy() == Privacy.PRIVATE &&
+                !user.getId().equals(currentUser.getId())) {
             throw new UnauthorizedException("This profile is private");
         }
 
@@ -51,7 +53,8 @@ public class UserService {
 
         User currentUser = authService.getCurrentUser();
 
-        if (user.getPrivacy() == Privacy.PRIVATE && !user.getId().equals(currentUser.getId())) {
+        if (user.getPrivacy() == Privacy.PRIVATE &&
+                !user.getId().equals(currentUser.getId())) {
             throw new UnauthorizedException("This profile is private");
         }
 
@@ -101,7 +104,11 @@ public class UserService {
         Pageable pageable = PageRequest.of(page, size);
 
         Page<User> usersPage =
-                userRepository.findSuggestedUsers(currentUser.getId(), Privacy.PUBLIC, pageable);
+                userRepository.findSuggestedUsers(
+                        currentUser.getId(),
+                        Privacy.PUBLIC,
+                        pageable
+                );
 
         return PagedResponse.fromEntityPage(usersPage, UserResponse::fromEntityPublic);
     }
@@ -109,18 +116,23 @@ public class UserService {
     @Transactional
     public void blockUser(Long userId) {
         User currentUser = authService.getCurrentUser();
+
         if (currentUser.getId().equals(userId)) {
-            throw new org.revature.revconnect.exception.BadRequestException("Cannot block yourself");
+            throw new BadRequestException("Cannot block yourself");
         }
 
         userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
+
+        log.info("User {} blocked user {}", currentUser.getId(), userId);
     }
 
     @Transactional
     public void unblockUser(Long userId) {
         userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
+
+        log.info("User {} unblocked", userId);
     }
 
     public PagedResponse<UserResponse> getBlockedUsers(int page, int size) {
@@ -148,5 +160,20 @@ public class UserService {
                 );
 
         return PagedResponse.fromEntityPage(mutualPage, UserResponse::fromEntityPublic);
+    }
+
+    @Transactional
+    public void reportUser(Long userId, String reason) {
+        User currentUser = authService.getCurrentUser();
+
+        if (currentUser.getId().equals(userId)) {
+            throw new BadRequestException("You cannot report yourself");
+        }
+
+        userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
+
+        log.info("User {} reported user {} | Reason: {}",
+                currentUser.getId(), userId, reason);
     }
 }
