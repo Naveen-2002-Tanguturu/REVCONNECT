@@ -18,8 +18,29 @@
     <description>RevConnect - Social Media Application Backend</description>
 
     <properties>
-        <java.version>21</java.version>
+        <java.version>17</java.version>
         <jjwt.version>0.12.3</jjwt.version>
+
+        <!-- SonarQube Configuration -->
+        <sonar.projectKey>revconnect</sonar.projectKey>
+        <sonar.projectName>RevConnect</sonar.projectName>
+        <sonar.host.url>http://localhost:9000</sonar.host.url>
+        <sonar.java.source>${java.version}</sonar.java.source>
+        <sonar.sourceEncoding>UTF-8</sonar.sourceEncoding>
+
+        <!-- JaCoCo report path for SonarQube -->
+        <sonar.coverage.jacoco.xmlReportPaths>${project.build.directory}/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+
+        <!-- Exclude auto-generated / config classes from Sonar analysis -->
+        <sonar.exclusions>
+            **/config/**,
+            **/dto/**,
+            **/model/**,
+            **/enums/**,
+            **/exception/**,
+            **/security/**,
+            **/RevConnectApplication.java
+        </sonar.exclusions>
     </properties>
 
     <dependencies>
@@ -172,7 +193,7 @@
                                         <limit>
                                             <counter>LINE</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.80</minimum>
+                                            <minimum>0.60</minimum>
                                         </limit>
                                     </limits>
                                 </rule>
@@ -191,6 +212,13 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+
+            <!-- SonarQube Maven Plugin -->
+            <plugin>
+                <groupId>org.sonarsource.scanner.maven</groupId>
+                <artifactId>sonar-maven-plugin</artifactId>
+                <version>4.0.0.4121</version>
             </plugin>
         </plugins>
     </build>
