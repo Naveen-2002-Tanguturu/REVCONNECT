@@ -7,6 +7,7 @@ import org.revature.revconnect.dto.response.PagedResponse;
 import org.revature.revconnect.enums.BusinessCategory;
 import org.revature.revconnect.enums.ConnectionStatus;
 import org.revature.revconnect.exception.BadRequestException;
+import org.revature.revconnect.mapper.BusinessProfileMapper;
 import org.revature.revconnect.exception.ResourceNotFoundException;
 import org.revature.revconnect.model.BusinessProfile;
 import org.revature.revconnect.model.PostAnalytics;
@@ -36,6 +37,7 @@ public class BusinessService {
     private final PostRepository postRepository;
     private final ConnectionRepository connectionRepository;
     private final AuthService authService;
+    private final BusinessProfileMapper businessProfileMapper;
 
     @Transactional
     public BusinessProfileResponse createBusinessProfile(BusinessProfileRequest request) {
@@ -62,7 +64,7 @@ public class BusinessService {
 
         BusinessProfile saved = businessProfileRepository.save(profile);
         log.info("Business profile created with ID: {}", saved.getId());
-        return BusinessProfileResponse.fromEntity(saved);
+        return businessProfileMapper.toResponse(saved);
     }
 
     public BusinessProfileResponse getBusinessProfile(Long userId) {
@@ -72,7 +74,7 @@ public class BusinessService {
                 .orElseThrow(() -> new ResourceNotFoundException("BusinessProfile", "userId", userId));
 
         log.info("Found business profile: {}", profile.getBusinessName());
-        return BusinessProfileResponse.fromEntity(profile);
+        return businessProfileMapper.toResponse(profile);
     }
 
     public BusinessProfileResponse getMyBusinessProfile() {
@@ -101,7 +103,7 @@ public class BusinessService {
 
         BusinessProfile saved = businessProfileRepository.save(profile);
         log.info("Business profile updated: {}", saved.getBusinessName());
-        return BusinessProfileResponse.fromEntity(saved);
+        return businessProfileMapper.toResponse(saved);
     }
 
     @Transactional
@@ -123,7 +125,7 @@ public class BusinessService {
         Page<BusinessProfile> profiles = businessProfileRepository.findByCategory(category, PageRequest.of(page, size));
 
         log.info("Found {} businesses in category {}", profiles.getTotalElements(), category);
-        return PagedResponse.fromEntityPage(profiles, BusinessProfileResponse::fromEntity);
+        return PagedResponse.fromEntityPage(profiles, businessProfileMapper::toResponse);
     }
 
     public PagedResponse<BusinessProfileResponse> searchBusinesses(String query, int page, int size) {
@@ -133,7 +135,7 @@ public class BusinessService {
                 query, PageRequest.of(page, size));
 
         log.info("Found {} businesses matching '{}'", profiles.getTotalElements(), query);
-        return PagedResponse.fromEntityPage(profiles, BusinessProfileResponse::fromEntity);
+        return PagedResponse.fromEntityPage(profiles, businessProfileMapper::toResponse);
     }
 
     public AnalyticsResponse getAnalytics(int days) {
@@ -143,11 +145,11 @@ public class BusinessService {
         LocalDate endDate = LocalDate.now();
         LocalDate startDate = endDate.minusDays(days);
 
-        // Get daily analytics
+
         List<PostAnalytics> dailyData = postAnalyticsRepository.findByUserIdAndDateRange(
                 currentUser.getId(), startDate, endDate);
 
-        // Calculate totals
+
         Long totalViews = postAnalyticsRepository.getTotalViewsByUser(currentUser.getId());
         Long totalImpressions = postAnalyticsRepository.getTotalImpressionsByUser(currentUser.getId());
         long totalFollowers = connectionRepository.countByFollowingIdAndStatus(currentUser.getId(),
@@ -155,12 +157,12 @@ public class BusinessService {
         long totalPosts = postRepository.findByUserIdOrderByCreatedAtDesc(currentUser.getId(), PageRequest.of(0, 1))
                 .getTotalElements();
 
-        // Calculate engagement metrics from daily data
+
         int totalLikes = dailyData.stream().mapToInt(PostAnalytics::getLikes).sum();
         int totalComments = dailyData.stream().mapToInt(PostAnalytics::getComments).sum();
         int totalShares = dailyData.stream().mapToInt(PostAnalytics::getShares).sum();
 
-        // Calculate engagement rate
+
         double engagementRate = 0.0;
         if (totalImpressions != null && totalImpressions > 0) {
             engagementRate = ((double) (totalLikes + totalComments + totalShares) / totalImpressions) * 100;
