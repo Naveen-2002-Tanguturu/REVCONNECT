@@ -7,6 +7,7 @@ import org.revature.revconnect.dto.response.PagedResponse;
 import org.revature.revconnect.enums.BusinessCategory;
 import org.revature.revconnect.enums.ConnectionStatus;
 import org.revature.revconnect.exception.BadRequestException;
+import org.revature.revconnect.mapper.BusinessProfileMapper;
 import org.revature.revconnect.exception.ResourceNotFoundException;
 import org.revature.revconnect.model.BusinessProfile;
 import org.revature.revconnect.model.PostAnalytics;
@@ -36,6 +37,7 @@ public class BusinessService {
     private final PostRepository postRepository;
     private final ConnectionRepository connectionRepository;
     private final AuthService authService;
+    private final BusinessProfileMapper businessProfileMapper;
 
     @Transactional
     public BusinessProfileResponse createBusinessProfile(BusinessProfileRequest request) {
@@ -62,7 +64,7 @@ public class BusinessService {
 
         BusinessProfile saved = businessProfileRepository.save(profile);
         log.info("Business profile created with ID: {}", saved.getId());
-        return BusinessProfileResponse.fromEntity(saved);
+        return businessProfileMapper.toResponse(saved);
     }
 
     public BusinessProfileResponse getBusinessProfile(Long userId) {
@@ -72,7 +74,7 @@ public class BusinessService {
                 .orElseThrow(() -> new ResourceNotFoundException("BusinessProfile", "userId", userId));
 
         log.info("Found business profile: {}", profile.getBusinessName());
-        return BusinessProfileResponse.fromEntity(profile);
+        return businessProfileMapper.toResponse(profile);
     }
 
     public BusinessProfileResponse getMyBusinessProfile() {
@@ -101,7 +103,7 @@ public class BusinessService {
 
         BusinessProfile saved = businessProfileRepository.save(profile);
         log.info("Business profile updated: {}", saved.getBusinessName());
-        return BusinessProfileResponse.fromEntity(saved);
+        return businessProfileMapper.toResponse(saved);
     }
 
     @Transactional
@@ -123,7 +125,7 @@ public class BusinessService {
         Page<BusinessProfile> profiles = businessProfileRepository.findByCategory(category, PageRequest.of(page, size));
 
         log.info("Found {} businesses in category {}", profiles.getTotalElements(), category);
-        return PagedResponse.fromEntityPage(profiles, BusinessProfileResponse::fromEntity);
+        return PagedResponse.fromEntityPage(profiles, businessProfileMapper::toResponse);
     }
 
     public PagedResponse<BusinessProfileResponse> searchBusinesses(String query, int page, int size) {
@@ -133,7 +135,7 @@ public class BusinessService {
                 query, PageRequest.of(page, size));
 
         log.info("Found {} businesses matching '{}'", profiles.getTotalElements(), query);
-        return PagedResponse.fromEntityPage(profiles, BusinessProfileResponse::fromEntity);
+        return PagedResponse.fromEntityPage(profiles, businessProfileMapper::toResponse);
     }
 
     public AnalyticsResponse getAnalytics(int days) {
