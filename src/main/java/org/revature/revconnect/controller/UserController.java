@@ -127,7 +127,7 @@ public class UserController {
             @PathVariable Long userId,
             @RequestParam String reason) {
         log.info("Request to report user ID: {} for reason: {}", userId, reason);
-        UserService.reportUser(userId, reason);
+        userService.reportUser(userId, reason);
         log.info("User {} reported successfully", userId);
         return ResponseEntity.ok(ApiResponse.success("User reported successfully", null));
     }
