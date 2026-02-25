@@ -6,6 +6,7 @@ import org.revature.revconnect.dto.response.PagedResponse;
 import org.revature.revconnect.enums.ConnectionStatus;
 import org.revature.revconnect.exception.BadRequestException;
 import org.revature.revconnect.exception.ResourceNotFoundException;
+import org.revature.revconnect.mapper.ConnectionMapper;
 import org.revature.revconnect.model.Connection;
 import org.revature.revconnect.model.User;
 import org.revature.revconnect.repository.ConnectionRepository;
@@ -26,6 +27,7 @@ public class ConnectionService {
     private final UserRepository userRepository;
     private final AuthService authService;
     private final NotificationService notificationService;
+    private final ConnectionMapper connectionMapper;
 
     @Transactional
     public void followUser(Long userId) {
@@ -81,7 +83,7 @@ public class ConnectionService {
                 userId, ConnectionStatus.ACCEPTED, PageRequest.of(page, size));
 
         log.info("Found {} followers for user {}", followers.getTotalElements(), userId);
-        return PagedResponse.fromEntityPage(followers, ConnectionResponse::fromFollower);
+        return PagedResponse.fromEntityPage(followers, connectionMapper::fromFollower);
     }
 
     public PagedResponse<ConnectionResponse> getFollowing(Long userId, int page, int size) {
@@ -95,7 +97,7 @@ public class ConnectionService {
                 userId, ConnectionStatus.ACCEPTED, PageRequest.of(page, size));
 
         log.info("Found {} following for user {}", following.getTotalElements(), userId);
-        return PagedResponse.fromEntityPage(following, ConnectionResponse::fromFollowing);
+        return PagedResponse.fromEntityPage(following, connectionMapper::fromFollowing);
     }
 
     public PagedResponse<ConnectionResponse> getPendingRequests(int page, int size) {
@@ -106,7 +108,7 @@ public class ConnectionService {
                 currentUser.getId(), PageRequest.of(page, size));
 
         log.info("Found {} pending requests", pending.getTotalElements());
-        return PagedResponse.fromEntityPage(pending, ConnectionResponse::fromFollower);
+        return PagedResponse.fromEntityPage(pending, connectionMapper::fromFollower);
     }
 
     @Transactional
