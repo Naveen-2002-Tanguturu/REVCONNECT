@@ -145,11 +145,11 @@ public class BusinessService {
         LocalDate endDate = LocalDate.now();
         LocalDate startDate = endDate.minusDays(days);
 
-        // Get daily analytics
+
         List<PostAnalytics> dailyData = postAnalyticsRepository.findByUserIdAndDateRange(
                 currentUser.getId(), startDate, endDate);
 
-        // Calculate totals
+
         Long totalViews = postAnalyticsRepository.getTotalViewsByUser(currentUser.getId());
         Long totalImpressions = postAnalyticsRepository.getTotalImpressionsByUser(currentUser.getId());
         long totalFollowers = connectionRepository.countByFollowingIdAndStatus(currentUser.getId(),
@@ -157,12 +157,12 @@ public class BusinessService {
         long totalPosts = postRepository.findByUserIdOrderByCreatedAtDesc(currentUser.getId(), PageRequest.of(0, 1))
                 .getTotalElements();
 
-        // Calculate engagement metrics from daily data
+
         int totalLikes = dailyData.stream().mapToInt(PostAnalytics::getLikes).sum();
         int totalComments = dailyData.stream().mapToInt(PostAnalytics::getComments).sum();
         int totalShares = dailyData.stream().mapToInt(PostAnalytics::getShares).sum();
 
-        // Calculate engagement rate
+
         double engagementRate = 0.0;
         if (totalImpressions != null && totalImpressions > 0) {
             engagementRate = ((double) (totalLikes + totalComments + totalShares) / totalImpressions) * 100;
