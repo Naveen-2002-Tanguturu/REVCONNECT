@@ -18,14 +18,4 @@ public class LikeResponse {
     private String profilePicture;
     private LocalDateTime createdAt;
 
-    public static LikeResponse fromEntity(Like like) {
-        return LikeResponse.builder()
-                .id(like.getId())
-                .userId(like.getUser().getId())
-                .username(like.getUser().getUsername())
-                .name(like.getUser().getName())
-                .profilePicture(like.getUser().getProfilePicture())
-                .createdAt(like.getCreatedAt())
-                .build();
-    }
 }
