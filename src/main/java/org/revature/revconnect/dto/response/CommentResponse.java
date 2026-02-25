@@ -22,17 +22,4 @@ public class CommentResponse {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    public static CommentResponse fromEntity(Comment comment) {
-        return CommentResponse.builder()
-                .id(comment.getId())
-                .content(comment.getContent())
-                .userId(comment.getUser().getId())
-                .username(comment.getUser().getUsername())
-                .name(comment.getUser().getName())
-                .profilePicture(comment.getUser().getProfilePicture())
-                .postId(comment.getPost().getId())
-                .createdAt(comment.getCreatedAt())
-                .updatedAt(comment.getUpdatedAt())
-                .build();
-    }
 }
