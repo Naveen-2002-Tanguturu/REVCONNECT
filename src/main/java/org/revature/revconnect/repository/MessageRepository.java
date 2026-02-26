@@ -20,9 +20,11 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
             "ORDER BY m.timestamp DESC")
     Page<Message> findConversation(@Param("user1") User user1, @Param("user2") User user2, Pageable pageable);
 
-    @Query("SELECT DISTINCT CASE WHEN m.sender = :user THEN m.receiver ELSE m.sender END " +
-            "FROM Message m WHERE m.sender = :user OR m.receiver = :user")
-    List<User> findConversationPartners(@Param("user") User user);
+    @Query("SELECT DISTINCT m.receiver FROM Message m WHERE m.sender = :user")
+    List<User> findReceiversForUser(@Param("user") User user);
+
+    @Query("SELECT DISTINCT m.sender FROM Message m WHERE m.receiver = :user")
+    List<User> findSendersForUser(@Param("user") User user);
 
     List<Message> findByReceiverAndIsReadFalse(User receiver);
 
