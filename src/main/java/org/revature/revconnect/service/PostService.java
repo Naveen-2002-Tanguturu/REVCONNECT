@@ -6,6 +6,7 @@ import org.revature.revconnect.dto.response.PostResponse;
 import org.revature.revconnect.enums.PostType;
 import org.revature.revconnect.exception.ResourceNotFoundException;
 import org.revature.revconnect.exception.UnauthorizedException;
+import org.revature.revconnect.mapper.PostMapper;
 import org.revature.revconnect.model.Post;
 import org.revature.revconnect.model.User;
 import org.revature.revconnect.repository.PostRepository;
@@ -25,6 +26,7 @@ public class PostService {
 
     private final PostRepository postRepository;
     private final AuthService authService;
+    private final PostMapper postMapper;
 
     @Transactional
     public PostResponse createPost(PostRequest request) {
@@ -40,33 +42,33 @@ public class PostService {
 
         Post savedPost = postRepository.save(post);
         log.info("Post created with ID: {}", savedPost.getId());
-        return PostResponse.fromEntity(savedPost);
+        return postMapper.toResponse(savedPost);
     }
 
     public PostResponse getPostById(Long postId) {
         log.info("Fetching post with ID: {}", postId);
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new ResourceNotFoundException("Post", "id", postId));
-        return PostResponse.fromEntity(post);
+        return postMapper.toResponse(post);
     }
 
     public PagedResponse<PostResponse> getMyPosts(int page, int size) {
         User currentUser = authService.getCurrentUser();
         log.info("Fetching posts for user: {}", currentUser.getUsername());
         Page<Post> posts = postRepository.findByUserIdWithPinnedFirst(currentUser.getId(), PageRequest.of(page, size));
-        return PagedResponse.fromEntityPage(posts, PostResponse::fromEntity);
+        return PagedResponse.fromEntityPage(posts, postMapper::toResponse);
     }
 
     public PagedResponse<PostResponse> getUserPosts(Long userId, int page, int size) {
         log.info("Fetching posts for user ID: {}", userId);
         Page<Post> posts = postRepository.findByUserIdOrderByCreatedAtDesc(userId, PageRequest.of(page, size));
-        return PagedResponse.fromEntityPage(posts, PostResponse::fromEntity);
+        return PagedResponse.fromEntityPage(posts, postMapper::toResponse);
     }
 
     public PagedResponse<PostResponse> getPublicFeed(int page, int size) {
         log.info("Fetching public feed, page: {}, size: {}", page, size);
         Page<Post> posts = postRepository.findPublicPosts(PageRequest.of(page, size));
-        return PagedResponse.fromEntityPage(posts, PostResponse::fromEntity);
+        return PagedResponse.fromEntityPage(posts, postMapper::toResponse);
     }
 
     @Transactional
@@ -92,7 +94,7 @@ public class PostService {
 
         Post updatedPost = postRepository.save(post);
         log.info("Post updated successfully: {}", postId);
-        return PostResponse.fromEntity(updatedPost);
+        return postMapper.toResponse(updatedPost);
     }
 
     @Transactional
@@ -125,6 +127,6 @@ public class PostService {
         post.setPinned(!post.getPinned());
         Post updatedPost = postRepository.save(post);
         log.info("Post {} pinned status changed to: {}", postId, updatedPost.getPinned());
-        return PostResponse.fromEntity(updatedPost);
+        return postMapper.toResponse(updatedPost);
     }
 }
