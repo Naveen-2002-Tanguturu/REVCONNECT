@@ -97,6 +97,8 @@ class AuthServiceTest {
                 .build();
     }
 
+    // ======================== REGISTER ========================
+
     @Nested
     @DisplayName("register()")
     class RegisterTests {
@@ -148,6 +150,8 @@ class AuthServiceTest {
         }
     }
 
+    // ======================== LOGIN ========================
+
     @Nested
     @DisplayName("login()")
     class LoginTests {
@@ -169,6 +173,8 @@ class AuthServiceTest {
             assertThat(response.getTokenType()).isEqualTo("Bearer");
         }
     }
+
+    // ======================== GET CURRENT USER ========================
 
     @Nested
     @DisplayName("getCurrentUser()")
@@ -204,6 +210,8 @@ class AuthServiceTest {
             SecurityContextHolder.clearContext();
         }
     }
+
+    // ======================== FORGOT PASSWORD ========================
 
     @Nested
     @DisplayName("forgotPassword()")
@@ -268,6 +276,8 @@ class AuthServiceTest {
             verify(emailService).sendPasswordResetEmail(eq("test@example.com"), anyString());
         }
     }
+
+    // ======================== RESET PASSWORD ========================
 
     @Nested
     @DisplayName("resetPassword()")
