@@ -19,7 +19,7 @@ public class HashtagService {
     private final HashtagRepository hashtagRepository;
 
     @Transactional
-    public void createOrIncrement(String name) {
+    public Hashtag createOrIncrement(String name) {
         String normalizedName = normalizeHashtag(name);
         log.info("Processing hashtag: {}", normalizedName);
 
@@ -35,6 +35,7 @@ public class HashtagService {
                     .build();
             hashtagRepository.save(newHashtag);
         }
+        return null;
     }
 
     public List<Hashtag> getTrending(int limit) {
