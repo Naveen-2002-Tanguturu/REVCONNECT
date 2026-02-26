@@ -5,6 +5,7 @@ import org.revature.revconnect.dto.response.PagedResponse;
 import org.revature.revconnect.enums.NotificationType;
 import org.revature.revconnect.exception.ResourceNotFoundException;
 import org.revature.revconnect.exception.UnauthorizedException;
+import org.revature.revconnect.mapper.NotificationMapper;
 import org.revature.revconnect.model.Notification;
 import org.revature.revconnect.model.User;
 import org.revature.revconnect.repository.NotificationRepository;
@@ -12,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +24,8 @@ public class NotificationService {
 
     private final NotificationRepository notificationRepository;
     private final AuthService authService;
+    private final SimpMessagingTemplate messagingTemplate;
+    private final NotificationMapper notificationMapper;
 
     @Transactional
     public void createNotification(User recipient, User actor, NotificationType type, String message,
@@ -42,8 +46,17 @@ public class NotificationService {
                 .referenceId(referenceId)
                 .build();
 
-        notificationRepository.save(notification);
+        Notification saved = notificationRepository.save(notification);
         log.info("Notification created for user {}", recipient.getUsername());
+
+        try {
+            messagingTemplate.convertAndSend(
+                    "/topic/notifications/" + recipient.getId(),
+                    notificationMapper.toResponse(saved));
+            log.info("Real-time notification pushed to user {}", recipient.getUsername());
+        } catch (Exception e) {
+            log.warn("Failed to push real-time notification (user may not be connected): {}", e.getMessage());
+        }
     }
 
     public PagedResponse<NotificationResponse> getNotifications(int page, int size) {
@@ -54,7 +67,7 @@ public class NotificationService {
                 currentUser.getId(), PageRequest.of(page, size));
 
         log.info("Found {} notifications for user {}", notifications.getTotalElements(), currentUser.getUsername());
-        return PagedResponse.fromEntityPage(notifications, NotificationResponse::fromEntity);
+        return PagedResponse.fromEntityPage(notifications, notificationMapper::toResponse);
     }
 
     public PagedResponse<NotificationResponse> getUnreadNotifications(int page, int size) {
@@ -66,7 +79,7 @@ public class NotificationService {
 
         log.info("Found {} unread notifications for user {}", notifications.getTotalElements(),
                 currentUser.getUsername());
-        return PagedResponse.fromEntityPage(notifications, NotificationResponse::fromEntity);
+        return PagedResponse.fromEntityPage(notifications, notificationMapper::toResponse);
     }
 
     public long getUnreadCount() {
@@ -122,7 +135,6 @@ public class NotificationService {
         notificationRepository.delete(notification);
         log.info("Notification {} deleted successfully", notificationId);
     }
-
 
     public void notifyLike(User postOwner, User liker, Long postId) {
         createNotification(postOwner, liker, NotificationType.LIKE,
