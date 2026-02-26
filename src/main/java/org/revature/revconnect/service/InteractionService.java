@@ -1,4 +1,5 @@
 package org.revature.revconnect.service;
+
 import org.revature.revconnect.dto.request.CommentRequest;
 import org.revature.revconnect.dto.request.ShareRequest;
 import org.revature.revconnect.dto.response.CommentResponse;
@@ -7,6 +8,9 @@ import org.revature.revconnect.dto.response.PagedResponse;
 import org.revature.revconnect.dto.response.ShareResponse;
 import org.revature.revconnect.exception.BadRequestException;
 import org.revature.revconnect.exception.ResourceNotFoundException;
+import org.revature.revconnect.mapper.CommentMapper;
+import org.revature.revconnect.mapper.LikeMapper;
+import org.revature.revconnect.mapper.ShareMapper;
 import org.revature.revconnect.exception.UnauthorizedException;
 import org.revature.revconnect.model.Comment;
 import org.revature.revconnect.model.Like;
@@ -35,7 +39,11 @@ public class InteractionService {
     private final PostRepository postRepository;
     private final AuthService authService;
     private final NotificationService notificationService;
+    private final LikeMapper likeMapper;
+    private final CommentMapper commentMapper;
+    private final ShareMapper shareMapper;
 
+    // ==================== LIKE OPERATIONS ====================
 
     @Transactional
     public void likePost(long postId) {
@@ -59,6 +67,7 @@ public class InteractionService {
         post.setLikeCount(post.getLikeCount() + 1);
         postRepository.save(post);
 
+        // Send notification to post owner
         notificationService.notifyLike(post.getUser(), currentUser, postId);
 
         log.info("User {} successfully liked post {}", currentUser.getUsername(), postId);
@@ -91,7 +100,7 @@ public class InteractionService {
 
         Page<Like> likes = likeRepository.findByPostIdOrderByCreatedAtDesc(postId, PageRequest.of(page, size));
         log.info("Found {} likes for post {}", likes.getTotalElements(), postId);
-        return PagedResponse.fromEntityPage(likes, LikeResponse::fromEntity);
+        return PagedResponse.fromEntityPage(likes, likeMapper::toResponse);
     }
 
     public boolean hasUserLikedPost(Long postId) {
@@ -121,7 +130,7 @@ public class InteractionService {
         notificationService.notifyComment(post.getUser(), currentUser, postId);
 
         log.info("Comment {} added to post {} by user {}", savedComment.getId(), postId, currentUser.getUsername());
-        return CommentResponse.fromEntity(savedComment);
+        return commentMapper.toResponse(savedComment);
     }
 
     public PagedResponse<CommentResponse> getPostComments(Long postId, int page, int size) {
@@ -133,7 +142,7 @@ public class InteractionService {
 
         Page<Comment> comments = commentRepository.findByPostIdOrderByCreatedAtDesc(postId, PageRequest.of(page, size));
         log.info("Found {} comments for post {}", comments.getTotalElements(), postId);
-        return PagedResponse.fromEntityPage(comments, CommentResponse::fromEntity);
+        return PagedResponse.fromEntityPage(comments, commentMapper::toResponse);
     }
 
     @Transactional
@@ -157,7 +166,6 @@ public class InteractionService {
 
         log.info("Comment {} deleted successfully by user {}", commentId, currentUser.getUsername());
     }
-
 
     @Transactional
     public ShareResponse sharePost(Long postId, ShareRequest request) {
@@ -186,6 +194,6 @@ public class InteractionService {
         notificationService.notifyShare(post.getUser(), currentUser, postId);
 
         log.info("User {} successfully shared post {}", currentUser.getUsername(), postId);
-        return ShareResponse.fromEntity(savedShare);
+        return shareMapper.toResponse(savedShare);
     }
 }
