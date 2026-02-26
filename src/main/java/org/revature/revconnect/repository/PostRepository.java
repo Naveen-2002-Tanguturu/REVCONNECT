@@ -21,6 +21,9 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     @Query("SELECT p FROM Post p WHERE p.user.id IN :userIds ORDER BY p.createdAt DESC")
     Page<Post> findByUserIdIn(@Param("userIds") List<Long> userIds, Pageable pageable);
 
+    @Query("SELECT p FROM Post p WHERE LOWER(p.content) LIKE LOWER(CONCAT('%', :tag, '%')) ORDER BY p.createdAt DESC")
+    Page<Post> findByContentContainingTag(@Param("tag") String tag, Pageable pageable);
+
     List<Post> findByUserIdAndPinnedTrueOrderByCreatedAtDesc(Long userId);
 
     @Query("SELECT p FROM Post p WHERE p.user.id = :userId ORDER BY p.pinned DESC, p.createdAt DESC")

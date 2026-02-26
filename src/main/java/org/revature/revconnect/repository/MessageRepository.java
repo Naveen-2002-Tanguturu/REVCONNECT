@@ -27,4 +27,8 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
     List<Message> findByReceiverAndIsReadFalse(User receiver);
 
     long countByReceiverAndIsReadFalse(User receiver);
+
+    @Query("SELECT m FROM Message m WHERE (m.sender = :user OR m.receiver = :user) AND " +
+            "LOWER(m.content) LIKE LOWER(CONCAT('%', :query, '%')) ORDER BY m.timestamp DESC")
+    Page<Message> searchMessages(@Param("user") User user, @Param("query") String query, Pageable pageable);
 }

@@ -27,6 +27,7 @@ public class PostService {
     private final PostRepository postRepository;
     private final AuthService authService;
     private final PostMapper postMapper;
+    private final HashtagService hashtagService;
 
     @Transactional
     public PostResponse createPost(PostRequest request) {
@@ -41,6 +42,7 @@ public class PostService {
                 .build();
 
         Post savedPost = postRepository.save(post);
+        hashtagService.processHashtagsFromContent(savedPost.getContent());
         log.info("Post created with ID: {}", savedPost.getId());
         return postMapper.toResponse(savedPost);
     }
@@ -93,6 +95,7 @@ public class PostService {
         }
 
         Post updatedPost = postRepository.save(post);
+        hashtagService.processHashtagsFromContent(updatedPost.getContent());
         log.info("Post updated successfully: {}", postId);
         return postMapper.toResponse(updatedPost);
     }
