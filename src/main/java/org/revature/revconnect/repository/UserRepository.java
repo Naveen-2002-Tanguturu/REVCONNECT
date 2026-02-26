@@ -44,4 +44,17 @@ public interface UserRepository extends JpaRepository<User, Long> {
             "AND c2.status = org.revature.revconnect.enums.ConnectionStatus.ACCEPTED")
     Page<User> findMutualConnections(@Param("userId1") Long userId1, @Param("userId2") Long userId2,
                                      Pageable pageable);
+
+    @Query("SELECT u FROM User u WHERE u.privacy = org.revature.revconnect.enums.Privacy.PUBLIC AND " +
+            "(:query IS NULL OR LOWER(u.username) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
+            "LOWER(u.name) LIKE LOWER(CONCAT('%', :query, '%'))) AND " +
+            "(:location IS NULL OR LOWER(u.location) LIKE LOWER(CONCAT('%', :location, '%'))) AND " +
+            "(:userType IS NULL OR u.userType = :userType) AND " +
+            "(:verified IS NULL OR u.isVerified = :verified) " +
+            "ORDER BY u.createdAt DESC")
+    Page<User> advancedSearchPublicUsers(@Param("query") String query,
+                                         @Param("location") String location,
+                                         @Param("userType") org.revature.revconnect.enums.UserType userType,
+                                         @Param("verified") Boolean verified,
+                                         Pageable pageable);
 }

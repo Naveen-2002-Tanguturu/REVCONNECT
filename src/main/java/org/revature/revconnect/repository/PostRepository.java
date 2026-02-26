@@ -24,6 +24,24 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     @Query("SELECT p FROM Post p WHERE LOWER(p.content) LIKE LOWER(CONCAT('%', :tag, '%')) ORDER BY p.createdAt DESC")
     Page<Post> findByContentContainingTag(@Param("tag") String tag, Pageable pageable);
 
+    Page<Post> findByContentContainingIgnoreCase(String query, Pageable pageable);
+
+    @Query("SELECT p FROM Post p WHERE p.user.privacy = 'PUBLIC' AND " +
+            "(:query IS NULL OR LOWER(p.content) LIKE LOWER(CONCAT('%', :query, '%'))) AND " +
+            "(:author IS NULL OR LOWER(p.user.username) LIKE LOWER(CONCAT('%', :author, '%'))) AND " +
+            "(:postType IS NULL OR p.postType = :postType) AND " +
+            "(:minLikes IS NULL OR p.likeCount >= :minLikes) AND " +
+            "(:dateFrom IS NULL OR p.createdAt >= :dateFrom) AND " +
+            "(:dateTo IS NULL OR p.createdAt <= :dateTo) " +
+            "ORDER BY p.createdAt DESC")
+    Page<Post> searchPosts(@Param("query") String query,
+                           @Param("author") String author,
+                           @Param("postType") org.revature.revconnect.enums.PostType postType,
+                           @Param("minLikes") Integer minLikes,
+                           @Param("dateFrom") java.time.LocalDateTime dateFrom,
+                           @Param("dateTo") java.time.LocalDateTime dateTo,
+                           Pageable pageable);
+
     List<Post> findByUserIdAndPinnedTrueOrderByCreatedAtDesc(Long userId);
 
     @Query("SELECT p FROM Post p WHERE p.user.id = :userId ORDER BY p.pinned DESC, p.createdAt DESC")
