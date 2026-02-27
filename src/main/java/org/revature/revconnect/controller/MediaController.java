@@ -1,6 +1,7 @@
 package org.revature.revconnect.controller;
 
 import org.revature.revconnect.dto.response.ApiResponse;
+import org.revature.revconnect.service.MediaService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -20,13 +21,16 @@ import java.util.Map;
 @Tag(name = "Media", description = "Media Upload and Management APIs")
 public class MediaController {
 
+    private final MediaService mediaService;
+
     @PostMapping("/upload")
     @Operation(summary = "Upload a single file")
     public ResponseEntity<ApiResponse<Map<String, String>>> uploadFile(
             @RequestParam("file") MultipartFile file) {
         log.info("Uploading file: {}", file.getOriginalFilename());
+        Map<String, String> uploaded = mediaService.uploadFile(file);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.success("File uploaded", Map.of("url", "/uploads/example.jpg")));
+                .body(ApiResponse.success("File uploaded", uploaded));
     }
 
     @PostMapping("/upload/multiple")
@@ -34,8 +38,9 @@ public class MediaController {
     public ResponseEntity<ApiResponse<List<Map<String, String>>>> uploadMultipleFiles(
             @RequestParam("files") List<MultipartFile> files) {
         log.info("Uploading {} files", files.size());
+        List<Map<String, String>> uploaded = mediaService.uploadMultipleFiles(files);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.success("Files uploaded", List.of()));
+                .body(ApiResponse.success("Files uploaded", uploaded));
     }
 
     @PostMapping("/upload/profile-picture")
@@ -43,7 +48,8 @@ public class MediaController {
     public ResponseEntity<ApiResponse<Map<String, String>>> uploadProfilePicture(
             @RequestParam("file") MultipartFile file) {
         log.info("Uploading profile picture");
-        return ResponseEntity.ok(ApiResponse.success("Profile picture updated", Map.of("url", "/uploads/profile.jpg")));
+        Map<String, String> uploaded = mediaService.uploadProfilePicture(file);
+        return ResponseEntity.ok(ApiResponse.success("Profile picture updated", uploaded));
     }
 
     @PostMapping("/upload/cover-photo")
@@ -51,13 +57,15 @@ public class MediaController {
     public ResponseEntity<ApiResponse<Map<String, String>>> uploadCoverPhoto(
             @RequestParam("file") MultipartFile file) {
         log.info("Uploading cover photo");
-        return ResponseEntity.ok(ApiResponse.success("Cover photo updated", Map.of("url", "/uploads/cover.jpg")));
+        Map<String, String> uploaded = mediaService.uploadCoverPhoto(file);
+        return ResponseEntity.ok(ApiResponse.success("Cover photo updated", uploaded));
     }
 
     @DeleteMapping("/{mediaId}")
     @Operation(summary = "Delete a media file")
     public ResponseEntity<ApiResponse<Void>> deleteMedia(@PathVariable Long mediaId) {
         log.info("Deleting media: {}", mediaId);
+        mediaService.deleteMedia(mediaId);
         return ResponseEntity.ok(ApiResponse.success("Media deleted", null));
     }
 
@@ -65,7 +73,7 @@ public class MediaController {
     @Operation(summary = "Get media details")
     public ResponseEntity<ApiResponse<Map<String, Object>>> getMedia(@PathVariable Long mediaId) {
         log.info("Getting media: {}", mediaId);
-        return ResponseEntity.ok(ApiResponse.success(Map.of("id", mediaId)));
+        return ResponseEntity.ok(ApiResponse.success(mediaService.getMedia(mediaId)));
     }
 
     @GetMapping("/my")
@@ -74,7 +82,7 @@ public class MediaController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
         log.info("Getting my media");
-        return ResponseEntity.ok(ApiResponse.success(List.of()));
+        return ResponseEntity.ok(ApiResponse.success(mediaService.getMyMedia(page, size)));
     }
 
     @PostMapping("/upload/video")
@@ -82,15 +90,16 @@ public class MediaController {
     public ResponseEntity<ApiResponse<Map<String, String>>> uploadVideo(
             @RequestParam("file") MultipartFile file) {
         log.info("Uploading video");
+        Map<String, String> uploaded = mediaService.uploadVideo(file);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.success("Video uploaded", Map.of("url", "/uploads/video.mp4")));
+                .body(ApiResponse.success("Video uploaded", uploaded));
     }
 
     @GetMapping("/{mediaId}/thumbnail")
     @Operation(summary = "Get media thumbnail")
     public ResponseEntity<ApiResponse<Map<String, String>>> getThumbnail(@PathVariable Long mediaId) {
         log.info("Getting thumbnail for media: {}", mediaId);
-        return ResponseEntity.ok(ApiResponse.success(Map.of("url", "/thumbnails/example.jpg")));
+        return ResponseEntity.ok(ApiResponse.success(mediaService.getThumbnail(mediaId)));
     }
 
     @PostMapping("/{mediaId}/process")
@@ -101,6 +110,7 @@ public class MediaController {
             @RequestParam(required = false) Integer height,
             @RequestParam(required = false) Integer quality) {
         log.info("Processing media: {}", mediaId);
-        return ResponseEntity.ok(ApiResponse.success("Media processed", Map.of()));
+        Map<String, String> processed = mediaService.processMedia(mediaId, width, height, quality);
+        return ResponseEntity.ok(ApiResponse.success("Media processed", processed));
     }
 }

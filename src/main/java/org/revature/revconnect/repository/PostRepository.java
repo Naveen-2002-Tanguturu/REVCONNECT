@@ -9,11 +9,14 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface PostRepository extends JpaRepository<Post, Long> {
 
     Page<Post> findByUserIdOrderByCreatedAtDesc(Long userId, Pageable pageable);
+
+    List<Post> findByUserId(Long userId);
 
     @Query("SELECT p FROM Post p WHERE p.user.privacy = 'PUBLIC' ORDER BY p.createdAt DESC")
     Page<Post> findPublicPosts(Pageable pageable);
@@ -46,4 +49,18 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     @Query("SELECT p FROM Post p WHERE p.user.id = :userId ORDER BY p.pinned DESC, p.createdAt DESC")
     Page<Post> findByUserIdWithPinnedFirst(@Param("userId") Long userId, Pageable pageable);
+
+    @Query("SELECT COALESCE(SUM(p.likeCount), 0) FROM Post p WHERE p.user.id = :userId")
+    Long getTotalLikesByUserId(@Param("userId") Long userId);
+
+    @Query("SELECT COALESCE(SUM(p.commentCount), 0) FROM Post p WHERE p.user.id = :userId")
+    Long getTotalCommentsByUserId(@Param("userId") Long userId);
+
+    @Query("SELECT COALESCE(SUM(p.shareCount), 0) FROM Post p WHERE p.user.id = :userId")
+    Long getTotalSharesByUserId(@Param("userId") Long userId);
+
+    @Query("SELECT p FROM Post p WHERE p.user.id = :userId ORDER BY (p.likeCount + p.commentCount + p.shareCount) DESC, p.createdAt DESC")
+    Page<Post> findTopPostsByUserId(@Param("userId") Long userId, Pageable pageable);
+
+    Optional<Post> findByIdAndUserId(Long postId, Long userId);
 }

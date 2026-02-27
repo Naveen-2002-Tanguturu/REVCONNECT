@@ -44,4 +44,7 @@ public interface ConnectionRepository extends JpaRepository<Connection, Long> {
 
     @Query("SELECT c.following.id FROM Connection c WHERE c.follower.id = :userId AND c.status = 'ACCEPTED'")
     List<Long> findFollowingUserIds(@Param("userId") Long userId);
+
+    @Query("SELECT c.follower.id FROM Connection c WHERE c.following.id = :userId AND c.status = 'ACCEPTED'")
+    List<Long> findFollowerUserIds(@Param("userId") Long userId);
 }
