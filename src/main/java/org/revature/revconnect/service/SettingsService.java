@@ -14,7 +14,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.Map;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -126,6 +130,40 @@ public class SettingsService {
         log.info("Delete account requested for user {}", currentUser.getUsername());
     }
 
+    @Transactional(readOnly = true)
+    public List<String> getExternalLinks() {
+        User currentUser = authService.getCurrentUser();
+        return parseExternalLinks(currentUser.getExternalLinks());
+    }
+
+    @Transactional
+    public List<String> addExternalLink(String url) {
+        String normalized = normalizeUrl(url);
+        if (normalized == null) {
+            throw new BadRequestException("Invalid URL");
+        }
+        User currentUser = authService.getCurrentUser();
+        Set<String> links = new LinkedHashSet<>(parseExternalLinks(currentUser.getExternalLinks()));
+        links.add(normalized);
+        currentUser.setExternalLinks(String.join(",", links));
+        userRepository.save(currentUser);
+        return new ArrayList<>(links);
+    }
+
+    @Transactional
+    public List<String> removeExternalLink(String url) {
+        String normalized = normalizeUrl(url);
+        if (normalized == null) {
+            throw new BadRequestException("Invalid URL");
+        }
+        User currentUser = authService.getCurrentUser();
+        Set<String> links = new LinkedHashSet<>(parseExternalLinks(currentUser.getExternalLinks()));
+        links.remove(normalized);
+        currentUser.setExternalLinks(String.join(",", links));
+        userRepository.save(currentUser);
+        return new ArrayList<>(links);
+    }
+
     private void applyPrivacySetting(User currentUser, Map<String, Object> settingsMap) {
         if (settingsMap == null) {
             return;
@@ -206,5 +244,38 @@ public class SettingsService {
         map.put("notifyShare", settings.getNotifyShare());
         map.put("emailNotifications", settings.getEmailNotifications());
         return map;
+    }
+
+    private List<String> parseExternalLinks(String raw) {
+        if (raw == null || raw.isBlank()) {
+            return List.of();
+        }
+        String cleaned = raw.trim();
+        if (cleaned.startsWith("[") && cleaned.endsWith("]")) {
+            cleaned = cleaned.substring(1, cleaned.length() - 1).replace("\"", "");
+        }
+        String[] parts = cleaned.split("[,\\n]");
+        List<String> links = new ArrayList<>();
+        for (String part : parts) {
+            String v = part.trim();
+            if (!v.isBlank()) {
+                links.add(v);
+            }
+        }
+        return links;
+    }
+
+    private String normalizeUrl(String url) {
+        if (url == null) {
+            return null;
+        }
+        String normalized = url.trim();
+        if (normalized.isBlank()) {
+            return null;
+        }
+        if (!(normalized.startsWith("http://") || normalized.startsWith("https://"))) {
+            normalized = "https://" + normalized;
+        }
+        return normalized;
     }
 }

@@ -58,6 +58,7 @@ public class HashtagController {
     @Operation(summary = "Follow a hashtag")
     public ResponseEntity<ApiResponse<Void>> followHashtag(@PathVariable String hashtag) {
         log.info("Following hashtag: {}", hashtag);
+        hashtagService.followHashtag(hashtag);
         return ResponseEntity.ok(ApiResponse.success("Hashtag followed", null));
     }
 
@@ -65,6 +66,7 @@ public class HashtagController {
     @Operation(summary = "Unfollow a hashtag")
     public ResponseEntity<ApiResponse<Void>> unfollowHashtag(@PathVariable String hashtag) {
         log.info("Unfollowing hashtag: {}", hashtag);
+        hashtagService.unfollowHashtag(hashtag);
         return ResponseEntity.ok(ApiResponse.success("Hashtag unfollowed", null));
     }
 

@@ -6,7 +6,6 @@ import org.revature.revconnect.exception.ResourceNotFoundException;
 import org.revature.revconnect.mapper.PostMapper;
 import org.revature.revconnect.model.Hashtag;
 import org.revature.revconnect.model.Post;
-import org.revature.revconnect.model.User;
 import org.revature.revconnect.repository.HashtagRepository;
 import org.revature.revconnect.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +19,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Map;
 import java.util.HashMap;
-import java.util.Comparator;
+import java.util.LinkedHashSet;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 @RequiredArgsConstructor
@@ -31,6 +32,7 @@ public class HashtagService {
     private final PostRepository postRepository;
     private final PostMapper postMapper;
     private final AuthService authService;
+    private static final Map<Long, Set<String>> FOLLOWED_HASHTAGS = new ConcurrentHashMap<>();
 
     @Transactional
     public void createOrIncrement(String name) {
@@ -75,37 +77,38 @@ public class HashtagService {
     }
 
     public List<Hashtag> getSuggestedHashtags(int limit) {
-        return getTrending(limit);
+        Long userId = authService.getCurrentUser().getId();
+        Set<String> followed = FOLLOWED_HASHTAGS.getOrDefault(userId, Set.of());
+        return getTrending(limit * 2).stream()
+                .filter(tag -> !followed.contains(tag.getName()))
+                .limit(limit)
+                .toList();
     }
 
     public List<Map<String, Object>> getFollowedHashtagsView() {
-        User currentUser = authService.getCurrentUser();
-        List<Post> posts = postRepository.findByUserId(currentUser.getId());
-        Map<String, Integer> counts = new HashMap<>();
-
-        for (Post post : posts) {
-            if (post.getContent() == null) {
-                continue;
-            }
-            String[] words = post.getContent().split("\\s+");
-            for (String word : words) {
-                if (word.startsWith("#") && word.length() > 1) {
-                    String normalized = normalizeHashtag(word);
-                    counts.put(normalized, counts.getOrDefault(normalized, 0) + 1);
-                }
-            }
-        }
-
-        return counts.entrySet().stream()
-                .sorted(Map.Entry.<String, Integer>comparingByValue(Comparator.reverseOrder()))
-                .limit(20)
-                .map(entry -> {
-                    Map<String, Object> map = new HashMap<>();
-                    map.put("tag", entry.getKey());
-                    map.put("usageCount", entry.getValue());
-                    return map;
-                })
+        Long userId = authService.getCurrentUser().getId();
+        Set<String> followed = FOLLOWED_HASHTAGS.getOrDefault(userId, Set.of());
+        return followed.stream()
+                .map(this::toHashtagSummary)
                 .toList();
+    }
+
+    @Transactional
+    public void followHashtag(String hashtag) {
+        String normalized = normalizeHashtag(hashtag);
+        createOrIncrement(normalized);
+        Long userId = authService.getCurrentUser().getId();
+        FOLLOWED_HASHTAGS.computeIfAbsent(userId, ignored -> new LinkedHashSet<>()).add(normalized);
+    }
+
+    @Transactional
+    public void unfollowHashtag(String hashtag) {
+        String normalized = normalizeHashtag(hashtag);
+        Long userId = authService.getCurrentUser().getId();
+        Set<String> followed = FOLLOWED_HASHTAGS.get(userId);
+        if (followed != null) {
+            followed.remove(normalized);
+        }
     }
 
     private String normalizeHashtag(String name) {
@@ -129,5 +132,14 @@ public class HashtagService {
                 createOrIncrement(word);
             }
         }
+    }
+
+    private Map<String, Object> toHashtagSummary(String hashtagName) {
+        Hashtag hashtag = hashtagRepository.findByName(hashtagName).orElse(null);
+        Map<String, Object> map = new HashMap<>();
+        map.put("tag", hashtagName);
+        map.put("usageCount", hashtag != null ? hashtag.getUsageCount() : 0L);
+        map.put("lastUsed", hashtag != null ? hashtag.getLastUsed() : null);
+        return map;
     }
 }

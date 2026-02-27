@@ -110,6 +110,7 @@ public class StoryController {
             @PathVariable Long storyId,
             @RequestParam String reaction) {
         log.info("Reacting to story {} with {}", storyId, reaction);
+        storyService.reactToStory(storyId, reaction);
         return ResponseEntity.ok(ApiResponse.success("Reaction added", null));
     }
 
@@ -119,6 +120,7 @@ public class StoryController {
             @PathVariable Long storyId,
             @RequestParam String message) {
         log.info("Replying to story {}", storyId);
+        storyService.replyToStory(storyId, message);
         return ResponseEntity.ok(ApiResponse.success("Reply sent", null));
     }
 

@@ -35,6 +35,9 @@ public interface ConnectionRepository extends JpaRepository<Connection, Long> {
     @Query("SELECT c FROM Connection c WHERE c.following.id = :userId AND c.status = 'PENDING'")
     Page<Connection> findPendingRequestsByUserId(@Param("userId") Long userId, Pageable pageable);
 
+    @Query("SELECT c FROM Connection c WHERE c.follower.id = :userId AND c.status = 'PENDING'")
+    Page<Connection> findSentPendingRequestsByUserId(@Param("userId") Long userId, Pageable pageable);
+
 
     long countByFollowingIdAndStatus(Long userId, ConnectionStatus status);
 
@@ -47,4 +50,8 @@ public interface ConnectionRepository extends JpaRepository<Connection, Long> {
 
     @Query("SELECT c.follower.id FROM Connection c WHERE c.following.id = :userId AND c.status = 'ACCEPTED'")
     List<Long> findFollowerUserIds(@Param("userId") Long userId);
+
+    @Query("SELECT c FROM Connection c WHERE ((c.follower.id = :userId AND c.following.id = :otherUserId) OR " +
+            "(c.follower.id = :otherUserId AND c.following.id = :userId))")
+    List<Connection> findBetweenUsers(@Param("userId") Long userId, @Param("otherUserId") Long otherUserId);
 }

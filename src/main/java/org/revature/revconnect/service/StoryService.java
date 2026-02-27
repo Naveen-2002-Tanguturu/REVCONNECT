@@ -15,6 +15,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Set;
+import java.util.LinkedHashSet;
+import java.util.ArrayList;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +29,9 @@ public class StoryService {
     private final AuthService authService;
     private final ConnectionRepository connectionRepository;
     private final UserRepository userRepository;
+    private static final Map<Long, Set<Long>> STORY_VIEWERS = new ConcurrentHashMap<>();
+    private static final Map<Long, Map<Long, String>> STORY_REACTIONS = new ConcurrentHashMap<>();
+    private static final Map<Long, List<Map<String, Object>>> STORY_REPLIES = new ConcurrentHashMap<>();
 
     @Transactional
     public Story createStory(String mediaUrl, String caption) {
@@ -89,9 +96,12 @@ public class StoryService {
     @Transactional
     public void incrementViewCount(Long storyId) {
         Story story = getStory(storyId);
-
-        story.setViewCount(story.getViewCount() + 1);
-        storyRepository.save(story);
+        User viewer = authService.getCurrentUser();
+        Set<Long> viewers = STORY_VIEWERS.computeIfAbsent(storyId, ignored -> new LinkedHashSet<>());
+        if (viewers.add(viewer.getId())) {
+            story.setViewCount(story.getViewCount() + 1);
+            storyRepository.save(story);
+        }
     }
 
     public List<Story> getArchivedStories(User user) {
@@ -101,12 +111,42 @@ public class StoryService {
 
     public List<Map<String, Object>> getStoryViewers(Long storyId) {
         Story story = getStory(storyId);
-        Map<String, Object> summary = new HashMap<>();
-        summary.put("storyId", story.getId());
-        summary.put("ownerId", story.getUser().getId());
-        summary.put("viewerCount", story.getViewCount());
-        summary.put("viewerDetailsAvailable", false);
-        return List.of(summary);
+        Set<Long> viewerIds = STORY_VIEWERS.getOrDefault(storyId, Set.of());
+        if (viewerIds.isEmpty()) {
+            Map<String, Object> summary = new HashMap<>();
+            summary.put("storyId", story.getId());
+            summary.put("ownerId", story.getUser().getId());
+            summary.put("viewerCount", story.getViewCount());
+            return List.of(summary);
+        }
+        return userRepository.findAllById(viewerIds).stream().map(user -> {
+            Map<String, Object> map = new HashMap<>();
+            map.put("userId", user.getId());
+            map.put("username", user.getUsername());
+            map.put("name", user.getName());
+            map.put("profilePicture", user.getProfilePicture());
+            return map;
+        }).toList();
+    }
+
+    @Transactional
+    public void reactToStory(Long storyId, String reaction) {
+        getStory(storyId);
+        User currentUser = authService.getCurrentUser();
+        STORY_REACTIONS.computeIfAbsent(storyId, ignored -> new ConcurrentHashMap<>())
+                .put(currentUser.getId(), reaction);
+    }
+
+    @Transactional
+    public void replyToStory(Long storyId, String message) {
+        getStory(storyId);
+        User currentUser = authService.getCurrentUser();
+        Map<String, Object> reply = new HashMap<>();
+        reply.put("userId", currentUser.getId());
+        reply.put("username", currentUser.getUsername());
+        reply.put("message", message);
+        reply.put("createdAt", LocalDateTime.now());
+        STORY_REPLIES.computeIfAbsent(storyId, ignored -> new ArrayList<>()).add(reply);
     }
 
     @Transactional

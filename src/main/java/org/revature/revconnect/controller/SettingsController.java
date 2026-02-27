@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/settings")
@@ -184,5 +185,25 @@ public class SettingsController {
     public ResponseEntity<ApiResponse<Void>> requestDataExport() {
         log.info("Requesting data export");
         return ResponseEntity.ok(ApiResponse.success("Data export requested", null));
+    }
+
+    @GetMapping("/account/external-links")
+    @Operation(summary = "Get external links")
+    public ResponseEntity<ApiResponse<List<String>>> getExternalLinks() {
+        return ResponseEntity.ok(ApiResponse.success(settingsService.getExternalLinks()));
+    }
+
+    @PostMapping("/account/external-links")
+    @Operation(summary = "Add external link")
+    public ResponseEntity<ApiResponse<List<String>>> addExternalLink(@RequestParam String url) {
+        List<String> links = settingsService.addExternalLink(url);
+        return ResponseEntity.ok(ApiResponse.success("External link added", links));
+    }
+
+    @DeleteMapping("/account/external-links")
+    @Operation(summary = "Remove external link")
+    public ResponseEntity<ApiResponse<List<String>>> removeExternalLink(@RequestParam String url) {
+        List<String> links = settingsService.removeExternalLink(url);
+        return ResponseEntity.ok(ApiResponse.success("External link removed", links));
     }
 }

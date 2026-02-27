@@ -21,8 +21,21 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     @Query("SELECT p FROM Post p WHERE p.user.privacy = 'PUBLIC' ORDER BY p.createdAt DESC")
     Page<Post> findPublicPosts(Pageable pageable);
 
+    @Query("SELECT p FROM Post p WHERE p.user.privacy = 'PUBLIC' " +
+            "ORDER BY (p.likeCount + p.commentCount + p.shareCount) DESC, p.createdAt DESC")
+    Page<Post> findTrendingPublicPosts(Pageable pageable);
+
     @Query("SELECT p FROM Post p WHERE p.user.id IN :userIds ORDER BY p.createdAt DESC")
     Page<Post> findByUserIdIn(@Param("userIds") List<Long> userIds, Pageable pageable);
+
+    @Query("SELECT p FROM Post p WHERE p.user.id IN :userIds AND " +
+            "(:postType IS NULL OR p.postType = :postType) AND " +
+            "(:userType IS NULL OR p.user.userType = :userType) " +
+            "ORDER BY p.createdAt DESC")
+    Page<Post> findPersonalizedFeed(@Param("userIds") List<Long> userIds,
+                                    @Param("postType") org.revature.revconnect.enums.PostType postType,
+                                    @Param("userType") org.revature.revconnect.enums.UserType userType,
+                                    Pageable pageable);
 
     @Query("SELECT p FROM Post p WHERE LOWER(p.content) LIKE LOWER(CONCAT('%', :tag, '%')) ORDER BY p.createdAt DESC")
     Page<Post> findByContentContainingTag(@Param("tag") String tag, Pageable pageable);

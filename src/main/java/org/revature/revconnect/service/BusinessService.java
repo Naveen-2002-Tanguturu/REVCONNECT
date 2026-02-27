@@ -24,7 +24,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -38,6 +41,7 @@ public class BusinessService {
     private final ConnectionRepository connectionRepository;
     private final AuthService authService;
     private final BusinessProfileMapper businessProfileMapper;
+    private static final String SHOWCASE_MARKER = "\n[[SHOWCASE]]\n";
 
     @Transactional
     public BusinessProfileResponse createBusinessProfile(BusinessProfileRequest request) {
@@ -224,5 +228,108 @@ public class BusinessService {
             updater.accept(analytics);
             postAnalyticsRepository.save(analytics);
         }
+    }
+
+    public List<Map<String, Object>> getShowcase() {
+        User currentUser = authService.getCurrentUser();
+        BusinessProfile profile = businessProfileRepository.findByUserId(currentUser.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("BusinessProfile", "userId", currentUser.getId()));
+        return parseShowcase(profile.getDescription());
+    }
+
+    @Transactional
+    public List<Map<String, Object>> addShowcaseItem(Map<String, String> item) {
+        User currentUser = authService.getCurrentUser();
+        BusinessProfile profile = businessProfileRepository.findByUserId(currentUser.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("BusinessProfile", "userId", currentUser.getId()));
+        List<Map<String, Object>> items = parseShowcase(profile.getDescription());
+        Map<String, Object> normalized = normalizeShowcaseItem(item);
+        items.add(normalized);
+        profile.setDescription(mergeDescriptionWithShowcase(profile.getDescription(), items));
+        businessProfileRepository.save(profile);
+        return items;
+    }
+
+    @Transactional
+    public List<Map<String, Object>> updateShowcaseItem(int index, Map<String, String> item) {
+        User currentUser = authService.getCurrentUser();
+        BusinessProfile profile = businessProfileRepository.findByUserId(currentUser.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("BusinessProfile", "userId", currentUser.getId()));
+        List<Map<String, Object>> items = parseShowcase(profile.getDescription());
+        if (index < 0 || index >= items.size()) {
+            throw new BadRequestException("Invalid showcase index");
+        }
+        items.set(index, normalizeShowcaseItem(item));
+        profile.setDescription(mergeDescriptionWithShowcase(profile.getDescription(), items));
+        businessProfileRepository.save(profile);
+        return items;
+    }
+
+    @Transactional
+    public List<Map<String, Object>> removeShowcaseItem(int index) {
+        User currentUser = authService.getCurrentUser();
+        BusinessProfile profile = businessProfileRepository.findByUserId(currentUser.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("BusinessProfile", "userId", currentUser.getId()));
+        List<Map<String, Object>> items = parseShowcase(profile.getDescription());
+        if (index < 0 || index >= items.size()) {
+            throw new BadRequestException("Invalid showcase index");
+        }
+        items.remove(index);
+        profile.setDescription(mergeDescriptionWithShowcase(profile.getDescription(), items));
+        businessProfileRepository.save(profile);
+        return items;
+    }
+
+    private List<Map<String, Object>> parseShowcase(String description) {
+        if (description == null || !description.contains(SHOWCASE_MARKER)) {
+            return new ArrayList<>();
+        }
+        String showcaseRaw = description.substring(description.indexOf(SHOWCASE_MARKER) + SHOWCASE_MARKER.length());
+        if (showcaseRaw.isBlank()) {
+            return new ArrayList<>();
+        }
+        List<Map<String, Object>> items = new ArrayList<>();
+        String[] lines = showcaseRaw.split("\\n");
+        for (String line : lines) {
+            String trimmed = line.trim();
+            if (trimmed.isBlank()) {
+                continue;
+            }
+            String[] parts = trimmed.split("\\|", -1);
+            if (parts.length >= 4) {
+                Map<String, Object> item = new HashMap<>();
+                item.put("name", parts[0]);
+                item.put("type", parts[1]);
+                item.put("price", parts[2]);
+                item.put("link", parts[3]);
+                items.add(item);
+            }
+        }
+        return items;
+    }
+
+    private Map<String, Object> normalizeShowcaseItem(Map<String, String> item) {
+        Map<String, Object> normalized = new HashMap<>();
+        normalized.put("name", item.getOrDefault("name", "").trim());
+        normalized.put("type", item.getOrDefault("type", "").trim());
+        normalized.put("price", item.getOrDefault("price", "").trim());
+        normalized.put("link", item.getOrDefault("link", "").trim());
+        return normalized;
+    }
+
+    private String mergeDescriptionWithShowcase(String originalDescription, List<Map<String, Object>> items) {
+        String bio = originalDescription == null ? "" : originalDescription;
+        if (bio.contains(SHOWCASE_MARKER)) {
+            bio = bio.substring(0, bio.indexOf(SHOWCASE_MARKER));
+        }
+        StringBuilder sb = new StringBuilder(bio.trim());
+        sb.append(SHOWCASE_MARKER);
+        for (Map<String, Object> item : items) {
+            sb.append(item.getOrDefault("name", "")).append("|")
+                    .append(item.getOrDefault("type", "")).append("|")
+                    .append(item.getOrDefault("price", "")).append("|")
+                    .append(item.getOrDefault("link", "")).append("\n");
+        }
+        return sb.toString().trim();
     }
 }
