@@ -4,6 +4,7 @@ import org.revature.revconnect.dto.response.ConnectionResponse;
 import org.revature.revconnect.dto.response.ConnectionStatsResponse;
 import org.revature.revconnect.dto.response.PagedResponse;
 import org.revature.revconnect.enums.ConnectionStatus;
+import org.revature.revconnect.enums.UserType;
 import org.revature.revconnect.exception.BadRequestException;
 import org.revature.revconnect.exception.ResourceNotFoundException;
 import org.revature.revconnect.mapper.ConnectionMapper;
@@ -17,6 +18,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -50,14 +53,19 @@ public class ConnectionService {
         Connection connection = Connection.builder()
                 .follower(currentUser)
                 .following(targetUser)
-                .status(ConnectionStatus.ACCEPTED) // Auto-accept for now
+                .status(targetUser.getUserType() == UserType.PERSONAL ? ConnectionStatus.PENDING : ConnectionStatus.ACCEPTED)
                 .build();
 
         connectionRepository.save(connection);
 
-        notificationService.notifyFollow(targetUser, currentUser);
+        if (connection.getStatus() == ConnectionStatus.PENDING) {
+            notificationService.notifyConnectionRequest(targetUser, currentUser);
+        } else {
+            notificationService.notifyFollow(targetUser, currentUser);
+        }
 
-        log.info("User {} now follows user {}", currentUser.getUsername(), targetUser.getUsername());
+        log.info("User {} created {} relationship with user {}",
+                currentUser.getUsername(), connection.getStatus(), targetUser.getUsername());
     }
 
     @Transactional
@@ -109,6 +117,13 @@ public class ConnectionService {
 
         log.info("Found {} pending requests", pending.getTotalElements());
         return PagedResponse.fromEntityPage(pending, connectionMapper::fromFollower);
+    }
+
+    public PagedResponse<ConnectionResponse> getSentPendingRequests(int page, int size) {
+        User currentUser = authService.getCurrentUser();
+        Page<Connection> pending = connectionRepository.findSentPendingRequestsByUserId(
+                currentUser.getId(), PageRequest.of(page, size));
+        return PagedResponse.fromEntityPage(pending, connectionMapper::fromFollowing);
     }
 
     @Transactional
@@ -182,5 +197,15 @@ public class ConnectionService {
         User currentUser = authService.getCurrentUser();
         return connectionRepository.existsByFollowerIdAndFollowingIdAndStatus(
                 currentUser.getId(), userId, ConnectionStatus.ACCEPTED);
+    }
+
+    @Transactional
+    public void removeConnection(Long userId) {
+        User currentUser = authService.getCurrentUser();
+        List<Connection> connections = connectionRepository.findBetweenUsers(currentUser.getId(), userId);
+        if (connections.isEmpty()) {
+            throw new BadRequestException("No connection found with this user");
+        }
+        connectionRepository.deleteAll(connections);
     }
 }

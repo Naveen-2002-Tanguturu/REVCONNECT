@@ -1,6 +1,7 @@
 package org.revature.revconnect.service;
 
 import org.revature.revconnect.exception.ResourceNotFoundException;
+import org.revature.revconnect.exception.UnauthorizedException;
 import org.revature.revconnect.model.Message;
 import org.revature.revconnect.model.User;
 import org.revature.revconnect.repository.MessageRepository;
@@ -91,6 +92,25 @@ public class MessageService {
         return messageRepository.countByReceiverAndIsReadFalse(currentUser);
     }
 
+    public Page<Message> searchMessages(String query, Pageable pageable) {
+        User currentUser = authService.getCurrentUser();
+        return messageRepository.searchMessages(currentUser, query, pageable);
+    }
+
+    @Transactional
+    public Message editMessage(Long messageId, String content) {
+        Message message = messageRepository.findById(messageId)
+                .orElseThrow(() -> new ResourceNotFoundException("Message", "id", messageId));
+
+        User currentUser = authService.getCurrentUser();
+        if (!message.getSender().getId().equals(currentUser.getId())) {
+            throw new UnauthorizedException("You can only edit your own messages");
+        }
+
+        message.setContent(content);
+        return messageRepository.save(message);
+    }
+
     @Transactional
     public void deleteMessage(Long messageId) {
         Message message = messageRepository.findById(messageId)
@@ -102,5 +122,19 @@ public class MessageService {
             messageRepository.save(message);
             log.info("Message {} soft deleted", messageId);
         }
+    }
+
+    @Transactional
+    public void deleteConversationWithUser(Long otherUserId) {
+        User currentUser = authService.getCurrentUser();
+        User otherUser = userRepository.findById(otherUserId)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", otherUserId));
+
+        Page<Message> conversation = messageRepository.findConversation(currentUser, otherUser, Pageable.unpaged());
+        conversation.getContent().stream()
+                .filter(message -> message.getSender().getId().equals(currentUser.getId()))
+                .forEach(message -> message.setDeleted(true));
+        messageRepository.saveAll(conversation.getContent());
+        log.info("Conversation messages soft deleted for user {}", currentUser.getUsername());
     }
 }

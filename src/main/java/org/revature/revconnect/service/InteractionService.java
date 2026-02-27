@@ -27,6 +27,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.revature.revconnect.enums.UserType;
 
 @Service
 @RequiredArgsConstructor
@@ -165,6 +166,36 @@ public class InteractionService {
         postRepository.save(post);
 
         log.info("Comment {} deleted successfully by user {}", commentId, currentUser.getUsername());
+    }
+
+    @Transactional
+    public CommentResponse replyToComment(Long postId, Long commentId, String message) {
+        User currentUser = authService.getCurrentUser();
+        if (currentUser.getUserType() == UserType.PERSONAL) {
+            throw new UnauthorizedException("Only creator/business accounts can use this reply endpoint");
+        }
+        Comment parent = commentRepository.findById(commentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Comment", "id", commentId));
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new ResourceNotFoundException("Post", "id", postId));
+        if (!parent.getPost().getId().equals(post.getId())) {
+            throw new BadRequestException("Comment does not belong to this post");
+        }
+        if (!post.getUser().getId().equals(currentUser.getId())) {
+            throw new UnauthorizedException("You can only reply to comments on your own posts");
+        }
+
+        String prefixed = "Reply to #" + parent.getId() + ": " + message;
+        Comment reply = Comment.builder()
+                .content(prefixed)
+                .user(currentUser)
+                .post(post)
+                .build();
+
+        Comment saved = commentRepository.save(reply);
+        post.setCommentCount(post.getCommentCount() + 1);
+        postRepository.save(post);
+        return commentMapper.toResponse(saved);
     }
 
     @Transactional
