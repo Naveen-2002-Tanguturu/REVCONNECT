@@ -101,7 +101,7 @@ public class StoryController {
     @Operation(summary = "Get story viewers")
     public ResponseEntity<ApiResponse<List<Map<String, Object>>>> getStoryViewers(@PathVariable Long storyId) {
         log.info("Getting viewers for story: {}", storyId);
-        return ResponseEntity.ok(ApiResponse.success(List.of()));
+        return ResponseEntity.ok(ApiResponse.success(storyService.getStoryViewers(storyId)));
     }
 
     @PostMapping("/{storyId}/react")

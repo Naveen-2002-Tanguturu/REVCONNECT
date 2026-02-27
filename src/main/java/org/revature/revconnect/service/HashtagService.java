@@ -6,6 +6,7 @@ import org.revature.revconnect.exception.ResourceNotFoundException;
 import org.revature.revconnect.mapper.PostMapper;
 import org.revature.revconnect.model.Hashtag;
 import org.revature.revconnect.model.Post;
+import org.revature.revconnect.model.User;
 import org.revature.revconnect.repository.HashtagRepository;
 import org.revature.revconnect.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +18,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Comparator;
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +30,7 @@ public class HashtagService {
     private final HashtagRepository hashtagRepository;
     private final PostRepository postRepository;
     private final PostMapper postMapper;
+    private final AuthService authService;
 
     @Transactional
     public void createOrIncrement(String name) {
@@ -67,6 +72,40 @@ public class HashtagService {
     public List<Hashtag> search(String query) {
         log.info("Searching hashtags with query: {}", query);
         return hashtagRepository.findByNameContainingIgnoreCase(query);
+    }
+
+    public List<Hashtag> getSuggestedHashtags(int limit) {
+        return getTrending(limit);
+    }
+
+    public List<Map<String, Object>> getFollowedHashtagsView() {
+        User currentUser = authService.getCurrentUser();
+        List<Post> posts = postRepository.findByUserId(currentUser.getId());
+        Map<String, Integer> counts = new HashMap<>();
+
+        for (Post post : posts) {
+            if (post.getContent() == null) {
+                continue;
+            }
+            String[] words = post.getContent().split("\\s+");
+            for (String word : words) {
+                if (word.startsWith("#") && word.length() > 1) {
+                    String normalized = normalizeHashtag(word);
+                    counts.put(normalized, counts.getOrDefault(normalized, 0) + 1);
+                }
+            }
+        }
+
+        return counts.entrySet().stream()
+                .sorted(Map.Entry.<String, Integer>comparingByValue(Comparator.reverseOrder()))
+                .limit(20)
+                .map(entry -> {
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("tag", entry.getKey());
+                    map.put("usageCount", entry.getValue());
+                    return map;
+                })
+                .toList();
     }
 
     private String normalizeHashtag(String name) {

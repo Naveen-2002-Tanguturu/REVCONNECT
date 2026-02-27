@@ -13,6 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
 @Service
 @RequiredArgsConstructor
@@ -95,6 +97,16 @@ public class StoryService {
     public List<Story> getArchivedStories(User user) {
         log.info("Fetching archived stories for user: {}", user.getUsername());
         return storyRepository.findByUserAndExpiresAtBeforeOrderByCreatedAtDesc(user, LocalDateTime.now());
+    }
+
+    public List<Map<String, Object>> getStoryViewers(Long storyId) {
+        Story story = getStory(storyId);
+        Map<String, Object> summary = new HashMap<>();
+        summary.put("storyId", story.getId());
+        summary.put("ownerId", story.getUser().getId());
+        summary.put("viewerCount", story.getViewCount());
+        summary.put("viewerDetailsAvailable", false);
+        return List.of(summary);
     }
 
     @Transactional

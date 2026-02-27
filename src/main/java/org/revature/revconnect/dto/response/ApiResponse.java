@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Map;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -16,18 +18,30 @@ public class ApiResponse<T> {
     private T data;
 
     public static <T> ApiResponse<T> success(String message, T data) {
+        T safeData = data;
+        if (safeData == null) {
+            @SuppressWarnings("unchecked")
+            T emptyObject = (T) Map.of();
+            safeData = emptyObject;
+        }
         return ApiResponse.<T>builder()
                 .success(true)
                 .message(message)
-                .data(data)
+                .data(safeData)
                 .build();
     }
 
     public static <T> ApiResponse<T> success(T data) {
+        T safeData = data;
+        if (safeData == null) {
+            @SuppressWarnings("unchecked")
+            T emptyObject = (T) Map.of();
+            safeData = emptyObject;
+        }
         return ApiResponse.<T>builder()
                 .success(true)
                 .message("Success")
-                .data(data)
+                .data(safeData)
                 .build();
     }
 

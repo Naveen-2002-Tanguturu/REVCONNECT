@@ -72,14 +72,17 @@ public class HashtagController {
     @Operation(summary = "Get followed hashtags")
     public ResponseEntity<ApiResponse<List<Map<String, Object>>>> getFollowedHashtags() {
         log.info("Getting followed hashtags");
-        return ResponseEntity.ok(ApiResponse.success(List.of()));
+        return ResponseEntity.ok(ApiResponse.success(hashtagService.getFollowedHashtagsView()));
     }
 
     @GetMapping("/suggested")
     @Operation(summary = "Get suggested hashtags")
     public ResponseEntity<ApiResponse<List<Map<String, Object>>>> getSuggestedHashtags() {
         log.info("Getting suggested hashtags");
-        return ResponseEntity.ok(ApiResponse.success(List.of()));
+        List<Map<String, Object>> tags = hashtagService.getSuggestedHashtags(10).stream()
+                .map(this::toHashtagMap)
+                .toList();
+        return ResponseEntity.ok(ApiResponse.success(tags));
     }
 
     @GetMapping("/search")
