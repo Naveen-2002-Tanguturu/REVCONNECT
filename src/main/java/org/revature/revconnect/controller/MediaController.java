@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,7 +24,7 @@ public class MediaController {
 
     private final MediaService mediaService;
 
-    @PostMapping("/upload")
+    @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "Upload a single file")
     public ResponseEntity<ApiResponse<Map<String, String>>> uploadFile(
             @RequestParam("file") MultipartFile file) {
@@ -33,7 +34,7 @@ public class MediaController {
                 .body(ApiResponse.success("File uploaded", uploaded));
     }
 
-    @PostMapping("/upload/multiple")
+    @PostMapping(value = "/upload/multiple", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "Upload multiple files")
     public ResponseEntity<ApiResponse<List<Map<String, String>>>> uploadMultipleFiles(
             @RequestParam("files") List<MultipartFile> files) {
@@ -43,7 +44,7 @@ public class MediaController {
                 .body(ApiResponse.success("Files uploaded", uploaded));
     }
 
-    @PostMapping("/upload/profile-picture")
+    @PostMapping(value = "/upload/profile-picture", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "Upload profile picture")
     public ResponseEntity<ApiResponse<Map<String, String>>> uploadProfilePicture(
             @RequestParam("file") MultipartFile file) {
@@ -52,7 +53,7 @@ public class MediaController {
         return ResponseEntity.ok(ApiResponse.success("Profile picture updated", uploaded));
     }
 
-    @PostMapping("/upload/cover-photo")
+    @PostMapping(value = "/upload/cover-photo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "Upload cover photo")
     public ResponseEntity<ApiResponse<Map<String, String>>> uploadCoverPhoto(
             @RequestParam("file") MultipartFile file) {
@@ -85,7 +86,7 @@ public class MediaController {
         return ResponseEntity.ok(ApiResponse.success(mediaService.getMyMedia(page, size)));
     }
 
-    @PostMapping("/upload/video")
+    @PostMapping(value = "/upload/video", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "Upload video")
     public ResponseEntity<ApiResponse<Map<String, String>>> uploadVideo(
             @RequestParam("file") MultipartFile file) {
