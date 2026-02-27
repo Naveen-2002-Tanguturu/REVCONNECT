@@ -4,6 +4,7 @@ import org.revature.revconnect.dto.response.ApiResponse;
 import org.revature.revconnect.dto.response.PagedResponse;
 import org.revature.revconnect.dto.response.PostResponse;
 import org.revature.revconnect.dto.response.UserResponse;
+import org.revature.revconnect.service.SearchService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -21,16 +22,16 @@ import java.util.Map;
 @Tag(name = "Search", description = "Advanced Search APIs")
 public class SearchController {
 
+    private final SearchService searchService;
+
     @GetMapping("/all")
     @Operation(summary = "Search across all content types")
     public ResponseEntity<ApiResponse<Map<String, Object>>> searchAll(
             @RequestParam String query,
             @RequestParam(defaultValue = "5") int limit) {
         log.info("Global search for: {}", query);
-        return ResponseEntity.ok(ApiResponse.success(Map.of(
-                "users", List.of(),
-                "posts", List.of(),
-                "hashtags", List.of())));
+        Map<String, Object> results = searchService.searchAll(query, limit);
+        return ResponseEntity.ok(ApiResponse.success(results));
     }
 
     @GetMapping("/users")
@@ -40,7 +41,8 @@ public class SearchController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         log.info("Searching users: {}", query);
-        return ResponseEntity.ok(ApiResponse.success(null));
+        PagedResponse<UserResponse> users = searchService.searchUsers(query, page, size);
+        return ResponseEntity.ok(ApiResponse.success(users));
     }
 
     @GetMapping("/posts")
@@ -50,7 +52,8 @@ public class SearchController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         log.info("Searching posts: {}", query);
-        return ResponseEntity.ok(ApiResponse.success(null));
+        PagedResponse<PostResponse> posts = searchService.searchPosts(query, page, size);
+        return ResponseEntity.ok(ApiResponse.success(posts));
     }
 
     @GetMapping("/posts/advanced")
@@ -65,7 +68,9 @@ public class SearchController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         log.info("Advanced post search");
-        return ResponseEntity.ok(ApiResponse.success(null));
+        PagedResponse<PostResponse> posts = searchService.advancedPostSearch(
+                query, author, dateFrom, dateTo, postType, minLikes, page, size);
+        return ResponseEntity.ok(ApiResponse.success(posts));
     }
 
     @GetMapping("/users/advanced")
@@ -78,20 +83,23 @@ public class SearchController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         log.info("Advanced user search");
-        return ResponseEntity.ok(ApiResponse.success(null));
+        PagedResponse<UserResponse> users = searchService.advancedUserSearch(
+                query, location, userType, verified, page, size);
+        return ResponseEntity.ok(ApiResponse.success(users));
     }
 
     @GetMapping("/recent")
     @Operation(summary = "Get recent searches")
     public ResponseEntity<ApiResponse<List<String>>> getRecentSearches() {
         log.info("Getting recent searches");
-        return ResponseEntity.ok(ApiResponse.success(List.of()));
+        return ResponseEntity.ok(ApiResponse.success(searchService.getRecentSearches()));
     }
 
     @DeleteMapping("/recent")
     @Operation(summary = "Clear recent searches")
     public ResponseEntity<ApiResponse<Void>> clearRecentSearches() {
         log.info("Clearing recent searches");
+        searchService.clearRecentSearches();
         return ResponseEntity.ok(ApiResponse.success("Recent searches cleared", null));
     }
 
@@ -99,6 +107,7 @@ public class SearchController {
     @Operation(summary = "Remove a specific recent search")
     public ResponseEntity<ApiResponse<Void>> removeRecentSearch(@PathVariable String query) {
         log.info("Removing recent search: {}", query);
+        searchService.removeRecentSearch(query);
         return ResponseEntity.ok(ApiResponse.success("Search removed", null));
     }
 
@@ -107,13 +116,13 @@ public class SearchController {
     public ResponseEntity<ApiResponse<List<String>>> getSearchSuggestions(
             @RequestParam String query) {
         log.info("Getting suggestions for: {}", query);
-        return ResponseEntity.ok(ApiResponse.success(List.of()));
+        return ResponseEntity.ok(ApiResponse.success(searchService.getSearchSuggestions(query)));
     }
 
     @GetMapping("/trending")
     @Operation(summary = "Get trending searches")
     public ResponseEntity<ApiResponse<List<String>>> getTrendingSearches() {
         log.info("Getting trending searches");
-        return ResponseEntity.ok(ApiResponse.success(List.of()));
+        return ResponseEntity.ok(ApiResponse.success(searchService.getTrendingSearches()));
     }
 }

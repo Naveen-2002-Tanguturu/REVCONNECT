@@ -3,6 +3,8 @@ package org.revature.revconnect.controller;
 import org.revature.revconnect.dto.response.ApiResponse;
 import org.revature.revconnect.dto.response.PagedResponse;
 import org.revature.revconnect.dto.response.PostResponse;
+import org.revature.revconnect.model.Hashtag;
+import org.revature.revconnect.service.HashtagService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -20,19 +22,25 @@ import java.util.Map;
 @Tag(name = "Hashtags", description = "Hashtag Management APIs")
 public class HashtagController {
 
+    private final HashtagService hashtagService;
+
     @GetMapping("/trending")
     @Operation(summary = "Get trending hashtags")
     public ResponseEntity<ApiResponse<List<Map<String, Object>>>> getTrendingHashtags(
             @RequestParam(defaultValue = "10") int limit) {
         log.info("Getting top {} trending hashtags", limit);
-        return ResponseEntity.ok(ApiResponse.success(List.of()));
+        List<Map<String, Object>> tags = hashtagService.getTrending(limit).stream()
+                .map(this::toHashtagMap)
+                .toList();
+        return ResponseEntity.ok(ApiResponse.success(tags));
     }
 
     @GetMapping("/{hashtag}")
     @Operation(summary = "Get hashtag details")
     public ResponseEntity<ApiResponse<Map<String, Object>>> getHashtag(@PathVariable String hashtag) {
         log.info("Getting hashtag details: {}", hashtag);
-        return ResponseEntity.ok(ApiResponse.success(Map.of("tag", hashtag, "postCount", 0)));
+        Hashtag tag = hashtagService.getHashtag(hashtag);
+        return ResponseEntity.ok(ApiResponse.success(toHashtagMap(tag)));
     }
 
     @GetMapping("/{hashtag}/posts")
@@ -42,13 +50,15 @@ public class HashtagController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         log.info("Getting posts for hashtag: {}", hashtag);
-        return ResponseEntity.ok(ApiResponse.success(null));
+        PagedResponse<PostResponse> posts = hashtagService.getPostsByHashtag(hashtag, page, size);
+        return ResponseEntity.ok(ApiResponse.success(posts));
     }
 
     @PostMapping("/{hashtag}/follow")
     @Operation(summary = "Follow a hashtag")
     public ResponseEntity<ApiResponse<Void>> followHashtag(@PathVariable String hashtag) {
         log.info("Following hashtag: {}", hashtag);
+        hashtagService.followHashtag(hashtag);
         return ResponseEntity.ok(ApiResponse.success("Hashtag followed", null));
     }
 
@@ -56,6 +66,7 @@ public class HashtagController {
     @Operation(summary = "Unfollow a hashtag")
     public ResponseEntity<ApiResponse<Void>> unfollowHashtag(@PathVariable String hashtag) {
         log.info("Unfollowing hashtag: {}", hashtag);
+        hashtagService.unfollowHashtag(hashtag);
         return ResponseEntity.ok(ApiResponse.success("Hashtag unfollowed", null));
     }
 
@@ -63,14 +74,17 @@ public class HashtagController {
     @Operation(summary = "Get followed hashtags")
     public ResponseEntity<ApiResponse<List<Map<String, Object>>>> getFollowedHashtags() {
         log.info("Getting followed hashtags");
-        return ResponseEntity.ok(ApiResponse.success(List.of()));
+        return ResponseEntity.ok(ApiResponse.success(hashtagService.getFollowedHashtagsView()));
     }
 
     @GetMapping("/suggested")
     @Operation(summary = "Get suggested hashtags")
     public ResponseEntity<ApiResponse<List<Map<String, Object>>>> getSuggestedHashtags() {
         log.info("Getting suggested hashtags");
-        return ResponseEntity.ok(ApiResponse.success(List.of()));
+        List<Map<String, Object>> tags = hashtagService.getSuggestedHashtags(10).stream()
+                .map(this::toHashtagMap)
+                .toList();
+        return ResponseEntity.ok(ApiResponse.success(tags));
     }
 
     @GetMapping("/search")
@@ -78,7 +92,10 @@ public class HashtagController {
     public ResponseEntity<ApiResponse<List<Map<String, Object>>>> searchHashtags(
             @RequestParam String query) {
         log.info("Searching hashtags: {}", query);
-        return ResponseEntity.ok(ApiResponse.success(List.of()));
+        List<Map<String, Object>> tags = hashtagService.search(query).stream()
+                .map(this::toHashtagMap)
+                .toList();
+        return ResponseEntity.ok(ApiResponse.success(tags));
     }
 
     @GetMapping("/autocomplete")
@@ -86,13 +103,28 @@ public class HashtagController {
     public ResponseEntity<ApiResponse<List<String>>> autocompleteHashtags(
             @RequestParam String prefix) {
         log.info("Autocomplete hashtags: {}", prefix);
-        return ResponseEntity.ok(ApiResponse.success(List.of()));
+        List<String> tags = hashtagService.search(prefix).stream()
+                .map(Hashtag::getName)
+                .toList();
+        return ResponseEntity.ok(ApiResponse.success(tags));
     }
 
     @GetMapping("/{hashtag}/related")
     @Operation(summary = "Get related hashtags")
     public ResponseEntity<ApiResponse<List<Map<String, Object>>>> getRelatedHashtags(@PathVariable String hashtag) {
         log.info("Getting related hashtags for: {}", hashtag);
-        return ResponseEntity.ok(ApiResponse.success(List.of()));
+        List<Map<String, Object>> tags = hashtagService.search(hashtag).stream()
+                .map(this::toHashtagMap)
+                .toList();
+        return ResponseEntity.ok(ApiResponse.success(tags));
+    }
+
+    private Map<String, Object> toHashtagMap(Hashtag hashtag) {
+        Map<String, Object> map = new java.util.HashMap<>();
+        map.put("id", hashtag.getId());
+        map.put("tag", hashtag.getName());
+        map.put("usageCount", hashtag.getUsageCount());
+        map.put("lastUsed", hashtag.getLastUsed());
+        return map;
     }
 }

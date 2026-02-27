@@ -3,6 +3,7 @@ package org.revature.revconnect.controller;
 import org.revature.revconnect.dto.response.ApiResponse;
 import org.revature.revconnect.dto.response.PagedResponse;
 import org.revature.revconnect.dto.response.UserResponse;
+import org.revature.revconnect.service.AdminService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -20,13 +21,15 @@ import java.util.Map;
 @Tag(name = "Admin", description = "Admin Management APIs")
 public class AdminController {
 
+    private final AdminService adminService;
+
     @GetMapping("/users")
     @Operation(summary = "Get all users (admin)")
     public ResponseEntity<ApiResponse<PagedResponse<UserResponse>>> getAllUsers(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
         log.info("Admin: Getting all users");
-        return ResponseEntity.ok(ApiResponse.success(null));
+        return ResponseEntity.ok(ApiResponse.success(adminService.getAllUsers(page, size)));
     }
 
     @PatchMapping("/users/{userId}/suspend")
@@ -35,6 +38,7 @@ public class AdminController {
             @PathVariable Long userId,
             @RequestParam String reason) {
         log.info("Admin: Suspending user {}", userId);
+        // No suspension fields exist in current schema, only acknowledge action.
         return ResponseEntity.ok(ApiResponse.success("User suspended", null));
     }
 
@@ -49,6 +53,7 @@ public class AdminController {
     @Operation(summary = "Delete a user (admin)")
     public ResponseEntity<ApiResponse<Void>> deleteUser(@PathVariable Long userId) {
         log.info("Admin: Deleting user {}", userId);
+        adminService.deleteUser(userId);
         return ResponseEntity.ok(ApiResponse.success("User deleted", null));
     }
 
@@ -56,6 +61,7 @@ public class AdminController {
     @Operation(summary = "Verify a user account")
     public ResponseEntity<ApiResponse<Void>> verifyUser(@PathVariable Long userId) {
         log.info("Admin: Verifying user {}", userId);
+        adminService.verifyUser(userId);
         return ResponseEntity.ok(ApiResponse.success("User verified", null));
     }
 
@@ -63,6 +69,7 @@ public class AdminController {
     @Operation(summary = "Remove verification from user")
     public ResponseEntity<ApiResponse<Void>> unverifyUser(@PathVariable Long userId) {
         log.info("Admin: Unverifying user {}", userId);
+        adminService.unverifyUser(userId);
         return ResponseEntity.ok(ApiResponse.success("User unverified", null));
     }
 
@@ -72,14 +79,14 @@ public class AdminController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
         log.info("Admin: Getting reports");
-        return ResponseEntity.ok(ApiResponse.success(List.of()));
+        return ResponseEntity.ok(ApiResponse.success(adminService.getReports(page, size)));
     }
 
     @GetMapping("/reports/{reportId}")
     @Operation(summary = "Get report details")
     public ResponseEntity<ApiResponse<Map<String, Object>>> getReport(@PathVariable Long reportId) {
         log.info("Admin: Getting report {}", reportId);
-        return ResponseEntity.ok(ApiResponse.success(Map.of("id", reportId)));
+        return ResponseEntity.ok(ApiResponse.success(adminService.getReport(reportId)));
     }
 
     @PatchMapping("/reports/{reportId}/resolve")
@@ -102,13 +109,14 @@ public class AdminController {
     @Operation(summary = "Get flagged posts")
     public ResponseEntity<ApiResponse<List<Map<String, Object>>>> getFlaggedPosts() {
         log.info("Admin: Getting flagged posts");
-        return ResponseEntity.ok(ApiResponse.success(List.of()));
+        return ResponseEntity.ok(ApiResponse.success(adminService.getFlaggedPosts()));
     }
 
     @DeleteMapping("/posts/{postId}")
     @Operation(summary = "Delete a post (admin)")
     public ResponseEntity<ApiResponse<Void>> deletePost(@PathVariable Long postId) {
         log.info("Admin: Deleting post {}", postId);
+        adminService.deletePost(postId);
         return ResponseEntity.ok(ApiResponse.success("Post deleted", null));
     }
 
@@ -116,31 +124,28 @@ public class AdminController {
     @Operation(summary = "Get platform statistics")
     public ResponseEntity<ApiResponse<Map<String, Object>>> getPlatformStats() {
         log.info("Admin: Getting platform stats");
-        return ResponseEntity.ok(ApiResponse.success(Map.of(
-                "totalUsers", 0,
-                "totalPosts", 0,
-                "activeUsers", 0)));
+        return ResponseEntity.ok(ApiResponse.success(adminService.getPlatformStats()));
     }
 
     @GetMapping("/stats/users")
     @Operation(summary = "Get user statistics")
     public ResponseEntity<ApiResponse<Map<String, Object>>> getUserStats() {
         log.info("Admin: Getting user stats");
-        return ResponseEntity.ok(ApiResponse.success(Map.of()));
+        return ResponseEntity.ok(ApiResponse.success(adminService.getUserStats()));
     }
 
     @GetMapping("/stats/posts")
     @Operation(summary = "Get post statistics")
     public ResponseEntity<ApiResponse<Map<String, Object>>> getPostStats() {
         log.info("Admin: Getting post stats");
-        return ResponseEntity.ok(ApiResponse.success(Map.of()));
+        return ResponseEntity.ok(ApiResponse.success(adminService.getPostStats()));
     }
 
     @GetMapping("/stats/engagement")
     @Operation(summary = "Get engagement statistics")
     public ResponseEntity<ApiResponse<Map<String, Object>>> getEngagementStats() {
         log.info("Admin: Getting engagement stats");
-        return ResponseEntity.ok(ApiResponse.success(Map.of()));
+        return ResponseEntity.ok(ApiResponse.success(adminService.getEngagementStats()));
     }
 
     @GetMapping("/audit-logs")
@@ -149,6 +154,6 @@ public class AdminController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "50") int size) {
         log.info("Admin: Getting audit logs");
-        return ResponseEntity.ok(ApiResponse.success(List.of()));
+        return ResponseEntity.ok(ApiResponse.success(adminService.getAuditLogs(page, size)));
     }
 }

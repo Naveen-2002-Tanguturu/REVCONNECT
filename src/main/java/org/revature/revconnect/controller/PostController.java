@@ -1,8 +1,11 @@
 package org.revature.revconnect.controller;
 import org.revature.revconnect.dto.request.PostRequest;
+import org.revature.revconnect.dto.request.SchedulePostRequest;
 import org.revature.revconnect.dto.response.ApiResponse;
 import org.revature.revconnect.dto.response.PagedResponse;
 import org.revature.revconnect.dto.response.PostResponse;
+import org.revature.revconnect.enums.PostType;
+import org.revature.revconnect.enums.UserType;
 import org.revature.revconnect.service.PostService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -71,6 +74,28 @@ public class PostController {
         return ResponseEntity.ok(ApiResponse.success(posts));
     }
 
+    @GetMapping("/trending")
+    @Operation(summary = "Get trending posts")
+    public ResponseEntity<ApiResponse<PagedResponse<PostResponse>>> getTrendingPosts(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        log.info("Get trending posts request - page: {}, size: {}", page, size);
+        PagedResponse<PostResponse> posts = postService.getTrendingPosts(page, size);
+        return ResponseEntity.ok(ApiResponse.success(posts));
+    }
+
+    @GetMapping("/feed/personalized")
+    @Operation(summary = "Get personalized feed")
+    public ResponseEntity<ApiResponse<PagedResponse<PostResponse>>> getPersonalizedFeed(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) PostType postType,
+            @RequestParam(required = false) UserType userType) {
+        log.info("Get personalized feed request - page: {}, size: {}", page, size);
+        PagedResponse<PostResponse> posts = postService.getPersonalizedFeed(page, size, postType, userType);
+        return ResponseEntity.ok(ApiResponse.success(posts));
+    }
+
     @PutMapping("/{postId}")
     @Operation(summary = "Update a post")
     public ResponseEntity<ApiResponse<PostResponse>> updatePost(
@@ -98,5 +123,48 @@ public class PostController {
         PostResponse post = postService.togglePinPost(postId);
         String message = post.getPinned() ? "Post pinned" : "Post unpinned";
         return ResponseEntity.ok(ApiResponse.success(message, post));
+    }
+
+    @PatchMapping("/{postId}/cta")
+    @Operation(summary = "Add or update CTA on a post")
+    public ResponseEntity<ApiResponse<java.util.Map<String, Object>>> setPostCta(
+            @PathVariable Long postId,
+            @RequestParam String label,
+            @RequestParam String url) {
+        return ResponseEntity.ok(ApiResponse.success("CTA updated", postService.setPostCta(postId, label, url)));
+    }
+
+    @DeleteMapping("/{postId}/cta")
+    @Operation(summary = "Remove CTA from a post")
+    public ResponseEntity<ApiResponse<java.util.Map<String, Object>>> clearPostCta(@PathVariable Long postId) {
+        return ResponseEntity.ok(ApiResponse.success("CTA removed", postService.clearPostCta(postId)));
+    }
+
+    @PatchMapping("/{postId}/product-tags")
+    @Operation(summary = "Set product/service tags on a post")
+    public ResponseEntity<ApiResponse<java.util.Map<String, Object>>> setProductTags(
+            @PathVariable Long postId,
+            @RequestParam java.util.List<String> tags) {
+        return ResponseEntity.ok(ApiResponse.success("Product tags updated", postService.setProductTags(postId, tags)));
+    }
+
+    @GetMapping("/{postId}/metadata")
+    @Operation(summary = "Get CTA and product tag metadata of a post")
+    public ResponseEntity<ApiResponse<java.util.Map<String, Object>>> getPostMetadata(@PathVariable Long postId) {
+        return ResponseEntity.ok(ApiResponse.success(postService.getPostMetadata(postId)));
+    }
+
+    @PostMapping("/schedule")
+    @Operation(summary = "Schedule post for future publishing")
+    public ResponseEntity<ApiResponse<java.util.Map<String, Object>>> schedulePost(
+            @Valid @RequestBody SchedulePostRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.success("Post scheduled", postService.schedulePost(request)));
+    }
+
+    @GetMapping("/schedule/me")
+    @Operation(summary = "Get my scheduled posts")
+    public ResponseEntity<ApiResponse<java.util.List<java.util.Map<String, Object>>>> getMyScheduledPosts() {
+        return ResponseEntity.ok(ApiResponse.success(postService.getMyScheduledPosts()));
     }
 }

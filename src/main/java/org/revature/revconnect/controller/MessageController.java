@@ -1,6 +1,9 @@
 package org.revature.revconnect.controller;
 
 import org.revature.revconnect.dto.response.ApiResponse;
+import org.revature.revconnect.model.Message;
+import org.revature.revconnect.model.User;
+import org.revature.revconnect.service.MessageService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -8,6 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 
 import java.util.List;
 import java.util.Map;
@@ -19,13 +24,18 @@ import java.util.Map;
 @Tag(name = "Messages", description = "Direct Messaging APIs")
 public class MessageController {
 
+    private final MessageService messageService;
+
     @GetMapping("/conversations")
     @Operation(summary = "Get all conversations")
     public ResponseEntity<ApiResponse<List<Map<String, Object>>>> getConversations(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
         log.info("Getting conversations");
-        return ResponseEntity.ok(ApiResponse.success(List.of()));
+        List<Map<String, Object>> conversations = messageService.getConversationPartners().stream()
+                .map(this::toUserMap)
+                .toList();
+        return ResponseEntity.ok(ApiResponse.success(conversations));
     }
 
     @PostMapping("/conversations")
@@ -34,7 +44,7 @@ public class MessageController {
             @RequestParam Long recipientId) {
         log.info("Creating conversation with user: {}", recipientId);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.success("Conversation created", Map.of("conversationId", 1L)));
+                .body(ApiResponse.success("Conversation created", Map.of("conversationId", recipientId)));
     }
 
     @GetMapping("/conversations/{conversationId}")
@@ -44,23 +54,30 @@ public class MessageController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "50") int size) {
         log.info("Getting messages for conversation: {}", conversationId);
-        return ResponseEntity.ok(ApiResponse.success(List.of()));
+        Page<Message> messages = messageService.getConversation(conversationId, PageRequest.of(page, size));
+        List<Map<String, Object>> response = messages.getContent().stream()
+                .map(this::toMessageMap)
+                .toList();
+        return ResponseEntity.ok(ApiResponse.success(response));
     }
 
     @PostMapping("/conversations/{conversationId}")
     @Operation(summary = "Send a message")
     public ResponseEntity<ApiResponse<Map<String, Long>>> sendMessage(
             @PathVariable Long conversationId,
-            @RequestParam String content) {
+            @RequestParam String content,
+            @RequestParam(required = false) String mediaUrl) {
         log.info("Sending message to conversation: {}", conversationId);
+        Message message = messageService.sendMessage(conversationId, content, mediaUrl);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.success("Message sent", Map.of("messageId", 1L)));
+                .body(ApiResponse.success("Message sent", Map.of("messageId", message.getId())));
     }
 
     @DeleteMapping("/conversations/{conversationId}")
     @Operation(summary = "Delete a conversation")
     public ResponseEntity<ApiResponse<Void>> deleteConversation(@PathVariable Long conversationId) {
         log.info("Deleting conversation: {}", conversationId);
+        messageService.deleteConversationWithUser(conversationId);
         return ResponseEntity.ok(ApiResponse.success("Conversation deleted", null));
     }
 
@@ -68,6 +85,7 @@ public class MessageController {
     @Operation(summary = "Delete a message")
     public ResponseEntity<ApiResponse<Void>> deleteMessage(@PathVariable Long messageId) {
         log.info("Deleting message: {}", messageId);
+        messageService.deleteMessage(messageId);
         return ResponseEntity.ok(ApiResponse.success("Message deleted", null));
     }
 
@@ -77,6 +95,7 @@ public class MessageController {
             @PathVariable Long messageId,
             @RequestParam String content) {
         log.info("Editing message: {}", messageId);
+        messageService.editMessage(messageId, content);
         return ResponseEntity.ok(ApiResponse.success("Message edited", null));
     }
 
@@ -84,6 +103,7 @@ public class MessageController {
     @Operation(summary = "Mark conversation as read")
     public ResponseEntity<ApiResponse<Void>> markAsRead(@PathVariable Long conversationId) {
         log.info("Marking conversation {} as read", conversationId);
+        messageService.markAllAsRead(conversationId);
         return ResponseEntity.ok(ApiResponse.success("Marked as read", null));
     }
 
@@ -91,7 +111,8 @@ public class MessageController {
     @Operation(summary = "Get unread message count")
     public ResponseEntity<ApiResponse<Map<String, Integer>>> getUnreadCount() {
         log.info("Getting unread message count");
-        return ResponseEntity.ok(ApiResponse.success(Map.of("count", 0)));
+        int count = (int) messageService.getUnreadCount();
+        return ResponseEntity.ok(ApiResponse.success(Map.of("count", count)));
     }
 
     @PostMapping("/messages/{messageId}/react")
@@ -128,7 +149,11 @@ public class MessageController {
     @Operation(summary = "Search messages")
     public ResponseEntity<ApiResponse<List<Map<String, Object>>>> searchMessages(@RequestParam String query) {
         log.info("Searching messages: {}", query);
-        return ResponseEntity.ok(ApiResponse.success(List.of()));
+        Page<Message> messages = messageService.searchMessages(query, PageRequest.of(0, 50));
+        List<Map<String, Object>> response = messages.getContent().stream()
+                .map(this::toMessageMap)
+                .toList();
+        return ResponseEntity.ok(ApiResponse.success(response));
     }
 
     @PostMapping("/conversations/{conversationId}/attachment")
@@ -137,7 +162,30 @@ public class MessageController {
             @PathVariable Long conversationId,
             @RequestParam String attachmentUrl) {
         log.info("Sending attachment to conversation: {}", conversationId);
+        Message message = messageService.sendMessage(conversationId, "", attachmentUrl);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.success("Attachment sent", Map.of("messageId", 1L)));
+                .body(ApiResponse.success("Attachment sent", Map.of("messageId", message.getId())));
+    }
+
+    private Map<String, Object> toMessageMap(Message message) {
+        Map<String, Object> map = new java.util.HashMap<>();
+        map.put("id", message.getId());
+        map.put("senderId", message.getSender().getId());
+        map.put("receiverId", message.getReceiver().getId());
+        map.put("content", message.getContent());
+        map.put("mediaUrl", message.getMediaUrl());
+        map.put("timestamp", message.getTimestamp());
+        map.put("isRead", message.isRead());
+        map.put("isDeleted", message.isDeleted());
+        return map;
+    }
+
+    private Map<String, Object> toUserMap(User user) {
+        Map<String, Object> map = new java.util.HashMap<>();
+        map.put("userId", user.getId());
+        map.put("username", user.getUsername());
+        map.put("name", user.getName());
+        map.put("profilePicture", user.getProfilePicture());
+        return map;
     }
 }

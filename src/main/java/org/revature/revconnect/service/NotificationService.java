@@ -8,7 +8,9 @@ import org.revature.revconnect.exception.UnauthorizedException;
 import org.revature.revconnect.mapper.NotificationMapper;
 import org.revature.revconnect.model.Notification;
 import org.revature.revconnect.model.User;
+import org.revature.revconnect.model.UserSettings;
 import org.revature.revconnect.repository.NotificationRepository;
+import org.revature.revconnect.repository.UserSettingsRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -26,6 +28,7 @@ public class NotificationService {
     private final AuthService authService;
     private final SimpMessagingTemplate messagingTemplate;
     private final NotificationMapper notificationMapper;
+    private final UserSettingsRepository userSettingsRepository;
 
     @Transactional
     public void createNotification(User recipient, User actor, NotificationType type, String message,
@@ -35,6 +38,11 @@ public class NotificationService {
 
         if (recipient.getId().equals(actor.getId())) {
             log.debug("Skipping self-notification");
+            return;
+        }
+
+        if (!isNotificationEnabled(recipient.getId(), type)) {
+            log.debug("Notification type {} disabled by user {}", type, recipient.getId());
             return;
         }
 
@@ -164,5 +172,20 @@ public class NotificationService {
     public void notifyConnectionAccepted(User requester, User acceptor) {
         createNotification(requester, acceptor, NotificationType.CONNECTION_ACCEPTED,
                 acceptor.getName() + " accepted your connection request", null);
+    }
+
+    private boolean isNotificationEnabled(Long userId, NotificationType type) {
+        UserSettings settings = userSettingsRepository.findByUserId(userId).orElse(null);
+        if (settings == null) {
+            return true;
+        }
+        return switch (type) {
+            case LIKE -> Boolean.TRUE.equals(settings.getNotifyLike());
+            case COMMENT -> Boolean.TRUE.equals(settings.getNotifyComment());
+            case SHARE -> Boolean.TRUE.equals(settings.getNotifyShare());
+            case NEW_FOLLOWER -> Boolean.TRUE.equals(settings.getNotifyNewFollower());
+            case CONNECTION_REQUEST -> Boolean.TRUE.equals(settings.getNotifyConnectionRequest());
+            case CONNECTION_ACCEPTED -> Boolean.TRUE.equals(settings.getNotifyConnectionAccepted());
+        };
     }
 }

@@ -78,6 +78,15 @@ public class ConnectionController {
         return ResponseEntity.ok(ApiResponse.success(pending));
     }
 
+    @GetMapping("/connections/pending/sent")
+    @Operation(summary = "Get sent pending connection requests")
+    public ResponseEntity<ApiResponse<PagedResponse<ConnectionResponse>>> getSentPendingRequests(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        PagedResponse<ConnectionResponse> pending = connectionService.getSentPendingRequests(page, size);
+        return ResponseEntity.ok(ApiResponse.success(pending));
+    }
+
     @PostMapping("/connections/{connectionId}/accept")
     @Operation(summary = "Accept a connection request")
     public ResponseEntity<ApiResponse<Void>> acceptRequest(@PathVariable Long connectionId) {
@@ -102,5 +111,12 @@ public class ConnectionController {
         log.info("Check if following user ID: {}", userId);
         boolean following = connectionService.isFollowing(userId);
         return ResponseEntity.ok(ApiResponse.success(following));
+    }
+
+    @DeleteMapping("/users/{userId}/connection")
+    @Operation(summary = "Remove a connection with a user")
+    public ResponseEntity<ApiResponse<Void>> removeConnection(@PathVariable Long userId) {
+        connectionService.removeConnection(userId);
+        return ResponseEntity.ok(ApiResponse.success("Connection removed", null));
     }
 }

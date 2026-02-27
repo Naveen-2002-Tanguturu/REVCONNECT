@@ -32,3 +32,4 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
             "LOWER(m.content) LIKE LOWER(CONCAT('%', :query, '%')) ORDER BY m.timestamp DESC")
     Page<Message> searchMessages(@Param("user") User user, @Param("query") String query, Pageable pageable);
 }
+

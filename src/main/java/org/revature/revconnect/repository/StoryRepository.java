@@ -20,6 +20,8 @@ public interface StoryRepository extends JpaRepository<Story, Long> {
 
     List<Story> findByUserAndIsHighlightTrueOrderByCreatedAtDesc(User user);
 
+    List<Story> findByUserAndExpiresAtBeforeOrderByCreatedAtDesc(User user, LocalDateTime now);
+
     @Query("SELECT s FROM Story s WHERE s.expiresAt < :now")
     List<Story> findExpiredStories(@Param("now") LocalDateTime now);
 }

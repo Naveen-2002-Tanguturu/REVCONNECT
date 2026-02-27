@@ -1,5 +1,6 @@
 package org.revature.revconnect.controller;
 import org.revature.revconnect.dto.response.ApiResponse;
+import org.revature.revconnect.service.SettingsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -8,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/settings")
@@ -16,17 +18,21 @@ import java.util.Map;
 @Tag(name = "Settings", description = "User Settings APIs")
 public class SettingsController {
 
+    private final SettingsService settingsService;
+
     @GetMapping
     @Operation(summary = "Get all settings")
     public ResponseEntity<ApiResponse<Map<String, Object>>> getSettings() {
         log.info("Getting all settings");
-        return ResponseEntity.ok(ApiResponse.success(Map.of()));
+        Map<String, Object> settings = settingsService.getSettings();
+        return ResponseEntity.ok(ApiResponse.success(settings));
     }
 
     @PutMapping
     @Operation(summary = "Update all settings")
     public ResponseEntity<ApiResponse<Void>> updateSettings(@RequestBody Map<String, Object> settings) {
         log.info("Updating settings");
+        settingsService.updateSettings(settings);
         return ResponseEntity.ok(ApiResponse.success("Settings updated", null));
     }
 
@@ -34,13 +40,15 @@ public class SettingsController {
     @Operation(summary = "Get privacy settings")
     public ResponseEntity<ApiResponse<Map<String, Object>>> getPrivacySettings() {
         log.info("Getting privacy settings");
-        return ResponseEntity.ok(ApiResponse.success(Map.of()));
+        Map<String, Object> settings = settingsService.getPrivacySettings();
+        return ResponseEntity.ok(ApiResponse.success(settings));
     }
 
     @PutMapping("/privacy")
     @Operation(summary = "Update privacy settings")
     public ResponseEntity<ApiResponse<Void>> updatePrivacySettings(@RequestBody Map<String, Object> settings) {
         log.info("Updating privacy settings");
+        settingsService.updatePrivacySettings(settings);
         return ResponseEntity.ok(ApiResponse.success("Privacy settings updated", null));
     }
 
@@ -48,13 +56,15 @@ public class SettingsController {
     @Operation(summary = "Get notification settings")
     public ResponseEntity<ApiResponse<Map<String, Object>>> getNotificationSettings() {
         log.info("Getting notification settings");
-        return ResponseEntity.ok(ApiResponse.success(Map.of()));
+        Map<String, Object> settings = settingsService.getNotificationSettings();
+        return ResponseEntity.ok(ApiResponse.success(settings));
     }
 
     @PutMapping("/notifications")
     @Operation(summary = "Update notification settings")
     public ResponseEntity<ApiResponse<Void>> updateNotificationSettings(@RequestBody Map<String, Object> settings) {
         log.info("Updating notification settings");
+        settingsService.updateNotificationSettings(settings);
         return ResponseEntity.ok(ApiResponse.success("Notification settings updated", null));
     }
 
@@ -62,7 +72,8 @@ public class SettingsController {
     @Operation(summary = "Get security settings")
     public ResponseEntity<ApiResponse<Map<String, Object>>> getSecuritySettings() {
         log.info("Getting security settings");
-        return ResponseEntity.ok(ApiResponse.success(Map.of()));
+        Map<String, Object> settings = settingsService.getSecuritySettings();
+        return ResponseEntity.ok(ApiResponse.success(settings));
     }
 
     @PutMapping("/security")
@@ -78,6 +89,7 @@ public class SettingsController {
             @RequestParam String currentPassword,
             @RequestParam String newPassword) {
         log.info("Changing password");
+        settingsService.changePassword(currentPassword, newPassword);
         return ResponseEntity.ok(ApiResponse.success("Password changed", null));
     }
 
@@ -85,7 +97,8 @@ public class SettingsController {
     @Operation(summary = "Request email change")
     public ResponseEntity<ApiResponse<Void>> changeEmail(@RequestParam String newEmail) {
         log.info("Requesting email change");
-        return ResponseEntity.ok(ApiResponse.success("Verification email sent", null));
+        settingsService.changeEmail(newEmail);
+        return ResponseEntity.ok(ApiResponse.success("Email changed", null));
     }
 
     @PostMapping("/email/verify")
@@ -141,13 +154,15 @@ public class SettingsController {
     @Operation(summary = "Get account settings")
     public ResponseEntity<ApiResponse<Map<String, Object>>> getAccountSettings() {
         log.info("Getting account settings");
-        return ResponseEntity.ok(ApiResponse.success(Map.of()));
+        Map<String, Object> settings = settingsService.getAccountSettings();
+        return ResponseEntity.ok(ApiResponse.success(settings));
     }
 
     @DeleteMapping("/account")
     @Operation(summary = "Delete account")
     public ResponseEntity<ApiResponse<Void>> deleteAccount(@RequestParam String password) {
         log.info("Deleting account");
+        settingsService.deleteAccount(password);
         return ResponseEntity.ok(ApiResponse.success("Account deleted", null));
     }
 
@@ -170,5 +185,25 @@ public class SettingsController {
     public ResponseEntity<ApiResponse<Void>> requestDataExport() {
         log.info("Requesting data export");
         return ResponseEntity.ok(ApiResponse.success("Data export requested", null));
+    }
+
+    @GetMapping("/account/external-links")
+    @Operation(summary = "Get external links")
+    public ResponseEntity<ApiResponse<List<String>>> getExternalLinks() {
+        return ResponseEntity.ok(ApiResponse.success(settingsService.getExternalLinks()));
+    }
+
+    @PostMapping("/account/external-links")
+    @Operation(summary = "Add external link")
+    public ResponseEntity<ApiResponse<List<String>>> addExternalLink(@RequestParam String url) {
+        List<String> links = settingsService.addExternalLink(url);
+        return ResponseEntity.ok(ApiResponse.success("External link added", links));
+    }
+
+    @DeleteMapping("/account/external-links")
+    @Operation(summary = "Remove external link")
+    public ResponseEntity<ApiResponse<List<String>>> removeExternalLink(@RequestParam String url) {
+        List<String> links = settingsService.removeExternalLink(url);
+        return ResponseEntity.ok(ApiResponse.success("External link removed", links));
     }
 }
