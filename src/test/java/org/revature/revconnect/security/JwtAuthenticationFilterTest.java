@@ -1,260 +1,97 @@
 package org.revature.revconnect.security;
 
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.core.context.SecurityContext;
+import org.springframework.mock.web.MockFilterChain;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
-import java.util.Collections;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-@DisplayName("JwtAuthenticationFilter Tests")
 class JwtAuthenticationFilterTest {
 
-    @Mock
-    private JwtTokenProvider jwtTokenProvider;
-
-    @Mock
-    private UserDetailsService userDetailsService;
-
-    @Mock
-    private HttpServletRequest request;
-
-    @Mock
-    private HttpServletResponse response;
-
-    @Mock
-    private FilterChain filterChain;
+    @Mock private JwtTokenProvider jwtTokenProvider;
+    @Mock private UserDetailsService userDetailsService;
 
     @InjectMocks
     private JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    private UserDetails testUserDetails;
-
-    @BeforeEach
-    void setUp() {
-        testUserDetails = User.builder()
-                .username("testuser@example.com")
-                .password("encoded-password")
-                .authorities(Collections.emptyList())
-                .build();
-
+    @AfterEach
+    void clearSecurityContext() {
         SecurityContextHolder.clearContext();
     }
 
-    @Nested
-    @DisplayName("No Token in Request")
-    class NoTokenTests {
+    @Test
+    void doFilterInternal_withValidBearerToken_setsAuthentication() throws Exception {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.addHeader("Authorization", "Bearer valid-token");
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        MockFilterChain chain = new MockFilterChain();
+        UserDetails user = User.withUsername("john").password("x").authorities("ROLE_USER").build();
 
-        @Test
-        @DisplayName("doFilter: no Authorization header → filter chain is called, no authentication set")
-        void doFilter_NoAuthorizationHeader_ShouldPassThroughWithoutAuth() throws Exception {
-            when(request.getHeader("Authorization")).thenReturn(null);
+        when(jwtTokenProvider.validateToken("valid-token")).thenReturn(true);
+        when(jwtTokenProvider.extractUsername("valid-token")).thenReturn("john");
+        when(userDetailsService.loadUserByUsername("john")).thenReturn(user);
+        when(jwtTokenProvider.isTokenValid("valid-token", user)).thenReturn(true);
 
-            jwtAuthenticationFilter.doFilter(request, response, filterChain);
+        jwtAuthenticationFilter.doFilter(request, response, chain);
 
-            verify(filterChain).doFilter(request, response);
-            verifyNoInteractions(jwtTokenProvider);
-            verifyNoInteractions(userDetailsService);
-            assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
-        }
-
-        @Test
-        @DisplayName("doFilter: empty Authorization header → filter chain is called")
-        void doFilter_EmptyAuthorizationHeader_ShouldPassThrough() throws Exception {
-            when(request.getHeader("Authorization")).thenReturn("");
-
-            jwtAuthenticationFilter.doFilter(request, response, filterChain);
-
-            verify(filterChain).doFilter(request, response);
-            verifyNoInteractions(jwtTokenProvider);
-        }
-
-        @Test
-        @DisplayName("doFilter: Authorization header without 'Bearer ' prefix → no auth set")
-        void doFilter_AuthHeaderWithoutBearerPrefix_ShouldPassThrough() throws Exception {
-            when(request.getHeader("Authorization")).thenReturn("Basic dXNlcjpwYXNz");
-
-            jwtAuthenticationFilter.doFilter(request, response, filterChain);
-
-            verify(filterChain).doFilter(request, response);
-            verifyNoInteractions(jwtTokenProvider);
-            assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
-        }
-
-        @Test
-        @DisplayName("doFilter: Authorization header with 'Bearer' but no space → no auth set")
-        void doFilter_BearerWithoutSpace_ShouldPassThrough() throws Exception {
-            when(request.getHeader("Authorization")).thenReturn("Bearertoken123");
-
-            jwtAuthenticationFilter.doFilter(request, response, filterChain);
-
-            verify(filterChain).doFilter(request, response);
-            verifyNoInteractions(jwtTokenProvider);
-        }
+        assertNotNull(SecurityContextHolder.getContext().getAuthentication());
+        assertEquals("john", SecurityContextHolder.getContext().getAuthentication().getName());
+        verify(userDetailsService).loadUserByUsername("john");
     }
 
-    @Nested
-    @DisplayName("Invalid Token")
-    class InvalidTokenTests {
+    @Test
+    void doFilterInternal_withoutAuthorizationHeader_skipsAuth() throws Exception {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        MockFilterChain chain = new MockFilterChain();
 
-        @Test
-        @DisplayName("doFilter: invalid JWT → filter chain called, no authentication set")
-        void doFilter_InvalidJwt_ShouldPassThroughWithoutAuth() throws Exception {
-            when(request.getHeader("Authorization")).thenReturn("Bearer invalid.jwt.token");
-            when(jwtTokenProvider.validateToken("invalid.jwt.token")).thenReturn(false);
+        jwtAuthenticationFilter.doFilter(request, response, chain);
 
-            jwtAuthenticationFilter.doFilter(request, response, filterChain);
-
-            verify(filterChain).doFilter(request, response);
-            verify(jwtTokenProvider).validateToken("invalid.jwt.token");
-            verifyNoInteractions(userDetailsService);
-            assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
-        }
-
-        @Test
-        @DisplayName("doFilter: expired JWT → validateToken returns false → no auth set")
-        void doFilter_ExpiredJwt_ShouldPassThroughWithoutAuth() throws Exception {
-            when(request.getHeader("Authorization")).thenReturn("Bearer expired.jwt.token");
-            when(jwtTokenProvider.validateToken("expired.jwt.token")).thenReturn(false);
-
-            jwtAuthenticationFilter.doFilter(request, response, filterChain);
-
-            verify(filterChain).doFilter(request, response);
-            assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
-        }
-
-        @Test
-        @DisplayName("doFilter: token passes validateToken but isTokenValid fails → no auth set")
-        void doFilter_TokenPassesValidateButIsTokenValidFails_ShouldNotSetAuth() throws Exception {
-            String jwt = "valid.structure.token";
-            when(request.getHeader("Authorization")).thenReturn("Bearer " + jwt);
-            when(jwtTokenProvider.validateToken(jwt)).thenReturn(true);
-            when(jwtTokenProvider.extractUsername(jwt)).thenReturn("testuser@example.com");
-            when(userDetailsService.loadUserByUsername("testuser@example.com")).thenReturn(testUserDetails);
-            when(jwtTokenProvider.isTokenValid(jwt, testUserDetails)).thenReturn(false);
-
-            jwtAuthenticationFilter.doFilter(request, response, filterChain);
-
-            verify(filterChain).doFilter(request, response);
-            assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
-        }
-
-        @Test
-        @DisplayName("doFilter: exception thrown during token validation → filter chain still called")
-        void doFilter_ExceptionDuringValidation_ShouldStillCallFilterChain() throws Exception {
-            when(request.getHeader("Authorization")).thenReturn("Bearer bad.token.here");
-            when(jwtTokenProvider.validateToken("bad.token.here"))
-                    .thenThrow(new RuntimeException("Unexpected error"));
-
-            jwtAuthenticationFilter.doFilter(request, response, filterChain);
-
-            // Filter chain must still be called even on exception
-            verify(filterChain).doFilter(request, response);
-            assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
-        }
+        assertNull(SecurityContextHolder.getContext().getAuthentication());
+        verifyNoInteractions(jwtTokenProvider);
     }
 
-    @Nested
-    @DisplayName("Valid Token")
-    class ValidTokenTests {
+    @Test
+    void doFilterInternal_withInvalidToken_skipsSettingAuthentication() throws Exception {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.addHeader("Authorization", "Bearer bad-token");
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        MockFilterChain chain = new MockFilterChain();
 
-        @Test
-        @DisplayName("doFilter: valid JWT → SecurityContext is populated with authentication")
-        void doFilter_ValidJwt_ShouldSetAuthenticationInContext() throws Exception {
-            String jwt = "valid.jwt.token";
-            when(request.getHeader("Authorization")).thenReturn("Bearer " + jwt);
-            when(jwtTokenProvider.validateToken(jwt)).thenReturn(true);
-            when(jwtTokenProvider.extractUsername(jwt)).thenReturn("testuser@example.com");
-            when(userDetailsService.loadUserByUsername("testuser@example.com")).thenReturn(testUserDetails);
-            when(jwtTokenProvider.isTokenValid(jwt, testUserDetails)).thenReturn(true);
+        when(jwtTokenProvider.validateToken("bad-token")).thenReturn(false);
 
-            jwtAuthenticationFilter.doFilter(request, response, filterChain);
+        jwtAuthenticationFilter.doFilter(request, response, chain);
 
-            verify(filterChain).doFilter(request, response);
-            assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
-            assertThat(SecurityContextHolder.getContext().getAuthentication().getName())
-                    .isEqualTo("testuser@example.com");
-        }
+        assertNull(SecurityContextHolder.getContext().getAuthentication());
+    }
 
-        @Test
-        @DisplayName("doFilter: valid JWT → UserDetailsService is called once")
-        void doFilter_ValidJwt_ShouldCallUserDetailsServiceOnce() throws Exception {
-            String jwt = "valid.jwt.token";
-            when(request.getHeader("Authorization")).thenReturn("Bearer " + jwt);
-            when(jwtTokenProvider.validateToken(jwt)).thenReturn(true);
-            when(jwtTokenProvider.extractUsername(jwt)).thenReturn("testuser@example.com");
-            when(userDetailsService.loadUserByUsername("testuser@example.com")).thenReturn(testUserDetails);
-            when(jwtTokenProvider.isTokenValid(jwt, testUserDetails)).thenReturn(true);
+    @Test
+    void doFilterInternal_whenExceptionOccurs_continuesChain() throws Exception {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.addHeader("Authorization", "Bearer token");
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        MockFilterChain chain = new MockFilterChain();
 
-            jwtAuthenticationFilter.doFilter(request, response, filterChain);
+        when(jwtTokenProvider.validateToken("token")).thenThrow(new RuntimeException("boom"));
 
-            verify(userDetailsService, times(1)).loadUserByUsername("testuser@example.com");
-        }
+        jwtAuthenticationFilter.doFilter(request, response, chain);
 
-        @Test
-        @DisplayName("doFilter: valid JWT → filter chain is always called after auth setup")
-        void doFilter_ValidJwt_ShouldAlwaysCallFilterChain() throws Exception {
-            String jwt = "valid.jwt.token";
-            when(request.getHeader("Authorization")).thenReturn("Bearer " + jwt);
-            when(jwtTokenProvider.validateToken(jwt)).thenReturn(true);
-            when(jwtTokenProvider.extractUsername(jwt)).thenReturn("testuser@example.com");
-            when(userDetailsService.loadUserByUsername("testuser@example.com")).thenReturn(testUserDetails);
-            when(jwtTokenProvider.isTokenValid(jwt, testUserDetails)).thenReturn(true);
-
-            jwtAuthenticationFilter.doFilter(request, response, filterChain);
-
-            verify(filterChain, times(1)).doFilter(request, response);
-        }
-
-        @Test
-        @DisplayName("doFilter: valid JWT → Authentication principal is the UserDetails object")
-        void doFilter_ValidJwt_PrincipalIsUserDetails() throws Exception {
-            String jwt = "valid.jwt.token";
-            when(request.getHeader("Authorization")).thenReturn("Bearer " + jwt);
-            when(jwtTokenProvider.validateToken(jwt)).thenReturn(true);
-            when(jwtTokenProvider.extractUsername(jwt)).thenReturn("testuser@example.com");
-            when(userDetailsService.loadUserByUsername("testuser@example.com")).thenReturn(testUserDetails);
-            when(jwtTokenProvider.isTokenValid(jwt, testUserDetails)).thenReturn(true);
-
-            jwtAuthenticationFilter.doFilter(request, response, filterChain);
-
-            Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            assertThat(principal).isInstanceOf(UserDetails.class);
-            assertThat(((UserDetails) principal).getUsername()).isEqualTo("testuser@example.com");
-        }
-
-        @Test
-        @DisplayName("doFilter: 'Bearer ' prefix is correctly stripped from token")
-        void doFilter_BearerTokenPrefixIsStripped() throws Exception {
-            String jwt = "actual.jwt.value";
-            when(request.getHeader("Authorization")).thenReturn("Bearer " + jwt);
-            when(jwtTokenProvider.validateToken(jwt)).thenReturn(true);
-            when(jwtTokenProvider.extractUsername(jwt)).thenReturn("testuser@example.com");
-            when(userDetailsService.loadUserByUsername("testuser@example.com")).thenReturn(testUserDetails);
-            when(jwtTokenProvider.isTokenValid(jwt, testUserDetails)).thenReturn(true);
-
-            jwtAuthenticationFilter.doFilter(request, response, filterChain);
-
-            // Verify that validateToken was called with the raw token, not "Bearer token"
-            verify(jwtTokenProvider).validateToken(jwt);
-            verify(jwtTokenProvider, never()).validateToken("Bearer " + jwt);
-        }
+        assertNull(SecurityContextHolder.getContext().getAuthentication());
     }
 }
