@@ -1,89 +1,86 @@
 package org.revature.revconnect.service;
 
-import org.revature.revconnect.model.User;
-import org.revature.revconnect.repository.UserRepository;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.revature.revconnect.enums.Privacy;
+import org.revature.revconnect.enums.UserType;
+import org.revature.revconnect.model.User;
+import org.revature.revconnect.repository.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class CustomUserDetailsServiceTest {
 
-    @Mock
-    private UserRepository userRepository;
+    @Mock private UserRepository userRepository;
 
+    @InjectMocks
     private CustomUserDetailsService customUserDetailsService;
 
-    private User testUser;
+    @Test
+    void loadUserByUsername_whenFoundByUsername_returnsUserDetails() {
+        User user = user(1L, "john", "john@test.com");
+        when(userRepository.findByUsernameOrEmail("john", "john")).thenReturn(Optional.of(user));
 
-    @BeforeEach
-    void setUp() {
-        testUser = User.builder()
-                .id(1L)
-                .username("testuser")
-                .email("test@example.com")
-                .password("encodedPassword")
-                .name("Test User")
-                .build();
+        UserDetails details = customUserDetailsService.loadUserByUsername("john");
 
-        customUserDetailsService = new CustomUserDetailsService(userRepository);
+        assertEquals("john", details.getUsername());
     }
 
     @Test
-    void loadUserByUsername_Success() {
-        when(userRepository.findByUsernameOrEmail("testuser", "testuser"))
-                .thenReturn(Optional.of(testUser));
+    void loadUserByUsername_whenFoundByEmail_returnsUserDetails() {
+        User user = user(2L, "jane", "jane@test.com");
+        when(userRepository.findByUsernameOrEmail("jane@test.com", "jane@test.com")).thenReturn(Optional.of(user));
 
-        UserDetails userDetails = customUserDetailsService.loadUserByUsername("testuser");
+        UserDetails details = customUserDetailsService.loadUserByUsername("jane@test.com");
 
-        assertNotNull(userDetails);
-        assertEquals("testuser", userDetails.getUsername());
+        assertEquals("jane", details.getUsername());
     }
 
     @Test
-    void loadUserByUsername_ByEmail_Success() {
-        when(userRepository.findByUsernameOrEmail("test@example.com", "test@example.com"))
-                .thenReturn(Optional.of(testUser));
-
-        UserDetails userDetails = customUserDetailsService.loadUserByUsername("test@example.com");
-
-        assertNotNull(userDetails);
-        assertEquals("testuser", userDetails.getUsername());
-    }
-
-    @Test
-    void loadUserByUsername_NotFound() {
-        when(userRepository.findByUsernameOrEmail("unknown", "unknown"))
-                .thenReturn(Optional.empty());
+    void loadUserByUsername_whenMissing_throwsUsernameNotFound() {
+        when(userRepository.findByUsernameOrEmail("missing", "missing")).thenReturn(Optional.empty());
 
         assertThrows(UsernameNotFoundException.class,
-                () -> customUserDetailsService.loadUserByUsername("unknown"));
+                () -> customUserDetailsService.loadUserByUsername("missing"));
     }
 
     @Test
-    void loadUserById_Success() {
-        when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
+    void loadUserById_whenFound_returnsUserDetails() {
+        User user = user(3L, "alex", "alex@test.com");
+        when(userRepository.findById(3L)).thenReturn(Optional.of(user));
 
-        UserDetails userDetails = customUserDetailsService.loadUserById(1L);
+        UserDetails details = customUserDetailsService.loadUserById(3L);
 
-        assertNotNull(userDetails);
-        assertEquals("testuser", userDetails.getUsername());
+        assertEquals("alex", details.getUsername());
     }
 
     @Test
-    void loadUserById_NotFound() {
+    void loadUserById_whenMissing_throwsUsernameNotFound() {
         when(userRepository.findById(99L)).thenReturn(Optional.empty());
 
         assertThrows(UsernameNotFoundException.class,
                 () -> customUserDetailsService.loadUserById(99L));
+    }
+
+    private User user(Long id, String username, String email) {
+        return User.builder()
+                .id(id)
+                .username(username)
+                .email(email)
+                .name(username)
+                .password("pwd")
+                .privacy(Privacy.PUBLIC)
+                .userType(UserType.PERSONAL)
+                .build();
     }
 }
