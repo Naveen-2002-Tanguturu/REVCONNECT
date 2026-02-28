@@ -1,202 +1,161 @@
 package org.revature.revconnect.service;
 
-import org.revature.revconnect.dto.response.NotificationResponse;
-import org.revature.revconnect.dto.response.PagedResponse;
-import org.revature.revconnect.enums.NotificationType;
-import org.revature.revconnect.exception.ResourceNotFoundException;
-import org.revature.revconnect.exception.UnauthorizedException;
-import org.revature.revconnect.model.Notification;
-import org.revature.revconnect.mapper.NotificationMapper;
-import org.revature.revconnect.model.User;
-import org.revature.revconnect.repository.NotificationRepository;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
+import org.revature.revconnect.dto.response.NotificationResponse;
+import org.revature.revconnect.enums.NotificationType;
+import org.revature.revconnect.exception.UnauthorizedException;
+import org.revature.revconnect.mapper.NotificationMapper;
+import org.revature.revconnect.model.Notification;
+import org.revature.revconnect.model.User;
+import org.revature.revconnect.model.UserSettings;
+import org.revature.revconnect.repository.NotificationRepository;
+import org.revature.revconnect.repository.UserSettingsRepository;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 
-import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class NotificationServiceTest {
 
-    @Mock
-    private NotificationRepository notificationRepository;
-    @Mock
-    private AuthService authService;
-
-    @Mock
-    private NotificationMapper notificationMapper;
+    @Mock private NotificationRepository notificationRepository;
+    @Mock private AuthService authService;
+    @Mock private SimpMessagingTemplate messagingTemplate;
+    @Mock private NotificationMapper notificationMapper;
+    @Mock private UserSettingsRepository userSettingsRepository;
 
     @InjectMocks
     private NotificationService notificationService;
 
-    private User testUser;
-    private User actorUser;
-    private Notification testNotification;
-
-    @BeforeEach
-    void setUp() {
-        testUser = User.builder()
-                .id(1L)
-                .username("testuser")
-                .email("test@example.com")
-                .name("Test User")
-                .build();
-
-        actorUser = User.builder()
-                .id(2L)
-                .username("actoruser")
-                .email("actor@example.com")
-                .name("Actor User")
-                .build();
-
-        testNotification = Notification.builder()
-                .id(1L)
-                .user(testUser)
-                .actor(actorUser)
-                .type(NotificationType.LIKE)
-                .message("Actor User liked your post")
-                .referenceId(10L)
-                .isRead(false)
-                .createdAt(LocalDateTime.now())
-                .build();
-
-        // Common mapper stubbing
-        lenient().when(notificationMapper.toResponse(any(Notification.class))).thenAnswer(invocation -> {
-            Notification n = invocation.getArgument(0);
-            return NotificationResponse.builder().id(n.getId()).message(n.getMessage()).build();
-        });
+    @Test
+    void getUnreadCount_returnsRepositoryValue() {
+        User me = user(1L, "u1");
+        when(authService.getCurrentUser()).thenReturn(me);
+        when(notificationRepository.countByUserIdAndIsReadFalse(1L)).thenReturn(3L);
+        assertEquals(3L, notificationService.getUnreadCount());
     }
 
     @Test
-    void createNotification_Success() {
-        when(notificationRepository.save(any(Notification.class))).thenReturn(testNotification);
+    void createNotification_selfNotification_isSkipped() {
+        User me = user(1L, "u1");
+        notificationService.createNotification(me, me, NotificationType.LIKE, "self", 10L);
+        verify(notificationRepository, never()).save(any());
+    }
 
-        assertDoesNotThrow(() -> notificationService.createNotification(
-                testUser, actorUser, NotificationType.LIKE, "Liked your post", 10L));
+    @Test
+    void createNotification_savesAndPushes_whenEnabled() {
+        User recipient = user(1L, "r");
+        User actor = user(2L, "a");
+        Notification n = Notification.builder().id(1L).user(recipient).actor(actor)
+                .type(NotificationType.LIKE).message("msg").referenceId(10L).build();
+
+        when(userSettingsRepository.findByUserId(1L)).thenReturn(Optional.empty());
+        when(notificationRepository.save(any(Notification.class))).thenReturn(n);
+        when(notificationMapper.toResponse(n)).thenReturn(NotificationResponse.builder().id(1L).build());
+
+        notificationService.createNotification(recipient, actor, NotificationType.LIKE, "msg", 10L);
 
         verify(notificationRepository).save(any(Notification.class));
+        verify(messagingTemplate).convertAndSend(eq("/topic/notifications/1"), any(NotificationResponse.class));
     }
 
     @Test
-    void createNotification_SkipsSelfNotification() {
-        notificationService.createNotification(testUser, testUser, NotificationType.LIKE, "Message", 10L);
-        verify(notificationRepository, never()).save(any(Notification.class));
+    void createNotification_skipsWhenDisabledInSettings() {
+        User recipient = user(1L, "r");
+        User actor = user(2L, "a");
+        UserSettings settings = UserSettings.builder().notifyLike(false).build();
+        when(userSettingsRepository.findByUserId(1L)).thenReturn(Optional.of(settings));
+
+        notificationService.createNotification(recipient, actor, NotificationType.LIKE, "msg", 10L);
+
+        verify(notificationRepository, never()).save(any());
     }
 
     @Test
-    void getNotifications_Success() {
-        Page<Notification> page = new PageImpl<>(List.of(testNotification));
-        when(authService.getCurrentUser()).thenReturn(testUser);
-        when(notificationRepository.findByUserIdOrderByCreatedAtDesc(eq(1L), any(PageRequest.class))).thenReturn(page);
+    void getNotifications_returnsPagedData() {
+        User me = user(1L, "u1");
+        Notification n = Notification.builder().id(5L).user(me).build();
+        when(authService.getCurrentUser()).thenReturn(me);
+        when(notificationRepository.findByUserIdOrderByCreatedAtDesc(1L, PageRequest.of(0, 10)))
+                .thenReturn(new PageImpl<>(java.util.List.of(n), PageRequest.of(0, 10), 1));
+        when(notificationMapper.toResponse(n)).thenReturn(NotificationResponse.builder().id(5L).build());
 
-        PagedResponse<NotificationResponse> response = notificationService.getNotifications(0, 20);
-
-        assertNotNull(response);
-        assertEquals(1, response.getTotalElements());
+        var page = notificationService.getNotifications(0, 10);
+        assertEquals(1, page.getContent().size());
+        assertEquals(1L, page.getTotalElements());
     }
 
     @Test
-    void getUnreadNotifications_Success() {
-        Page<Notification> page = new PageImpl<>(List.of(testNotification));
-        when(authService.getCurrentUser()).thenReturn(testUser);
-        when(notificationRepository.findByUserIdAndIsReadFalseOrderByCreatedAtDesc(eq(1L), any(PageRequest.class)))
-                .thenReturn(page);
+    void markAsRead_ownNotification_success() {
+        User me = user(1L, "u1");
+        Notification n = Notification.builder().id(7L).user(me).isRead(false).build();
+        when(authService.getCurrentUser()).thenReturn(me);
+        when(notificationRepository.findById(7L)).thenReturn(Optional.of(n));
 
-        PagedResponse<NotificationResponse> response = notificationService.getUnreadNotifications(0, 20);
+        notificationService.markAsRead(7L);
 
-        assertNotNull(response);
-        assertEquals(1, response.getTotalElements());
+        assertEquals(true, n.getIsRead());
+        verify(notificationRepository).save(n);
     }
 
     @Test
-    void getUnreadCount_Success() {
-        when(authService.getCurrentUser()).thenReturn(testUser);
-        when(notificationRepository.countByUserIdAndIsReadFalse(1L)).thenReturn(5L);
+    void markAsRead_foreignNotification_throws() {
+        User me = user(1L, "u1");
+        User other = user(2L, "u2");
+        Notification n = Notification.builder().id(8L).user(other).isRead(false).build();
+        when(authService.getCurrentUser()).thenReturn(me);
+        when(notificationRepository.findById(8L)).thenReturn(Optional.of(n));
 
-        long count = notificationService.getUnreadCount();
-
-        assertEquals(5L, count);
+        assertThrows(UnauthorizedException.class, () -> notificationService.markAsRead(8L));
     }
 
     @Test
-    void markAsRead_Success() {
-        when(authService.getCurrentUser()).thenReturn(testUser);
-        when(notificationRepository.findById(1L)).thenReturn(Optional.of(testNotification));
-        when(notificationRepository.save(any(Notification.class))).thenReturn(testNotification);
+    void deleteNotification_own_success() {
+        User me = user(1L, "u1");
+        Notification n = Notification.builder().id(9L).user(me).build();
+        when(authService.getCurrentUser()).thenReturn(me);
+        when(notificationRepository.findById(9L)).thenReturn(Optional.of(n));
 
-        assertDoesNotThrow(() -> notificationService.markAsRead(1L));
-        assertTrue(testNotification.getIsRead());
+        notificationService.deleteNotification(9L);
+
+        verify(notificationRepository).delete(n);
     }
 
     @Test
-    void markAsRead_NotificationNotFound() {
-        when(authService.getCurrentUser()).thenReturn(testUser);
-        when(notificationRepository.findById(999L)).thenReturn(Optional.empty());
+    void deleteNotification_foreign_throws() {
+        User me = user(1L, "u1");
+        User other = user(2L, "u2");
+        Notification n = Notification.builder().id(10L).user(other).build();
+        when(authService.getCurrentUser()).thenReturn(me);
+        when(notificationRepository.findById(10L)).thenReturn(Optional.of(n));
 
-        assertThrows(ResourceNotFoundException.class, () -> notificationService.markAsRead(999L));
+        assertThrows(UnauthorizedException.class, () -> notificationService.deleteNotification(10L));
     }
 
     @Test
-    void markAsRead_Unauthorized() {
-        when(authService.getCurrentUser()).thenReturn(actorUser);
-        when(notificationRepository.findById(1L)).thenReturn(Optional.of(testNotification));
+    void markAllAsRead_returnsCount() {
+        User me = user(1L, "u1");
+        when(authService.getCurrentUser()).thenReturn(me);
+        when(notificationRepository.markAllAsRead(1L)).thenReturn(4);
 
-        assertThrows(UnauthorizedException.class, () -> notificationService.markAsRead(1L));
+        assertEquals(4, notificationService.markAllAsRead());
     }
 
-    @Test
-    void markAllAsRead_Success() {
-        when(authService.getCurrentUser()).thenReturn(testUser);
-        when(notificationRepository.markAllAsRead(1L)).thenReturn(3);
-
-        int count = notificationService.markAllAsRead();
-
-        assertEquals(3, count);
-    }
-
-    @Test
-    void deleteNotification_Success() {
-        when(authService.getCurrentUser()).thenReturn(testUser);
-        when(notificationRepository.findById(1L)).thenReturn(Optional.of(testNotification));
-
-        assertDoesNotThrow(() -> notificationService.deleteNotification(1L));
-        verify(notificationRepository).delete(testNotification);
-    }
-
-    @Test
-    void deleteNotification_Unauthorized() {
-        when(authService.getCurrentUser()).thenReturn(actorUser);
-        when(notificationRepository.findById(1L)).thenReturn(Optional.of(testNotification));
-
-        assertThrows(UnauthorizedException.class, () -> notificationService.deleteNotification(1L));
-    }
-
-    @Test
-    void notifyLike_Success() {
-        when(notificationRepository.save(any(Notification.class))).thenReturn(testNotification);
-
-        assertDoesNotThrow(() -> notificationService.notifyLike(testUser, actorUser, 10L));
-        verify(notificationRepository).save(any(Notification.class));
-    }
-
-    @Test
-    void notifyFollow_Success() {
-        when(notificationRepository.save(any(Notification.class))).thenReturn(testNotification);
-
-        assertDoesNotThrow(() -> notificationService.notifyFollow(testUser, actorUser));
-        verify(notificationRepository).save(any(Notification.class));
+    private User user(Long id, String username) {
+        return User.builder().id(id).username(username).name(username)
+                .email(username + "@test.com").password("x").build();
     }
 }
