@@ -1,267 +1,230 @@
 package org.revature.revconnect.service;
 
-import org.revature.revconnect.dto.request.CommentRequest;
-import org.revature.revconnect.dto.request.ShareRequest;
-import org.revature.revconnect.dto.response.CommentResponse;
-import org.revature.revconnect.dto.response.LikeResponse;
-import org.revature.revconnect.dto.response.PagedResponse;
-import org.revature.revconnect.dto.response.ShareResponse;
-import org.revature.revconnect.exception.BadRequestException;
-import org.revature.revconnect.exception.UnauthorizedException;
-import org.revature.revconnect.model.Comment;
-import org.revature.revconnect.model.Like;
-import org.revature.revconnect.model.Post;
-import org.revature.revconnect.model.Share;
-import org.revature.revconnect.model.User;
-import org.revature.revconnect.mapper.LikeMapper;
-import org.revature.revconnect.mapper.CommentMapper;
-import org.revature.revconnect.mapper.ShareMapper;
-import org.revature.revconnect.repository.CommentRepository;
-import org.revature.revconnect.repository.LikeRepository;
-import org.revature.revconnect.repository.PostRepository;
-import org.revature.revconnect.repository.ShareRepository;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
+import org.revature.revconnect.dto.request.CommentRequest;
+import org.revature.revconnect.dto.request.ShareRequest;
+import org.revature.revconnect.dto.response.CommentResponse;
+import org.revature.revconnect.dto.response.LikeResponse;
+import org.revature.revconnect.dto.response.ShareResponse;
+import org.revature.revconnect.enums.UserType;
+import org.revature.revconnect.exception.BadRequestException;
+import org.revature.revconnect.exception.ResourceNotFoundException;
+import org.revature.revconnect.exception.UnauthorizedException;
+import org.revature.revconnect.mapper.CommentMapper;
+import org.revature.revconnect.mapper.LikeMapper;
+import org.revature.revconnect.mapper.ShareMapper;
+import org.revature.revconnect.model.Comment;
+import org.revature.revconnect.model.Like;
+import org.revature.revconnect.model.Post;
+import org.revature.revconnect.model.Share;
+import org.revature.revconnect.model.User;
+import org.revature.revconnect.repository.CommentRepository;
+import org.revature.revconnect.repository.LikeRepository;
+import org.revature.revconnect.repository.PostRepository;
+import org.revature.revconnect.repository.ShareRepository;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class InteractionServiceTest {
 
-    @Mock
-    private LikeRepository likeRepository;
-    @Mock
-    private CommentRepository commentRepository;
-    @Mock
-    private ShareRepository shareRepository;
-    @Mock
-    private PostRepository postRepository;
-    @Mock
-    private AuthService authService;
-    @Mock
-    private NotificationService notificationService;
-
-    @Mock
-    private LikeMapper likeMapper;
-    @Mock
-    private CommentMapper commentMapper;
-    @Mock
-    private ShareMapper shareMapper;
+    @Mock private LikeRepository likeRepository;
+    @Mock private CommentRepository commentRepository;
+    @Mock private ShareRepository shareRepository;
+    @Mock private PostRepository postRepository;
+    @Mock private AuthService authService;
+    @Mock private NotificationService notificationService;
+    @Mock private LikeMapper likeMapper;
+    @Mock private CommentMapper commentMapper;
+    @Mock private ShareMapper shareMapper;
 
     @InjectMocks
     private InteractionService interactionService;
 
-    private User testUser;
-    private User otherUser;
-    private Post testPost;
-    private Like testLike;
-    private Comment testComment;
-    private Share testShare;
-
-    @BeforeEach
-    void setUp() {
-        testUser = User.builder()
-                .id(1L)
-                .username("testuser")
-                .email("test@example.com")
-                .name("Test User")
-                .build();
-
-        otherUser = User.builder()
-                .id(2L)
-                .username("otheruser")
-                .email("other@example.com")
-                .name("Other User")
-                .build();
-
-        testPost = Post.builder()
-                .id(1L)
-                .content("Test post")
-                .user(testUser)
-                .likeCount(0)
-                .commentCount(0)
-                .shareCount(0)
-                .build();
-
-        testLike = Like.builder()
-                .id(1L)
-                .user(testUser)
-                .post(testPost)
-                .createdAt(LocalDateTime.now())
-                .build();
-
-        testComment = Comment.builder()
-                .id(1L)
-                .content("Test comment")
-                .user(testUser)
-                .post(testPost)
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
-                .build();
-
-        testShare = Share.builder()
-                .id(1L)
-                .user(testUser)
-                .post(testPost)
-                .comment("Sharing this!")
-                .createdAt(LocalDateTime.now())
-                .build();
-
-        // Common mapper stubbing
-        lenient().when(likeMapper.toResponse(any(Like.class))).thenAnswer(invocation -> {
-            Like like = invocation.getArgument(0);
-            return LikeResponse.builder().id(like.getId()).build();
-        });
-
-        lenient().when(commentMapper.toResponse(any(Comment.class))).thenAnswer(invocation -> {
-            Comment comment = invocation.getArgument(0);
-            return CommentResponse.builder().id(comment.getId()).content(comment.getContent()).build();
-        });
-
-        lenient().when(shareMapper.toResponse(any(Share.class))).thenAnswer(invocation -> {
-            Share share = invocation.getArgument(0);
-            return ShareResponse.builder().id(share.getId()).build();
-        });
+    @Test
+    void hasUserLikedPost_true() {
+        User me = user(1L, "u1", UserType.PERSONAL);
+        when(authService.getCurrentUser()).thenReturn(me);
+        when(likeRepository.existsByUserIdAndPostId(1L, 3L)).thenReturn(true);
+        assertTrue(interactionService.hasUserLikedPost(3L));
     }
 
-    // ==================== LIKE TESTS ====================
+    @Test
+    void hasUserLikedPost_false() {
+        User me = user(1L, "u1", UserType.PERSONAL);
+        when(authService.getCurrentUser()).thenReturn(me);
+        when(likeRepository.existsByUserIdAndPostId(1L, 4L)).thenReturn(false);
+        assertFalse(interactionService.hasUserLikedPost(4L));
+    }
 
     @Test
-    void likePost_Success() {
-        when(authService.getCurrentUser()).thenReturn(testUser);
-        when(postRepository.findById(1L)).thenReturn(Optional.of(testPost));
-        when(likeRepository.existsByUserIdAndPostId(1L, 1L)).thenReturn(false);
-        when(likeRepository.save(any(Like.class))).thenReturn(testLike);
-        when(postRepository.save(any(Post.class))).thenReturn(testPost);
+    void likePost_success_incrementsAndNotifies() {
+        User me = user(1L, "u1", UserType.PERSONAL);
+        User owner = user(2L, "u2", UserType.PERSONAL);
+        Post post = post(11L, owner);
+        when(authService.getCurrentUser()).thenReturn(me);
+        when(postRepository.findById(11L)).thenReturn(Optional.of(post));
+        when(likeRepository.existsByUserIdAndPostId(1L, 11L)).thenReturn(false);
 
-        assertDoesNotThrow(() -> interactionService.likePost(1L));
+        interactionService.likePost(11L);
+
+        assertEquals(1, post.getLikeCount());
         verify(likeRepository).save(any(Like.class));
+        verify(notificationService).notifyLike(owner, me, 11L);
     }
 
     @Test
-    void likePost_AlreadyLiked() {
-        when(authService.getCurrentUser()).thenReturn(testUser);
-        when(postRepository.findById(1L)).thenReturn(Optional.of(testPost));
-        when(likeRepository.existsByUserIdAndPostId(1L, 1L)).thenReturn(true);
+    void likePost_duplicate_throws() {
+        User me = user(1L, "u1", UserType.PERSONAL);
+        Post post = post(12L, me);
+        when(authService.getCurrentUser()).thenReturn(me);
+        when(postRepository.findById(12L)).thenReturn(Optional.of(post));
+        when(likeRepository.existsByUserIdAndPostId(1L, 12L)).thenReturn(true);
 
-        assertThrows(BadRequestException.class, () -> interactionService.likePost(1L));
+        assertThrows(BadRequestException.class, () -> interactionService.likePost(12L));
     }
 
     @Test
-    void unlikePost_Success() {
-        when(authService.getCurrentUser()).thenReturn(testUser);
-        when(postRepository.findById(1L)).thenReturn(Optional.of(testPost));
-        when(likeRepository.findByUserIdAndPostId(1L, 1L)).thenReturn(Optional.of(testLike));
+    void unlikePost_withoutLike_throws() {
+        User me = user(1L, "u1", UserType.PERSONAL);
+        Post post = post(13L, me);
+        post.setLikeCount(1);
+        when(authService.getCurrentUser()).thenReturn(me);
+        when(postRepository.findById(13L)).thenReturn(Optional.of(post));
+        when(likeRepository.findByUserIdAndPostId(1L, 13L)).thenReturn(Optional.empty());
 
-        assertDoesNotThrow(() -> interactionService.unlikePost(1L));
-        verify(likeRepository).delete(testLike);
+        assertThrows(BadRequestException.class, () -> interactionService.unlikePost(13L));
     }
 
     @Test
-    void unlikePost_NotLiked() {
-        when(authService.getCurrentUser()).thenReturn(testUser);
-        when(postRepository.findById(1L)).thenReturn(Optional.of(testPost));
-        when(likeRepository.findByUserIdAndPostId(1L, 1L)).thenReturn(Optional.empty());
+    void addComment_success_incrementsAndNotifies() {
+        User me = user(1L, "u1", UserType.PERSONAL);
+        User owner = user(2L, "u2", UserType.PERSONAL);
+        Post post = post(14L, owner);
+        Comment saved = Comment.builder().id(1L).user(me).post(post).content("nice").build();
+        when(authService.getCurrentUser()).thenReturn(me);
+        when(postRepository.findById(14L)).thenReturn(Optional.of(post));
+        when(commentRepository.save(any(Comment.class))).thenReturn(saved);
+        when(commentMapper.toResponse(saved)).thenReturn(CommentResponse.builder().id(1L).content("nice").build());
 
-        assertThrows(BadRequestException.class, () -> interactionService.unlikePost(1L));
+        CommentResponse res = interactionService.addComment(14L, CommentRequest.builder().content("nice").build());
+
+        assertEquals(1L, res.getId());
+        assertEquals(1, post.getCommentCount());
+        verify(notificationService).notifyComment(owner, me, 14L);
     }
 
     @Test
-    void getPostLikes_Success() {
-        Page<Like> page = new PageImpl<>(List.of(testLike));
-        when(postRepository.existsById(1L)).thenReturn(true);
-        when(likeRepository.findByPostIdOrderByCreatedAtDesc(eq(1L), any(PageRequest.class))).thenReturn(page);
+    void deleteComment_foreignOwner_throws() {
+        User me = user(1L, "u1", UserType.PERSONAL);
+        User other = user(2L, "u2", UserType.PERSONAL);
+        Post post = post(15L, other);
+        post.setCommentCount(1);
+        Comment comment = Comment.builder().id(1L).user(other).post(post).build();
 
-        PagedResponse<LikeResponse> response = interactionService.getPostLikes(1L, 0, 10);
-
-        assertNotNull(response);
-        assertEquals(1, response.getTotalElements());
-    }
-
-    // ==================== COMMENT TESTS ====================
-
-    @Test
-    void addComment_Success() {
-        CommentRequest request = CommentRequest.builder().content("New comment").build();
-
-        when(authService.getCurrentUser()).thenReturn(testUser);
-        when(postRepository.findById(1L)).thenReturn(Optional.of(testPost));
-        when(commentRepository.save(any(Comment.class))).thenReturn(testComment);
-        when(postRepository.save(any(Post.class))).thenReturn(testPost);
-
-        CommentResponse response = interactionService.addComment(1L, request);
-
-        assertNotNull(response);
-        assertEquals(testComment.getId(), response.getId());
-    }
-
-    @Test
-    void getPostComments_Success() {
-        Page<Comment> page = new PageImpl<>(List.of(testComment));
-        when(postRepository.existsById(1L)).thenReturn(true);
-        when(commentRepository.findByPostIdOrderByCreatedAtDesc(eq(1L), any(PageRequest.class))).thenReturn(page);
-
-        PagedResponse<CommentResponse> response = interactionService.getPostComments(1L, 0, 10);
-
-        assertNotNull(response);
-        assertEquals(1, response.getTotalElements());
-    }
-
-    @Test
-    void deleteComment_Success() {
-        when(authService.getCurrentUser()).thenReturn(testUser);
-        when(commentRepository.findById(1L)).thenReturn(Optional.of(testComment));
-
-        assertDoesNotThrow(() -> interactionService.deleteComment(1L));
-        verify(commentRepository).delete(testComment);
-    }
-
-    @Test
-    void deleteComment_Unauthorized() {
-        when(authService.getCurrentUser()).thenReturn(otherUser);
-        when(commentRepository.findById(1L)).thenReturn(Optional.of(testComment));
+        when(authService.getCurrentUser()).thenReturn(me);
+        when(commentRepository.findById(1L)).thenReturn(Optional.of(comment));
 
         assertThrows(UnauthorizedException.class, () -> interactionService.deleteComment(1L));
     }
 
-    // ==================== SHARE TESTS ====================
-
     @Test
-    void sharePost_Success() {
-        ShareRequest request = ShareRequest.builder().comment("Check this out!").build();
+    void replyToComment_personalUser_throws() {
+        User me = user(1L, "u1", UserType.PERSONAL);
+        when(authService.getCurrentUser()).thenReturn(me);
 
-        when(authService.getCurrentUser()).thenReturn(testUser);
-        when(postRepository.findById(1L)).thenReturn(Optional.of(testPost));
-        when(shareRepository.existsByUserIdAndPostId(1L, 1L)).thenReturn(false);
-        when(shareRepository.save(any(Share.class))).thenReturn(testShare);
-        when(postRepository.save(any(Post.class))).thenReturn(testPost);
-
-        ShareResponse response = interactionService.sharePost(1L, request);
-
-        assertNotNull(response);
-        assertEquals(testShare.getId(), response.getId());
+        assertThrows(UnauthorizedException.class,
+                () -> interactionService.replyToComment(1L, 1L, "reply"));
     }
 
     @Test
-    void sharePost_AlreadyShared() {
-        when(authService.getCurrentUser()).thenReturn(testUser);
-        when(postRepository.findById(1L)).thenReturn(Optional.of(testPost));
-        when(shareRepository.existsByUserIdAndPostId(1L, 1L)).thenReturn(true);
+    void replyToComment_creatorOnOwnPost_success() {
+        User creator = user(1L, "creator", UserType.CREATOR);
+        Post post = post(20L, creator);
+        Comment parent = Comment.builder().id(2L).post(post).user(user(3L, "x", UserType.PERSONAL)).content("q").build();
+        Comment saved = Comment.builder().id(3L).post(post).user(creator).content("Reply to #2: thanks").build();
 
-        assertThrows(BadRequestException.class, () -> interactionService.sharePost(1L, null));
+        when(authService.getCurrentUser()).thenReturn(creator);
+        when(commentRepository.findById(2L)).thenReturn(Optional.of(parent));
+        when(postRepository.findById(20L)).thenReturn(Optional.of(post));
+        when(commentRepository.save(any(Comment.class))).thenReturn(saved);
+        when(commentMapper.toResponse(saved)).thenReturn(CommentResponse.builder().id(3L).content(saved.getContent()).build());
+
+        CommentResponse res = interactionService.replyToComment(20L, 2L, "thanks");
+        assertEquals(3L, res.getId());
+        assertEquals(1, post.getCommentCount());
+    }
+
+    @Test
+    void getPostLikes_postMissing_throws() {
+        when(postRepository.existsById(99L)).thenReturn(false);
+        assertThrows(ResourceNotFoundException.class, () -> interactionService.getPostLikes(99L, 0, 10));
+    }
+
+    @Test
+    void getPostLikes_success_returnsPage() {
+        Like like = Like.builder().id(1L).build();
+        when(postRepository.existsById(30L)).thenReturn(true);
+        when(likeRepository.findByPostIdOrderByCreatedAtDesc(30L, PageRequest.of(0, 10)))
+                .thenReturn(new PageImpl<>(List.of(like), PageRequest.of(0, 10), 1));
+        when(likeMapper.toResponse(like)).thenReturn(LikeResponse.builder().id(1L).build());
+
+        var page = interactionService.getPostLikes(30L, 0, 10);
+        assertEquals(1, page.getContent().size());
+    }
+
+    @Test
+    void sharePost_success_incrementsAndNotifies() {
+        User me = user(1L, "u1", UserType.PERSONAL);
+        User owner = user(2L, "u2", UserType.PERSONAL);
+        Post post = post(40L, owner);
+        Share saved = Share.builder().id(1L).post(post).user(me).comment("great").build();
+        when(authService.getCurrentUser()).thenReturn(me);
+        when(postRepository.findById(40L)).thenReturn(Optional.of(post));
+        when(shareRepository.existsByUserIdAndPostId(1L, 40L)).thenReturn(false);
+        when(shareRepository.save(any(Share.class))).thenReturn(saved);
+        when(shareMapper.toResponse(saved)).thenReturn(ShareResponse.builder().id(1L).comment("great").build());
+
+        ShareResponse res = interactionService.sharePost(40L, ShareRequest.builder().comment("great").build());
+
+        assertEquals(1L, res.getId());
+        assertEquals(1, post.getShareCount());
+        verify(notificationService).notifyShare(owner, me, 40L);
+    }
+
+    @Test
+    void sharePost_duplicate_throws() {
+        User me = user(1L, "u1", UserType.PERSONAL);
+        Post post = post(41L, me);
+        when(authService.getCurrentUser()).thenReturn(me);
+        when(postRepository.findById(41L)).thenReturn(Optional.of(post));
+        when(shareRepository.existsByUserIdAndPostId(1L, 41L)).thenReturn(true);
+
+        assertThrows(BadRequestException.class, () -> interactionService.sharePost(41L, ShareRequest.builder().build()));
+    }
+
+    private User user(Long id, String username, UserType type) {
+        return User.builder().id(id).username(username).name(username)
+                .email(username + "@test.com").password("x").userType(type).build();
+    }
+
+    private Post post(Long id, User owner) {
+        return Post.builder().id(id).user(owner).content("post")
+                .likeCount(0).commentCount(0).shareCount(0).build();
     }
 }
