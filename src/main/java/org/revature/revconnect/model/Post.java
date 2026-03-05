@@ -61,6 +61,10 @@ public class Post {
     @Builder.Default
     private Integer shareCount = 0;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "original_post_id")
+    private Post originalPost;
+
     @CreationTimestamp
     private LocalDateTime createdAt;
 

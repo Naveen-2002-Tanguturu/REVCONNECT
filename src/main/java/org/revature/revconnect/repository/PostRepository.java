@@ -76,4 +76,10 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     Page<Post> findTopPostsByUserId(@Param("userId") Long userId, Pageable pageable);
 
     Optional<Post> findByIdAndUserId(Long postId, Long userId);
+
+    @Query("SELECT p FROM Post p JOIN Like l ON p.id = l.post.id WHERE l.user.id = :userId ORDER BY l.createdAt DESC")
+    Page<Post> findLikedPostsByUserId(@Param("userId") Long userId, Pageable pageable);
+
+    @Query("SELECT p FROM Post p WHERE p.user.id = :userId AND SIZE(p.mediaUrls) > 0 ORDER BY p.createdAt DESC")
+    Page<Post> findMediaPostsByUserId(@Param("userId") Long userId, Pageable pageable);
 }

@@ -1,6 +1,9 @@
 package org.revature.revconnect.service;
 
+import org.revature.revconnect.repository.*;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -26,18 +29,35 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.never;
+
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class PostServiceTest {
 
-    @Mock private PostRepository postRepository;
-    @Mock private AuthService authService;
-    @Mock private PostMapper postMapper;
-    @Mock private HashtagService hashtagService;
-    @Mock private ConnectionRepository connectionRepository;
+    @Mock
+    private PostRepository postRepository;
+    @Mock
+    private AuthService authService;
+    @Mock
+    private PostMapper postMapper;
+    @Mock
+    private HashtagService hashtagService;
+    @Mock
+    private ConnectionRepository connectionRepository;
+    @Mock
+    private LikeRepository likeRepository;
+    @Mock
+    private CommentRepository commentRepository;
+    @Mock
+    private BookmarkRepository bookmarkRepository;
+    @Mock
+    private PostAnalyticsRepository postAnalyticsRepository;
+    @Mock
+    private CommentLikeRepository commentLikeRepository;
 
     @InjectMocks
     private PostService postService;
@@ -52,7 +72,8 @@ class PostServiceTest {
 
         when(authService.getCurrentUser()).thenReturn(me);
         when(postRepository.save(any(Post.class))).thenReturn(saved);
-        when(postMapper.toResponse(saved)).thenReturn(response);
+        when(postMapper.toResponseWithMetadata(any(), any(), any(), any(), any(), anyBoolean(), any()))
+                .thenReturn(response);
 
         PostResponse out = postService.createPost(req);
 
@@ -71,7 +92,8 @@ class PostServiceTest {
 
         when(authService.getCurrentUser()).thenReturn(me);
         when(postRepository.save(any(Post.class))).thenReturn(saved);
-        when(postMapper.toResponse(saved)).thenReturn(response);
+        when(postMapper.toResponseWithMetadata(any(), any(), any(), any(), any(), anyBoolean(), any()))
+                .thenReturn(response);
 
         PostResponse out = postService.createPost(req);
         assertEquals(PostType.IMAGE, out.getPostType());
@@ -99,7 +121,8 @@ class PostServiceTest {
         when(authService.getCurrentUser()).thenReturn(me);
         when(postRepository.findById(6L)).thenReturn(Optional.of(post));
         when(postRepository.save(post)).thenReturn(post);
-        when(postMapper.toResponse(post)).thenReturn(response);
+        when(postMapper.toResponseWithMetadata(any(), any(), any(), any(), any(), anyBoolean(), any()))
+                .thenReturn(response);
 
         PostResponse out = postService.updatePost(6L,
                 PostRequest.builder().content("new #x").postType(PostType.TEXT).mediaUrls(List.of("/m.jpg")).build());

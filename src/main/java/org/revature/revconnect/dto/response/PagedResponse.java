@@ -39,4 +39,16 @@ public class PagedResponse<T> {
                 .first(page.isFirst())
                 .build();
     }
+
+    public static <T> PagedResponse<T> empty() {
+        return PagedResponse.<T>builder()
+                .content(java.util.Collections.emptyList())
+                .pageNumber(0)
+                .pageSize(0)
+                .totalElements(0)
+                .totalPages(0)
+                .last(true)
+                .first(true)
+                .build();
+    }
 }

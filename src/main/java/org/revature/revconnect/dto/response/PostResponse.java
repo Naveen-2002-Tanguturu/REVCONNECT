@@ -29,4 +29,13 @@ public class PostResponse {
     private String authorUsername;
     private String authorName;
     private String authorProfilePicture;
+
+    // Business/Creator fields
+    private String ctaLabel;
+    private String ctaUrl;
+    private Boolean isPromotional;
+    private String partnerName;
+    private List<String> productTags;
+    private Boolean isLikedByCurrentUser;
+    private PostResponse originalPost;
 }

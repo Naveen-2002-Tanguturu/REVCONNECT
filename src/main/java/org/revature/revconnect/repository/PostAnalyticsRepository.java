@@ -29,4 +29,6 @@ public interface PostAnalyticsRepository extends JpaRepository<PostAnalytics, Lo
     @Query("SELECT pa FROM PostAnalytics pa WHERE pa.post.user.id = :userId AND pa.date BETWEEN :startDate AND :endDate ORDER BY pa.date ASC")
     List<PostAnalytics> findByUserIdAndDateRange(@Param("userId") Long userId, @Param("startDate") LocalDate startDate,
                                                  @Param("endDate") LocalDate endDate);
+
+    void deleteByPostId(Long postId);
 }

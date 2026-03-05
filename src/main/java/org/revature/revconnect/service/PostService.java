@@ -13,6 +13,12 @@ import org.revature.revconnect.model.Post;
 import org.revature.revconnect.model.User;
 import org.revature.revconnect.repository.ConnectionRepository;
 import org.revature.revconnect.repository.PostRepository;
+import org.revature.revconnect.repository.CommentRepository;
+import org.revature.revconnect.repository.LikeRepository;
+import org.revature.revconnect.repository.BookmarkRepository;
+import org.revature.revconnect.repository.PostAnalyticsRepository;
+import org.revature.revconnect.repository.CommentLikeRepository;
+import org.revature.revconnect.model.Comment;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -20,6 +26,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.stream.Collectors;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -42,6 +49,11 @@ public class PostService {
     private final PostMapper postMapper;
     private final HashtagService hashtagService;
     private final ConnectionRepository connectionRepository;
+    private final CommentRepository commentRepository;
+    private final LikeRepository likeRepository;
+    private final BookmarkRepository bookmarkRepository;
+    private final PostAnalyticsRepository postAnalyticsRepository;
+    private final CommentLikeRepository commentLikeRepository;
     private static final ScheduledExecutorService POST_SCHEDULER = Executors.newSingleThreadScheduledExecutor();
     private static final AtomicLong SCHEDULE_ID = new AtomicLong(1);
     private static final Map<Long, Map<String, Object>> SCHEDULED_POSTS = new ConcurrentHashMap<>();
@@ -61,39 +73,51 @@ public class PostService {
         Post savedPost = postRepository.save(post);
         hashtagService.processHashtagsFromContent(savedPost.getContent());
         log.info("Post created with ID: {}", savedPost.getId());
-        return postMapper.toResponse(savedPost);
+        return toResponseWithFullMetadata(savedPost);
     }
 
     public PostResponse getPostById(Long postId) {
         log.info("Fetching post with ID: {}", postId);
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new ResourceNotFoundException("Post", "id", postId));
-        return postMapper.toResponse(post);
+        return toResponseWithFullMetadata(post);
     }
 
     public PagedResponse<PostResponse> getMyPosts(int page, int size) {
         User currentUser = authService.getCurrentUser();
         log.info("Fetching posts for user: {}", currentUser.getUsername());
         Page<Post> posts = postRepository.findByUserIdWithPinnedFirst(currentUser.getId(), PageRequest.of(page, size));
-        return PagedResponse.fromEntityPage(posts, postMapper::toResponse);
+        return PagedResponse.fromEntityPage(posts, this::toResponseWithFullMetadata);
     }
 
     public PagedResponse<PostResponse> getUserPosts(Long userId, int page, int size) {
         log.info("Fetching posts for user ID: {}", userId);
         Page<Post> posts = postRepository.findByUserIdOrderByCreatedAtDesc(userId, PageRequest.of(page, size));
-        return PagedResponse.fromEntityPage(posts, postMapper::toResponse);
+        return PagedResponse.fromEntityPage(posts, this::toResponseWithFullMetadata);
+    }
+
+    public PagedResponse<PostResponse> getUserLikedPosts(Long userId, int page, int size) {
+        log.info("Fetching liked posts for user ID: {}", userId);
+        Page<Post> posts = postRepository.findLikedPostsByUserId(userId, PageRequest.of(page, size));
+        return PagedResponse.fromEntityPage(posts, this::toResponseWithFullMetadata);
+    }
+
+    public PagedResponse<PostResponse> getUserMediaPosts(Long userId, int page, int size) {
+        log.info("Fetching media posts for user ID: {}", userId);
+        Page<Post> posts = postRepository.findMediaPostsByUserId(userId, PageRequest.of(page, size));
+        return PagedResponse.fromEntityPage(posts, this::toResponseWithFullMetadata);
     }
 
     public PagedResponse<PostResponse> getPublicFeed(int page, int size) {
         log.info("Fetching public feed, page: {}, size: {}", page, size);
         Page<Post> posts = postRepository.findPublicPosts(PageRequest.of(page, size));
-        return PagedResponse.fromEntityPage(posts, postMapper::toResponse);
+        return PagedResponse.fromEntityPage(posts, this::toResponseWithFullMetadata);
     }
 
     public PagedResponse<PostResponse> getTrendingPosts(int page, int size) {
         log.info("Fetching trending posts, page: {}, size: {}", page, size);
         Page<Post> posts = postRepository.findTrendingPublicPosts(PageRequest.of(page, size));
-        return PagedResponse.fromEntityPage(posts, postMapper::toResponse);
+        return PagedResponse.fromEntityPage(posts, this::toResponseWithFullMetadata);
     }
 
     public PagedResponse<PostResponse> getPersonalizedFeed(int page, int size, PostType postType, UserType userType) {
@@ -104,7 +128,7 @@ public class PostService {
         }
         Page<Post> posts = postRepository.findPersonalizedFeed(
                 userIds, postType, userType, PageRequest.of(page, size));
-        return PagedResponse.fromEntityPage(posts, postMapper::toResponse);
+        return PagedResponse.fromEntityPage(posts, this::toResponseWithFullMetadata);
     }
 
     @Transactional
@@ -131,7 +155,7 @@ public class PostService {
         Post updatedPost = postRepository.save(post);
         hashtagService.processHashtagsFromContent(updatedPost.getContent());
         log.info("Post updated successfully: {}", postId);
-        return postMapper.toResponse(updatedPost);
+        return toResponseWithFullMetadata(updatedPost);
     }
 
     @Transactional
@@ -147,6 +171,25 @@ public class PostService {
         }
 
         log.info("Deleting post ID: {}", postId);
+
+        // 1. Clean up Comment Likes
+        commentRepository.findByPostId(postId).forEach(comment -> {
+            commentLikeRepository.deleteByCommentId(comment.getId());
+        });
+
+        // 2. Clean up Comments
+        commentRepository.deleteByPostId(postId);
+
+        // 3. Clean up Likes
+        likeRepository.deleteByPostId(postId);
+
+        // 4. Clean up Bookmarks
+        bookmarkRepository.deleteByPostId(postId);
+
+        // 5. Clean up Analytics
+        postAnalyticsRepository.deleteByPostId(postId);
+
+        // 6. Finally delete the post
         postRepository.delete(post);
         log.info("Post deleted successfully: {}", postId);
     }
@@ -164,7 +207,7 @@ public class PostService {
         post.setPinned(!post.getPinned());
         Post updatedPost = postRepository.save(post);
         log.info("Post {} pinned status changed to: {}", postId, updatedPost.getPinned());
-        return postMapper.toResponse(updatedPost);
+        return toResponseWithFullMetadata(updatedPost);
     }
 
     @Transactional
@@ -176,7 +219,8 @@ public class PostService {
             throw new UnauthorizedException("You can only edit your own posts");
         }
         PostMetadata metadata = parseMetadata(post.getContent());
-        String updated = buildContent(metadata.baseContent(), label, url, metadata.tags());
+        String updated = buildContent(metadata.baseContent(), label, url, metadata.tags(), metadata.isPromotional(),
+                metadata.partnerName());
         post.setContent(updated);
         postRepository.save(post);
 
@@ -196,7 +240,8 @@ public class PostService {
             throw new UnauthorizedException("You can only edit your own posts");
         }
         PostMetadata metadata = parseMetadata(post.getContent());
-        post.setContent(buildContent(metadata.baseContent(), null, null, metadata.tags()));
+        post.setContent(buildContent(metadata.baseContent(), null, null, metadata.tags(), metadata.isPromotional(),
+                metadata.partnerName()));
         postRepository.save(post);
         return Map.of("postId", postId, "ctaCleared", true);
     }
@@ -209,13 +254,15 @@ public class PostService {
         if (!post.getUser().getId().equals(currentUser.getId())) {
             throw new UnauthorizedException("You can only edit your own posts");
         }
-        List<String> sanitized = tags == null ? List.of() : tags.stream()
+        List<String> sanitized = tags == null ? List.of()
+                : tags.stream()
                 .map(String::trim)
                 .filter(s -> !s.isBlank())
                 .distinct()
                 .toList();
         PostMetadata metadata = parseMetadata(post.getContent());
-        post.setContent(buildContent(metadata.baseContent(), metadata.ctaLabel(), metadata.ctaUrl(), sanitized));
+        post.setContent(buildContent(metadata.baseContent(), metadata.ctaLabel(), metadata.ctaUrl(), sanitized,
+                metadata.isPromotional(), metadata.partnerName()));
         postRepository.save(post);
         return Map.of("postId", postId, "tags", sanitized);
     }
@@ -229,6 +276,8 @@ public class PostService {
         map.put("ctaLabel", metadata.ctaLabel());
         map.put("ctaUrl", metadata.ctaUrl());
         map.put("tags", metadata.tags());
+        map.put("isPromotional", metadata.isPromotional());
+        map.put("partnerName", metadata.partnerName());
         return map;
     }
 
@@ -236,7 +285,8 @@ public class PostService {
     public Map<String, Object> schedulePost(SchedulePostRequest request) {
         User currentUser = authService.getCurrentUser();
         long scheduleId = SCHEDULE_ID.getAndIncrement();
-        long delayMs = Math.max(0, java.time.Duration.between(java.time.LocalDateTime.now(), request.getPublishAt()).toMillis());
+        long delayMs = Math.max(0,
+                java.time.Duration.between(java.time.LocalDateTime.now(), request.getPublishAt()).toMillis());
 
         Map<String, Object> info = new HashMap<>();
         info.put("scheduleId", scheduleId);
@@ -275,13 +325,16 @@ public class PostService {
 
     private PostMetadata parseMetadata(String content) {
         if (content == null) {
-            return new PostMetadata("", null, null, List.of());
+            return new PostMetadata("", null, null, List.of(), false, null);
         }
         String base = content;
         String ctaLabel = null;
         String ctaUrl = null;
         List<String> tags = new ArrayList<>();
+        boolean isPromotional = false;
+        String partnerName = null;
 
+        // Extract CTA
         int ctaStart = base.indexOf("\n[[CTA|");
         if (ctaStart >= 0) {
             int ctaEnd = base.indexOf("]]", ctaStart);
@@ -296,6 +349,18 @@ public class PostService {
             }
         }
 
+        // Extract Promo
+        int promoStart = base.indexOf("\n[[PROMO|");
+        if (promoStart >= 0) {
+            int promoEnd = base.indexOf("]]", promoStart);
+            if (promoEnd > promoStart) {
+                isPromotional = true;
+                partnerName = base.substring(promoStart + 9, promoEnd).trim();
+                base = base.substring(0, promoStart) + base.substring(promoEnd + 2);
+            }
+        }
+
+        // Extract Tags
         int tagsStart = base.indexOf("\n[[TAGS|");
         if (tagsStart >= 0) {
             int tagsEnd = base.indexOf("]]", tagsStart);
@@ -305,18 +370,22 @@ public class PostService {
                         .map(String::trim)
                         .filter(s -> !s.isBlank())
                         .distinct()
-                        .toList();
+                        .collect(Collectors.toList());
                 base = base.substring(0, tagsStart) + base.substring(tagsEnd + 2);
             }
         }
 
-        return new PostMetadata(base.trim(), ctaLabel, ctaUrl, tags);
+        return new PostMetadata(base.trim(), ctaLabel, ctaUrl, tags, isPromotional, partnerName);
     }
 
-    private String buildContent(String baseContent, String ctaLabel, String ctaUrl, List<String> tags) {
+    private String buildContent(String baseContent, String ctaLabel, String ctaUrl, List<String> tags,
+                                boolean isPromotional, String partnerName) {
         StringBuilder sb = new StringBuilder(baseContent == null ? "" : baseContent.trim());
         if (ctaLabel != null && !ctaLabel.isBlank() && ctaUrl != null && !ctaUrl.isBlank()) {
             sb.append("\n[[CTA|").append(ctaLabel.trim()).append("|").append(ctaUrl.trim()).append("]]");
+        }
+        if (isPromotional && partnerName != null && !partnerName.isBlank()) {
+            sb.append("\n[[PROMO|").append(partnerName.trim()).append("]]");
         }
         List<String> safeTags = tags == null ? Collections.emptyList() : tags;
         if (!safeTags.isEmpty()) {
@@ -325,6 +394,21 @@ public class PostService {
         return sb.toString().trim();
     }
 
-    private record PostMetadata(String baseContent, String ctaLabel, String ctaUrl, List<String> tags) {
+    public PostResponse toResponseWithFullMetadata(Post post) {
+        User currentUser = authService.getCurrentUser();
+        PostMetadata meta = parseMetadata(post.getContent());
+        PostResponse resp = postMapper.toResponseWithMetadata(post, meta.baseContent(), meta.ctaLabel(), meta.ctaUrl(),
+                meta.tags(),
+                meta.isPromotional(), meta.partnerName());
+
+        if (currentUser != null) {
+            resp.setIsLikedByCurrentUser(likeRepository.existsByUserIdAndPostId(currentUser.getId(), post.getId()));
+        }
+
+        return resp;
+    }
+
+    private record PostMetadata(String baseContent, String ctaLabel, String ctaUrl, List<String> tags,
+                                boolean isPromotional, String partnerName) {
     }
 }

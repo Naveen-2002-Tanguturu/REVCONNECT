@@ -1,4 +1,5 @@
 package org.revature.revconnect.controller;
+
 import org.revature.revconnect.dto.request.PostRequest;
 import org.revature.revconnect.dto.request.SchedulePostRequest;
 import org.revature.revconnect.dto.response.ApiResponse;
@@ -61,6 +62,28 @@ public class PostController {
             @RequestParam(defaultValue = "10") int size) {
         log.info("Get posts for user ID: {}", userId);
         PagedResponse<PostResponse> posts = postService.getUserPosts(userId, page, size);
+        return ResponseEntity.ok(ApiResponse.success(posts));
+    }
+
+    @GetMapping("/user/{userId}/liked")
+    @Operation(summary = "Get liked posts by user ID")
+    public ResponseEntity<ApiResponse<PagedResponse<PostResponse>>> getUserLikedPosts(
+            @PathVariable Long userId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        log.info("Get liked posts for user ID: {}", userId);
+        PagedResponse<PostResponse> posts = postService.getUserLikedPosts(userId, page, size);
+        return ResponseEntity.ok(ApiResponse.success(posts));
+    }
+
+    @GetMapping("/user/{userId}/media")
+    @Operation(summary = "Get media posts by user ID")
+    public ResponseEntity<ApiResponse<PagedResponse<PostResponse>>> getUserMediaPosts(
+            @PathVariable Long userId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        log.info("Get media posts for user ID: {}", userId);
+        PagedResponse<PostResponse> posts = postService.getUserMediaPosts(userId, page, size);
         return ResponseEntity.ok(ApiResponse.success(posts));
     }
 
