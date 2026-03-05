@@ -1,5 +1,6 @@
 
 package org.revature.revconnect.controller;
+
 import org.revature.revconnect.dto.request.CommentRequest;
 import org.revature.revconnect.dto.request.ShareRequest;
 import org.revature.revconnect.dto.response.*;
@@ -59,14 +60,16 @@ public class InteractionController {
         boolean liked = interactionService.hasUserLikedPost(postId);
         return ResponseEntity.ok(ApiResponse.success(liked));
     }
+
     @PostMapping("/posts/{postId}/comments")
     @Operation(summary = "Add a comment to a post")
     public ResponseEntity<ApiResponse<CommentResponse>> addComment(
             @PathVariable Long postId,
             @Valid @RequestBody CommentRequest request) {
-        log.info("Add comment request for post ID: {}", postId);
+        log.info("[TRACE] Incoming Add Comment request for post ID: {}. Content length: {}", postId,
+                request.getContent().length());
         CommentResponse comment = interactionService.addComment(postId, request);
-        log.info("Comment {} added to post {} successfully", comment.getId(), postId);
+        log.info("[TRACE] Comment successfully added with ID: {}", comment.getId());
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Comment added successfully", comment));
     }
@@ -89,6 +92,44 @@ public class InteractionController {
         interactionService.deleteComment(commentId);
         log.info("Comment {} deleted successfully", commentId);
         return ResponseEntity.ok(ApiResponse.success("Comment deleted successfully", null));
+    }
+
+    @PutMapping("/comments/{commentId}")
+    @Operation(summary = "Edit a comment")
+    public ResponseEntity<ApiResponse<CommentResponse>> updateComment(
+            @PathVariable Long commentId,
+            @Valid @RequestBody CommentRequest request) {
+        log.info("Update comment request for comment ID: {}", commentId);
+        CommentResponse updatedComment = interactionService.updateComment(commentId, request);
+        return ResponseEntity.ok(ApiResponse.success("Comment updated successfully", updatedComment));
+    }
+
+    @PostMapping("/comments/{commentId}/like")
+    @Operation(summary = "Like a comment")
+    public ResponseEntity<ApiResponse<Void>> likeComment(@PathVariable Long commentId) {
+        log.info("Like comment request for comment ID: {}", commentId);
+        interactionService.likeComment(commentId);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.success("Comment liked successfully", null));
+    }
+
+    @DeleteMapping("/comments/{commentId}/like")
+    @Operation(summary = "Unlike a comment")
+    public ResponseEntity<ApiResponse<Void>> unlikeComment(@PathVariable Long commentId) {
+        log.info("Unlike comment request for comment ID: {}", commentId);
+        interactionService.unlikeComment(commentId);
+        return ResponseEntity.ok(ApiResponse.success("Comment unliked successfully", null));
+    }
+
+    @GetMapping("/comments/{commentId}/replies")
+    @Operation(summary = "Get replies to a comment")
+    public ResponseEntity<ApiResponse<PagedResponse<CommentResponse>>> getCommentReplies(
+            @PathVariable Long commentId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        log.info("Get replies request for comment ID: {}", commentId);
+        PagedResponse<CommentResponse> replies = interactionService.getCommentReplies(commentId, page, size);
+        return ResponseEntity.ok(ApiResponse.success(replies));
     }
 
     @PostMapping("/posts/{postId}/share")

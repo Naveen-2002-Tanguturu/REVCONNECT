@@ -1,4 +1,5 @@
 package org.revature.revconnect.repository;
+
 import org.junit.jupiter.api.Test;
 import org.revature.revconnect.enums.NotificationType;
 import org.revature.revconnect.enums.Privacy;

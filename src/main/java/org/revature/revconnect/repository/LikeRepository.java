@@ -1,4 +1,5 @@
 package org.revature.revconnect.repository;
+
 import org.revature.revconnect.model.Like;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,4 +20,6 @@ public interface LikeRepository extends JpaRepository<Like, Long> {
     long countByPostId(Long postId);
 
     void deleteByUserIdAndPostId(Long userId, Long postId);
+
+    void deleteByPostId(Long postId);
 }
