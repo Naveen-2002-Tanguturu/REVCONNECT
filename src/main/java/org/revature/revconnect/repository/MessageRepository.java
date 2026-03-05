@@ -20,8 +20,8 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
             "ORDER BY m.timestamp DESC")
     Page<Message> findConversation(@Param("user1") User user1, @Param("user2") User user2, Pageable pageable);
 
-    @Query("SELECT DISTINCT CASE WHEN m.sender = :user THEN m.receiver ELSE m.sender END " +
-            "FROM Message m WHERE m.sender = :user OR m.receiver = :user")
+    @Query("SELECT DISTINCT u FROM User u WHERE EXISTS (" +
+            "SELECT 1 FROM Message m WHERE (m.sender = u AND m.receiver = :user) OR (m.receiver = u AND m.sender = :user))")
     List<User> findConversationPartners(@Param("user") User user);
 
     List<Message> findByReceiverAndIsReadFalse(User receiver);
@@ -32,4 +32,3 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
             "LOWER(m.content) LIKE LOWER(CONCAT('%', :query, '%')) ORDER BY m.timestamp DESC")
     Page<Message> searchMessages(@Param("user") User user, @Param("query") String query, Pageable pageable);
 }
-

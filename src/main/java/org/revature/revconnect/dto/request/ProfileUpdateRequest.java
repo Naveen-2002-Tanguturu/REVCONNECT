@@ -19,7 +19,7 @@ public class ProfileUpdateRequest {
     private String bio;
 
     private String profilePicture;
-
+    private String coverPhoto;
     @Size(max = 100, message = "Location must not exceed 100 characters")
     private String location;
 

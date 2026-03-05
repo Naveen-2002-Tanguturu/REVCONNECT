@@ -45,15 +45,33 @@ public class ConnectionService {
         User targetUser = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
 
-        if (connectionRepository.existsByFollowerIdAndFollowingId(currentUser.getId(), userId)) {
-            log.warn("User {} already follows/requested user {}", currentUser.getUsername(), userId);
-            throw new BadRequestException("You already follow or have a pending request for this user");
+        java.util.Optional<Connection> existingOpt = connectionRepository
+                .findByFollowerIdAndFollowingId(currentUser.getId(), userId);
+        if (existingOpt.isPresent()) {
+            Connection existing = existingOpt.get();
+            if (existing.getStatus() == ConnectionStatus.REJECTED) {
+                existing.setStatus(targetUser.getUserType() == UserType.PERSONAL ? ConnectionStatus.PENDING
+                        : ConnectionStatus.ACCEPTED);
+                connectionRepository.save(existing);
+                if (existing.getStatus() == ConnectionStatus.PENDING) {
+                    notificationService.notifyConnectionRequest(targetUser, currentUser);
+                } else {
+                    notificationService.notifyFollow(targetUser, currentUser);
+                }
+                log.info("User {} re-sent follow request to user {}", currentUser.getUsername(),
+                        targetUser.getUsername());
+                return;
+            } else {
+                log.warn("User {} already follows/requested user {}", currentUser.getUsername(), userId);
+                throw new BadRequestException("You already follow or have a pending request for this user");
+            }
         }
 
         Connection connection = Connection.builder()
                 .follower(currentUser)
                 .following(targetUser)
-                .status(targetUser.getUserType() == UserType.PERSONAL ? ConnectionStatus.PENDING : ConnectionStatus.ACCEPTED)
+                .status(targetUser.getUserType() == UserType.PERSONAL ? ConnectionStatus.PENDING
+                        : ConnectionStatus.ACCEPTED)
                 .build();
 
         connectionRepository.save(connection);
@@ -73,10 +91,26 @@ public class ConnectionService {
         User currentUser = authService.getCurrentUser();
         log.info("User {} attempting to unfollow user {}", currentUser.getUsername(), userId);
 
-        Connection connection = connectionRepository.findByFollowerIdAndFollowingId(currentUser.getId(), userId)
-                .orElseThrow(() -> new BadRequestException("You are not following this user"));
+        User targetUser = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
 
-        connectionRepository.delete(connection);
+        java.util.Optional<Connection> connectionOpt = connectionRepository
+                .findByFollowerIdAndFollowingId(currentUser.getId(), userId);
+
+        if (connectionOpt.isPresent()) {
+            connectionRepository.delete(connectionOpt.get());
+        } else if (currentUser.getUserType() == UserType.PERSONAL && targetUser.getUserType() == UserType.PERSONAL) {
+            java.util.Optional<Connection> reverseOpt = connectionRepository.findByFollowerIdAndFollowingId(userId,
+                    currentUser.getId());
+            if (reverseOpt.isPresent() && reverseOpt.get().getStatus() == ConnectionStatus.ACCEPTED) {
+                connectionRepository.delete(reverseOpt.get());
+            } else {
+                throw new BadRequestException("You are not following this user");
+            }
+        } else {
+            throw new BadRequestException("You are not following this user");
+        }
+
         log.info("User {} unfollowed user {}", currentUser.getUsername(), userId);
     }
 
@@ -162,8 +196,24 @@ public class ConnectionService {
             throw new BadRequestException("You can only reject requests sent to you");
         }
 
-        connectionRepository.delete(connection);
-        log.info("Connection request {} rejected", connectionId);
+        if (connection.getStatus() != ConnectionStatus.PENDING) {
+            throw new BadRequestException("This request is not pending");
+        }
+
+        connection.setStatus(ConnectionStatus.REJECTED);
+        connectionRepository.save(connection);
+        log.info("Connection request {} rejected (status set to REJECTED)", connectionId);
+    }
+
+    public PagedResponse<ConnectionResponse> getPastRequests(int page, int size) {
+        User currentUser = authService.getCurrentUser();
+        log.info("Fetching past requests for user: {}", currentUser.getUsername());
+
+        Page<Connection> past = connectionRepository.findPastRequestsByUserId(
+                currentUser.getId(), PageRequest.of(page, size));
+
+        log.info("Found {} past requests", past.getTotalElements());
+        return PagedResponse.fromEntityPage(past, connectionMapper::fromFollower);
     }
 
     public ConnectionStatsResponse getConnectionStats(Long userId) {
@@ -182,6 +232,16 @@ public class ConnectionService {
         boolean isFollowedBy = connectionRepository.existsByFollowerIdAndFollowingIdAndStatus(
                 userId, currentUser.getId(), ConnectionStatus.ACCEPTED);
 
+        User targetUser = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
+
+        if (currentUser.getUserType() == UserType.PERSONAL && targetUser.getUserType() == UserType.PERSONAL) {
+            if (isFollowing || isFollowedBy) {
+                isFollowing = true;
+                isFollowedBy = true;
+            }
+        }
+
         log.info("User {} has {} followers and {} following", userId, followersCount, followingCount);
 
         return ConnectionStatsResponse.builder()
@@ -195,8 +255,19 @@ public class ConnectionService {
 
     public boolean isFollowing(Long userId) {
         User currentUser = authService.getCurrentUser();
-        return connectionRepository.existsByFollowerIdAndFollowingIdAndStatus(
+        boolean isFollowing = connectionRepository.existsByFollowerIdAndFollowingIdAndStatus(
                 currentUser.getId(), userId, ConnectionStatus.ACCEPTED);
+
+        User targetUser = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
+
+        if (currentUser.getUserType() == UserType.PERSONAL && targetUser.getUserType() == UserType.PERSONAL) {
+            boolean isFollowedBy = connectionRepository.existsByFollowerIdAndFollowingIdAndStatus(
+                    userId, currentUser.getId(), ConnectionStatus.ACCEPTED);
+            return isFollowing || isFollowedBy;
+        }
+
+        return isFollowing;
     }
 
     @Transactional

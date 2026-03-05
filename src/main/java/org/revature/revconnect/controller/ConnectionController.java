@@ -87,6 +87,16 @@ public class ConnectionController {
         return ResponseEntity.ok(ApiResponse.success(pending));
     }
 
+    @GetMapping("/connections/past")
+    @Operation(summary = "Get past (accepted/rejected) connection requests")
+    public ResponseEntity<ApiResponse<PagedResponse<ConnectionResponse>>> getPastRequests(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        log.info("Get past connection requests");
+        PagedResponse<ConnectionResponse> past = connectionService.getPastRequests(page, size);
+        return ResponseEntity.ok(ApiResponse.success(past));
+    }
+
     @PostMapping("/connections/{connectionId}/accept")
     @Operation(summary = "Accept a connection request")
     public ResponseEntity<ApiResponse<Void>> acceptRequest(@PathVariable Long connectionId) {

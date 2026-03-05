@@ -33,11 +33,14 @@ public class Message {
     private String mediaUrl;
 
     @Column(nullable = false)
-    private LocalDateTime timestamp;
+    @Builder.Default
+    private LocalDateTime timestamp = LocalDateTime.now();
 
-    private boolean isRead;
+    @Builder.Default
+    private boolean isRead = false;
 
-    private boolean isDeleted;
+    @Builder.Default
+    private boolean isDeleted = false;
 
     @PrePersist
     protected void onCreate() {

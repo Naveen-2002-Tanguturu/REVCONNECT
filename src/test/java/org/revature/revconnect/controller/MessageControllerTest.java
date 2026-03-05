@@ -1,10 +1,14 @@
 package org.revature.revconnect.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.revature.revconnect.dto.request.MessageRequest;
 import org.revature.revconnect.model.Message;
 import org.revature.revconnect.model.User;
 import org.revature.revconnect.service.MessageService;
+import org.revature.revconnect.repository.UserRepository;
+import org.revature.revconnect.security.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -13,11 +17,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -35,14 +41,20 @@ public class MessageControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
+    @Autowired
+    private ObjectMapper objectMapper;
+
     @MockBean
     private MessageService messageService;
 
     @MockBean
-    private org.revature.revconnect.security.JwtTokenProvider jwtTokenProvider;
+    private UserRepository userRepository;
 
     @MockBean
-    private org.springframework.security.core.userdetails.UserDetailsService userDetailsService;
+    private JwtTokenProvider jwtTokenProvider;
+
+    @MockBean
+    private UserDetailsService userDetailsService;
 
     @BeforeEach
     void setUp() {
@@ -67,12 +79,16 @@ public class MessageControllerTest {
 
     @Test
     void createConversation_ShouldReturnCreated() throws Exception {
+        User recipient = new User();
+        recipient.setId(1L);
+        when(userRepository.findById(1L)).thenReturn(Optional.of(recipient));
+
         mockMvc.perform(post("/api/messages/conversations")
                         .param("recipientId", "1")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.message").value("Conversation created"))
+                .andExpect(jsonPath("$.message").value("Conversation opened"))
                 .andExpect(jsonPath("$.data").exists());
     }
 
@@ -108,9 +124,13 @@ public class MessageControllerTest {
         message.setId(1L);
         when(messageService.sendMessage(anyLong(), anyString(), any())).thenReturn(message);
 
+        MessageRequest request = MessageRequest.builder()
+                .content("hello")
+                .mediaUrl("http://example.com/image.jpg")
+                .build();
+
         mockMvc.perform(post("/api/messages/conversations/{conversationId}", 1L)
-                        .param("content", "hello")
-                        .param("mediaUrl", "http://example.com/image.jpg")
+                        .content(objectMapper.writeValueAsString(request))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.success").value(true))
@@ -144,8 +164,12 @@ public class MessageControllerTest {
     void editMessage_ShouldReturnOk() throws Exception {
         when(messageService.editMessage(anyLong(), anyString())).thenReturn(new Message());
 
+        MessageRequest request = MessageRequest.builder()
+                .content("edited content")
+                .build();
+
         mockMvc.perform(patch("/api/messages/messages/{messageId}", 1L)
-                        .param("content", "edited content")
+                        .content(objectMapper.writeValueAsString(request))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))

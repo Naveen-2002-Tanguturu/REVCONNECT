@@ -1,11 +1,15 @@
 package org.revature.revconnect.controller;
 
+import org.revature.revconnect.dto.request.MessageRequest;
 import org.revature.revconnect.dto.response.ApiResponse;
 import org.revature.revconnect.model.Message;
 import org.revature.revconnect.model.User;
 import org.revature.revconnect.service.MessageService;
+import org.revature.revconnect.repository.UserRepository;
+import org.revature.revconnect.exception.ResourceNotFoundException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -25,26 +29,32 @@ import java.util.Map;
 public class MessageController {
 
     private final MessageService messageService;
+    private final UserRepository userRepository;
 
     @GetMapping("/conversations")
     @Operation(summary = "Get all conversations")
     public ResponseEntity<ApiResponse<List<Map<String, Object>>>> getConversations(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
-        log.info("Getting conversations");
+        log.info("[TRACE] Incoming Get Conversations request");
         List<Map<String, Object>> conversations = messageService.getConversationPartners().stream()
                 .map(this::toUserMap)
                 .toList();
+        log.info("[TRACE] Found {} conversations", conversations.size());
         return ResponseEntity.ok(ApiResponse.success(conversations));
     }
 
     @PostMapping("/conversations")
     @Operation(summary = "Create a new conversation")
-    public ResponseEntity<ApiResponse<Map<String, Long>>> createConversation(
+    public ResponseEntity<ApiResponse<Map<String, Object>>> createConversation(
             @RequestParam Long recipientId) {
-        log.info("Creating conversation with user: {}", recipientId);
+        log.info("Creating/opening conversation with user: {}", recipientId);
+        // Load recipient details to confirm they exist and return for frontend to add
+        // to list
+        User recipient = userRepository.findById(recipientId)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", recipientId));
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.success("Conversation created", Map.of("conversationId", recipientId)));
+                .body(ApiResponse.success("Conversation opened", toUserMap(recipient)));
     }
 
     @GetMapping("/conversations/{conversationId}")
@@ -65,10 +75,11 @@ public class MessageController {
     @Operation(summary = "Send a message")
     public ResponseEntity<ApiResponse<Map<String, Long>>> sendMessage(
             @PathVariable Long conversationId,
-            @RequestParam String content,
-            @RequestParam(required = false) String mediaUrl) {
-        log.info("Sending message to conversation: {}", conversationId);
-        Message message = messageService.sendMessage(conversationId, content, mediaUrl);
+            @Valid @RequestBody MessageRequest request) {
+        log.info("[TRACE] Incoming Send Message request to conversation: {}. Content length: {}",
+                conversationId, request.getContent().length());
+        Message message = messageService.sendMessage(conversationId, request.getContent(), request.getMediaUrl());
+        log.info("[TRACE] Message successfully sent with ID: {}", message.getId());
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Message sent", Map.of("messageId", message.getId())));
     }
@@ -93,9 +104,9 @@ public class MessageController {
     @Operation(summary = "Edit a message")
     public ResponseEntity<ApiResponse<Void>> editMessage(
             @PathVariable Long messageId,
-            @RequestParam String content) {
+            @Valid @RequestBody MessageRequest request) {
         log.info("Editing message: {}", messageId);
-        messageService.editMessage(messageId, content);
+        messageService.editMessage(messageId, request.getContent());
         return ResponseEntity.ok(ApiResponse.success("Message edited", null));
     }
 

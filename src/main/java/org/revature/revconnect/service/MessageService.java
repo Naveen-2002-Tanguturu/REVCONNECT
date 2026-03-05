@@ -18,6 +18,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@Transactional(readOnly = true)
 public class MessageService {
 
     private final MessageRepository messageRepository;
@@ -55,8 +56,14 @@ public class MessageService {
 
     public List<User> getConversationPartners() {
         User currentUser = authService.getCurrentUser();
-        log.info("Fetching conversation partners for user: {}", currentUser.getUsername());
-        return messageRepository.findConversationPartners(currentUser);
+        log.info("[TRACE] Fetching conversation partners for user: {}. ID: {}",
+                currentUser.getUsername(), currentUser.getId());
+        List<User> partners = messageRepository.findConversationPartners(currentUser);
+        log.info("[TRACE] Found {} conversation partners for user {}", partners.size(), currentUser.getUsername());
+        for (User p : partners) {
+            log.info("[TRACE]   Partner: {} (ID: {})", p.getUsername(), p.getId());
+        }
+        return partners;
     }
 
     @Transactional
