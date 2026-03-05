@@ -21,16 +21,13 @@ public interface ConnectionRepository extends JpaRepository<Connection, Long> {
 
     boolean existsByFollowerIdAndFollowingIdAndStatus(Long followerId, Long followingId, ConnectionStatus status);
 
-
     @Query("SELECT c FROM Connection c WHERE c.following.id = :userId AND c.status = :status")
     Page<Connection> findFollowersByUserId(@Param("userId") Long userId, @Param("status") ConnectionStatus status,
                                            Pageable pageable);
 
-
     @Query("SELECT c FROM Connection c WHERE c.follower.id = :userId AND c.status = :status")
     Page<Connection> findFollowingByUserId(@Param("userId") Long userId, @Param("status") ConnectionStatus status,
                                            Pageable pageable);
-
 
     @Query("SELECT c FROM Connection c WHERE c.following.id = :userId AND c.status = 'PENDING'")
     Page<Connection> findPendingRequestsByUserId(@Param("userId") Long userId, Pageable pageable);
@@ -38,12 +35,12 @@ public interface ConnectionRepository extends JpaRepository<Connection, Long> {
     @Query("SELECT c FROM Connection c WHERE c.follower.id = :userId AND c.status = 'PENDING'")
     Page<Connection> findSentPendingRequestsByUserId(@Param("userId") Long userId, Pageable pageable);
 
+    @Query("SELECT c FROM Connection c WHERE c.following.id = :userId AND (c.status = 'ACCEPTED' OR c.status = 'REJECTED') ORDER BY c.updatedAt DESC")
+    Page<Connection> findPastRequestsByUserId(@Param("userId") Long userId, Pageable pageable);
 
     long countByFollowingIdAndStatus(Long userId, ConnectionStatus status);
 
-
     long countByFollowerIdAndStatus(Long userId, ConnectionStatus status);
-
 
     @Query("SELECT c.following.id FROM Connection c WHERE c.follower.id = :userId AND c.status = 'ACCEPTED'")
     List<Long> findFollowingUserIds(@Param("userId") Long userId);
