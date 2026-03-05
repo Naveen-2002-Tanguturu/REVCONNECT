@@ -6,6 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.revature.revconnect.dto.response.PostResponse;
 import org.revature.revconnect.exception.BadRequestException;
 import org.revature.revconnect.exception.ResourceNotFoundException;
 import org.revature.revconnect.model.Bookmark;
@@ -19,6 +20,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -33,9 +35,14 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class BookmarkServiceTest {
 
-    @Mock private BookmarkRepository bookmarkRepository;
-    @Mock private PostRepository postRepository;
-    @Mock private UserRepository userRepository;
+    @Mock
+    private BookmarkRepository bookmarkRepository;
+    @Mock
+    private PostRepository postRepository;
+    @Mock
+    private UserRepository userRepository;
+    @Mock
+    private PostService postService;
 
     @InjectMocks
     private BookmarkService bookmarkService;
@@ -103,11 +110,13 @@ class BookmarkServiceTest {
         User user = user(1L, "alice");
         Post post = post(21L, user);
         Bookmark bookmark = Bookmark.builder().id(1L).user(user).post(post).build();
+        bookmark.setCreatedAt(LocalDateTime.now());
         setAuth("alice");
 
         when(userRepository.findByUsername("alice")).thenReturn(Optional.of(user));
         when(bookmarkRepository.findByUserOrderByCreatedAtDesc(user, PageRequest.of(0, 10)))
                 .thenReturn(new PageImpl<>(List.of(bookmark), PageRequest.of(0, 10), 1));
+        when(postService.toResponseWithFullMetadata(post)).thenReturn(new PostResponse());
 
         var page = bookmarkService.getBookmarks(0, 10);
         assertEquals(1, page.getContent().size());
