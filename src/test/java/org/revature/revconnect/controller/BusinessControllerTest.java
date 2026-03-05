@@ -11,6 +11,7 @@ import org.revature.revconnect.dto.response.PagedResponse;
 import org.revature.revconnect.dto.response.PostResponse;
 import org.revature.revconnect.enums.BusinessCategory;
 import org.revature.revconnect.service.BusinessService;
+
 import org.revature.revconnect.service.InteractionService;
 import org.revature.revconnect.service.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -209,7 +210,8 @@ public class BusinessControllerTest {
     @Test
     void replyToComment_ShouldReturnCreated() throws Exception {
         CommentResponse response = new CommentResponse();
-        when(interactionService.replyToComment(anyLong(), anyLong(), anyString())).thenReturn(response);
+        when(interactionService.addComment(anyLong(),
+                any(org.revature.revconnect.dto.request.CommentRequest.class))).thenReturn(response);
 
         mockMvc.perform(post("/api/business/posts/{postId}/comments/{commentId}/reply", 1L, 2L)
                         .param("message", "Test reply")

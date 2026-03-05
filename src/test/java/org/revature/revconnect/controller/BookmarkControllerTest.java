@@ -23,7 +23,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(BookmarkController.class)
-@AutoConfigureMockMvc(addFilters = false)
+@AutoConfigureMockMvc(addFilters = false) // Bypasses security filters for unit testing controllers
 public class BookmarkControllerTest {
 
     @Autowired
