@@ -178,6 +178,14 @@ public class StoryController {
         map.put("expiresAt", story.getExpiresAt());
         map.put("isHighlight", story.isHighlight());
         map.put("viewCount", story.getViewCount());
+
+        Map<String, Object> userMap = new java.util.HashMap<>();
+        userMap.put("id", story.getUser().getId());
+        userMap.put("username", story.getUser().getUsername());
+        userMap.put("name", story.getUser().getName());
+        userMap.put("profilePicture", story.getUser().getProfilePicture());
+        map.put("user", userMap);
+
         return map;
     }
 }

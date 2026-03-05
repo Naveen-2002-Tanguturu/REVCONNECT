@@ -26,10 +26,10 @@ import java.util.List;
 @Slf4j
 @Transactional
 public class BookmarkService {
-
     private final BookmarkRepository bookmarkRepository;
     private final PostRepository postRepository;
     private final UserRepository userRepository;
+    private final PostService postService;
 
     private User getCurrentUser() {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -80,7 +80,6 @@ public class BookmarkService {
                 .totalElements(bookmarkPage.getTotalElements())
                 .totalPages(bookmarkPage.getTotalPages())
                 .last(bookmarkPage.isLast())
-                .first(bookmarkPage.isFirst())
                 .build();
     }
 
@@ -93,21 +92,7 @@ public class BookmarkService {
 
     private BookmarkResponse mapToResponse(Bookmark bookmark) {
         Post post = bookmark.getPost();
-
-        PostResponse postResponse = PostResponse.builder()
-                .id(post.getId())
-                .content(post.getContent())
-                .mediaUrls(post.getMediaUrls())
-                .postType(post.getPostType())
-                .authorId(post.getUser().getId())
-                .authorUsername(post.getUser().getUsername())
-                .authorName(post.getUser().getName())
-                .likeCount(post.getLikeCount())
-                .commentCount(post.getCommentCount())
-                .shareCount(post.getShareCount())
-                .createdAt(post.getCreatedAt())
-                .updatedAt(post.getUpdatedAt())
-                .build();
+        PostResponse postResponse = postService.toResponseWithFullMetadata(post);
 
         return BookmarkResponse.builder()
                 .id(bookmark.getId())
