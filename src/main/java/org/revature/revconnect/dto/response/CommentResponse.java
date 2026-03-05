@@ -19,6 +19,10 @@ public class CommentResponse {
     private String name;
     private String profilePicture;
     private Long postId;
+    private Long parentId;
+    private Integer likeCount;
+    private Integer replyCount;
+    private Boolean isLikedByCurrentUser;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 

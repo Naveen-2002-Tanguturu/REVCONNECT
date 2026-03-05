@@ -26,6 +26,7 @@ import org.revature.revconnect.repository.CommentRepository;
 import org.revature.revconnect.repository.LikeRepository;
 import org.revature.revconnect.repository.PostRepository;
 import org.revature.revconnect.repository.ShareRepository;
+import org.revature.revconnect.repository.CommentLikeRepository;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 
@@ -43,15 +44,26 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class InteractionServiceTest {
 
-    @Mock private LikeRepository likeRepository;
-    @Mock private CommentRepository commentRepository;
-    @Mock private ShareRepository shareRepository;
-    @Mock private PostRepository postRepository;
-    @Mock private AuthService authService;
-    @Mock private NotificationService notificationService;
-    @Mock private LikeMapper likeMapper;
-    @Mock private CommentMapper commentMapper;
-    @Mock private ShareMapper shareMapper;
+    @Mock
+    private LikeRepository likeRepository;
+    @Mock
+    private CommentRepository commentRepository;
+    @Mock
+    private ShareRepository shareRepository;
+    @Mock
+    private PostRepository postRepository;
+    @Mock
+    private AuthService authService;
+    @Mock
+    private NotificationService notificationService;
+    @Mock
+    private LikeMapper likeMapper;
+    @Mock
+    private CommentMapper commentMapper;
+    @Mock
+    private ShareMapper shareMapper;
+    @Mock
+    private CommentLikeRepository commentLikeRepository;
 
     @InjectMocks
     private InteractionService interactionService;
@@ -119,7 +131,7 @@ class InteractionServiceTest {
         Comment saved = Comment.builder().id(1L).user(me).post(post).content("nice").build();
         when(authService.getCurrentUser()).thenReturn(me);
         when(postRepository.findById(14L)).thenReturn(Optional.of(post));
-        when(commentRepository.save(any(Comment.class))).thenReturn(saved);
+        when(commentRepository.saveAndFlush(any(Comment.class))).thenReturn(saved);
         when(commentMapper.toResponse(saved)).thenReturn(CommentResponse.builder().id(1L).content("nice").build());
 
         CommentResponse res = interactionService.addComment(14L, CommentRequest.builder().content("nice").build());
@@ -156,14 +168,16 @@ class InteractionServiceTest {
     void replyToComment_creatorOnOwnPost_success() {
         User creator = user(1L, "creator", UserType.CREATOR);
         Post post = post(20L, creator);
-        Comment parent = Comment.builder().id(2L).post(post).user(user(3L, "x", UserType.PERSONAL)).content("q").build();
+        Comment parent = Comment.builder().id(2L).post(post).user(user(3L, "x", UserType.PERSONAL)).content("q")
+                .build();
         Comment saved = Comment.builder().id(3L).post(post).user(creator).content("Reply to #2: thanks").build();
 
         when(authService.getCurrentUser()).thenReturn(creator);
         when(commentRepository.findById(2L)).thenReturn(Optional.of(parent));
         when(postRepository.findById(20L)).thenReturn(Optional.of(post));
         when(commentRepository.save(any(Comment.class))).thenReturn(saved);
-        when(commentMapper.toResponse(saved)).thenReturn(CommentResponse.builder().id(3L).content(saved.getContent()).build());
+        when(commentMapper.toResponse(saved))
+                .thenReturn(CommentResponse.builder().id(3L).content(saved.getContent()).build());
 
         CommentResponse res = interactionService.replyToComment(20L, 2L, "thanks");
         assertEquals(3L, res.getId());
@@ -215,7 +229,8 @@ class InteractionServiceTest {
         when(postRepository.findById(41L)).thenReturn(Optional.of(post));
         when(shareRepository.existsByUserIdAndPostId(1L, 41L)).thenReturn(true);
 
-        assertThrows(BadRequestException.class, () -> interactionService.sharePost(41L, ShareRequest.builder().build()));
+        assertThrows(BadRequestException.class,
+                () -> interactionService.sharePost(41L, ShareRequest.builder().build()));
     }
 
     private User user(Long id, String username, UserType type) {

@@ -34,6 +34,18 @@ public class Comment {
     @JoinColumn(name = "post_id", nullable = false)
     private Post post;
 
+    @Column(nullable = false, columnDefinition = "int default 0")
+    @Builder.Default
+    private Integer likeCount = 0;
+
+    @Column(nullable = false, columnDefinition = "int default 0")
+    @Builder.Default
+    private Integer replyCount = 0;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_id")
+    private Comment parent;
+
     @CreationTimestamp
     private LocalDateTime createdAt;
 

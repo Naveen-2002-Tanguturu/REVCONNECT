@@ -16,6 +16,9 @@ public class CommentMapper {
                 .name(comment.getUser().getName())
                 .profilePicture(comment.getUser().getProfilePicture())
                 .postId(comment.getPost().getId())
+                .parentId(comment.getParent() != null ? comment.getParent().getId() : null)
+                .likeCount(comment.getLikeCount())
+                .replyCount(comment.getReplyCount())
                 .createdAt(comment.getCreatedAt())
                 .updatedAt(comment.getUpdatedAt())
                 .build();
