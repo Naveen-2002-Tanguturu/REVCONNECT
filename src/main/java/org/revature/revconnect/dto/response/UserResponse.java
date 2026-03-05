@@ -1,6 +1,5 @@
 package org.revature.revconnect.dto.response;
 
-
 import org.revature.revconnect.enums.Privacy;
 import org.revature.revconnect.enums.UserType;
 import org.revature.revconnect.model.User;
@@ -24,6 +23,7 @@ public class UserResponse {
     private UserType userType;
     private String bio;
     private String profilePicture;
+    private String coverPhoto;
     private String location;
     private String website;
     private Privacy privacy;

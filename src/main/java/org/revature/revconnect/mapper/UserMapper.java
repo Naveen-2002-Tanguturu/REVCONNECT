@@ -1,4 +1,5 @@
 package org.revature.revconnect.mapper;
+
 import org.revature.revconnect.dto.response.UserResponse;
 import org.revature.revconnect.model.User;
 import org.springframework.stereotype.Component;
@@ -15,6 +16,7 @@ public class UserMapper {
                 .userType(user.getUserType())
                 .bio(user.getBio())
                 .profilePicture(user.getProfilePicture())
+                .coverPhoto(user.getCoverPhoto())
                 .location(user.getLocation())
                 .website(user.getWebsite())
                 .privacy(user.getPrivacy())
@@ -39,6 +41,7 @@ public class UserMapper {
                 .userType(user.getUserType())
                 .bio(user.getBio())
                 .profilePicture(user.getProfilePicture())
+                .coverPhoto(user.getCoverPhoto())
                 .location(user.getLocation())
                 .website(user.getWebsite())
                 .privacy(user.getPrivacy())

@@ -122,12 +122,18 @@ public class SettingsService {
         return map;
     }
 
+    @Transactional
     public void deleteAccount(String password) {
         User currentUser = authService.getCurrentUser();
         if (!passwordEncoder.matches(password, currentUser.getPassword())) {
             throw new BadRequestException("Password is incorrect");
         }
-        log.info("Delete account requested for user {}", currentUser.getUsername());
+        log.info("Deleting account for user: {}", currentUser.getUsername());
+
+        // Due to CascadeType.ALL on User entity relationships,
+        // this will delete all dependent records automatically.
+        userRepository.delete(currentUser);
+        log.info("Account for user {} deleted successfully", currentUser.getUsername());
     }
 
     @Transactional(readOnly = true)

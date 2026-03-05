@@ -79,6 +79,9 @@ public class UserService {
         if (request.getProfilePicture() != null) {
             currentUser.setProfilePicture(request.getProfilePicture());
         }
+        if (request.getCoverPhoto() != null) {
+            currentUser.setCoverPhoto(request.getCoverPhoto());
+        }
         if (request.getLocation() != null) {
             currentUser.setLocation(request.getLocation());
         }
