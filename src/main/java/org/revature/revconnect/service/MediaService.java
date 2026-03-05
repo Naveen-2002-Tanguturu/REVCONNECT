@@ -63,9 +63,13 @@ public class MediaService {
         return saved;
     }
 
+    @Transactional
     public Map<String, String> uploadCoverPhoto(MultipartFile file) {
         User currentUser = authService.getCurrentUser();
-        return saveFile(currentUser, file, "cover");
+        Map<String, String> saved = saveFile(currentUser, file, "cover");
+        currentUser.setCoverPhoto(saved.get("url"));
+        userRepository.save(currentUser);
+        return saved;
     }
 
     public Map<String, String> uploadVideo(MultipartFile file) {

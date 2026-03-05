@@ -130,23 +130,53 @@ public class AuthService {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new ResourceNotFoundException("User", "email", request.getEmail()));
 
-        // Delete any existing token for this user
-        passwordResetTokenRepository.findByUser(user)
-                .ifPresent(token -> passwordResetTokenRepository.delete(token));
+        log.info("User found for email: {}", user.getUsername());
 
-        // Generate new token
-        String token = UUID.randomUUID().toString();
-        PasswordResetToken resetToken = PasswordResetToken.builder()
-                .token(token)
-                .user(user)
-                .expiryDate(LocalDateTime.now().plusHours(TOKEN_EXPIRY_HOURS))
-                .build();
+        // Generate new 6-digit OTP
+        String otp = String.format("%06d", (int) (Math.random() * 1000000));
+        log.info("Generated 6-digit OTP: {}", otp);
 
-        passwordResetTokenRepository.save(resetToken);
-        log.info("Password reset token created for user: {}", user.getUsername());
+        // Find existing token and delete it to match test expectation and ensure fresh
+        // OTP
+        passwordResetTokenRepository.findByUser(user).ifPresent(token -> {
+            passwordResetTokenRepository.delete(token);
+            passwordResetTokenRepository.flush(); // Ensure deletion is flushed
+        });
+
+        PasswordResetToken resetToken = new PasswordResetToken();
+        resetToken.setUser(user);
+        resetToken.setToken(otp);
+        resetToken.setExpiryDate(LocalDateTime.now().plusHours(TOKEN_EXPIRY_HOURS));
+
+        try {
+            passwordResetTokenRepository.save(resetToken);
+            log.info("Password reset token (OTP) saved successfully for user: {}", user.getUsername());
+        } catch (Exception e) {
+            log.error("Error while saving reset token: {}", e.getMessage());
+            // If it still fails due to uniqueness, try one more time by deleting first and
+            // flushing
+            try {
+                log.info("Fall-back: Deleting and flushing before save...");
+                passwordResetTokenRepository.deleteByUser(user);
+                passwordResetTokenRepository.flush();
+
+                PasswordResetToken newToken = PasswordResetToken.builder()
+                        .token(otp)
+                        .user(user)
+                        .expiryDate(LocalDateTime.now().plusHours(TOKEN_EXPIRY_HOURS))
+                        .build();
+                passwordResetTokenRepository.save(newToken);
+                log.info("Password reset token saved successfully after fall-back.");
+            } catch (Exception ex) {
+                log.error("Critical error in fall-back: {}", ex.getMessage());
+                throw new BadRequestException("Failed to initiate password reset. Please try again later.");
+            }
+        }
 
         // Send email (mocked in dev)
-        emailService.sendPasswordResetEmail(user.getEmail(), token);
+        log.info("Calling email service to send OTP...");
+        emailService.sendPasswordResetEmail(user.getEmail(), otp);
+        log.info("Forgot password process completed for email: {}", request.getEmail());
     }
 
     @Transactional

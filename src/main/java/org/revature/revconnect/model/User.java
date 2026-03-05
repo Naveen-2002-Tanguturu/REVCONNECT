@@ -55,6 +55,9 @@ public class User implements UserDetails {
     @Column(name = "profile_picture")
     private String profilePicture;
 
+    @Column(name = "cover_photo")
+    private String coverPhoto;
+
     @Column(length = 100)
     private String location;
 
@@ -101,6 +104,43 @@ public class User implements UserDetails {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    // Cascade relationships for deletion
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Post> posts;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Comment> comments;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Like> likes;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Bookmark> bookmarks;
+
+    @OneToMany(mappedBy = "follower", cascade = CascadeType.ALL)
+    private List<Connection> following;
+
+    @OneToMany(mappedBy = "following", cascade = CascadeType.ALL)
+    private List<Connection> followers;
+
+    @OneToMany(mappedBy = "sender", cascade = CascadeType.ALL)
+    private List<Message> sentMessages;
+
+    @OneToMany(mappedBy = "receiver", cascade = CascadeType.ALL)
+    private List<Message> receivedMessages;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Notification> notifications;
+
+    @OneToMany(mappedBy = "actor", cascade = CascadeType.ALL)
+    private List<Notification> triggeredNotifications;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private UserSettings settings;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private BusinessProfile businessProfile;
+
     // UserDetails implementation
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -137,4 +177,3 @@ public class User implements UserDetails {
         return true;
     }
 }
-
