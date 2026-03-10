@@ -74,7 +74,7 @@ export class Register {
     this.authService.register(this.details).subscribe({
       next: (response) => {
         this.isLoading = false;
-        if (response.success && response.data) {
+        if (response.success) {
           alert('Registration successful! Please check your email for the verification code.');
           this.step = 'VERIFY';
         } else {
