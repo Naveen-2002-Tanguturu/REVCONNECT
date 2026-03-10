@@ -1,0 +1,82 @@
+// Shared Design Mixins
+@mixin glass-card-styles {
+    background: var(--bg-card);
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    transition: var(--transition-bounce);
+    position: relative;
+    overflow: hidden;
+
+    &:hover {
+        transform: translateY(-8px);
+        box-shadow: var(--shadow-xl), var(--shadow-accent);
+        border-color: var(--accent-glow);
+        background: var(--bg-glass-heavy);
+    }
+}
+
+@mixin btn-primary-styles {
+    background: var(--accent-gradient);
+    color: #ffffff !important;
+    border: none;
+    padding: 0.75rem 1.75rem;
+    border-radius: var(--radius-md);
+    font-weight: 700;
+    font-family: 'Outfit', sans-serif;
+    cursor: pointer;
+    transition: var(--transition-fast);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+    white-space: nowrap;
+
+    &:hover:not(:disabled) {
+        transform: translateY(-3px) scale(1.02);
+        box-shadow: 0 12px 30px rgba(99, 102, 241, 0.5);
+        filter: brightness(1.1);
+    }
+
+    &:active:not(:disabled) {
+        transform: translateY(0);
+    }
+
+    &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+}
+
+@mixin btn-secondary-styles {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    padding: 0.75rem 1.75rem;
+    border-radius: var(--radius-md);
+    font-weight: 700;
+    cursor: pointer;
+    transition: var(--transition-fast);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    white-space: nowrap;
+
+    &:hover {
+        background: var(--bg-primary);
+        border-color: var(--accent-primary);
+        color: var(--accent-primary);
+    }
+}
+
+@mixin gradient-text-styles {
+    background: var(--accent-gradient);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: inline-block;
+}

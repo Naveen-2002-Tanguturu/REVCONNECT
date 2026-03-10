@@ -1,0 +1,123 @@
+<div class="app-layout">
+    <app-navbar></app-navbar>
+
+    <div class="main-container">
+        <!-- Sidebar -->
+        <aside class="sidebar-column">
+            <app-sidebar></app-sidebar>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="feed-column messages-column">
+            <div class="messages-layout glass-card">
+
+                <!-- Left: Conversations List -->
+                <div class="conversations-panel">
+                    <div class="conv-header">
+                        <h2>Messages</h2>
+                    </div>
+
+                    <div class="conv-loading" *ngIf="isLoadingConversations">
+                        <i class="fa-solid fa-circle-notch fa-spin"></i>
+                    </div>
+
+                    <div class="conv-list" *ngIf="!isLoadingConversations">
+                        <div class="conv-item" *ngFor="let partner of conversations"
+                            [class.active]="selectedConversation?.userId === partner.userId"
+                            (click)="selectConversation(partner)">
+                            <img [src]="getAvatarUrl(partner)" alt="{{partner.name}}">
+                            <div class="conv-info">
+                                <strong>{{partner.name}}</strong>
+                                <span>&#64;{{partner.username}}</span>
+                            </div>
+                        </div>
+
+                        <div class="conv-empty" *ngIf="conversations.length === 0">
+                            <i class="fa-solid fa-comments"></i>
+                            <p>No conversations yet</p>
+                            <small>Follow someone and start chatting!</small>
+                            <br>
+                            <button class="btn-primary mt-3" style="width: 100%" routerLink="/explore">Find
+                                People</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Chat Window -->
+                <div class="chat-panel">
+
+                    <!-- No conversation selected -->
+                    <div class="chat-empty-state" *ngIf="!selectedConversation">
+                        <i class="fa-solid fa-paper-plane"></i>
+                        <h3>Select a conversation</h3>
+                        <p>Choose a conversation from the left to start messaging.</p>
+                    </div>
+
+                    <!-- Conversation active -->
+                    <ng-container *ngIf="selectedConversation">
+                        <!-- Chat Header -->
+                        <div class="chat-header">
+                            <img [src]="getAvatarUrl(selectedConversation)" alt="{{selectedConversation.name}}">
+                            <div class="chat-header-info">
+                                <strong>{{selectedConversation.name}}</strong>
+                                <span>&#64;{{selectedConversation.username}}</span>
+                            </div>
+                        </div>
+
+                        <!-- Messages Area -->
+                        <div class="chat-messages">
+                            <div class="msg-loading" *ngIf="isLoadingMessages">
+                                <i class="fa-solid fa-circle-notch fa-spin"></i>
+                            </div>
+
+                            <ng-container *ngIf="!isLoadingMessages">
+                                <div class="message-bubble" *ngFor="let msg of messages" [class.mine]="isMine(msg)"
+                                    [class.theirs]="!isMine(msg)">
+                                    <div class="bubble-content">
+                                        <p>{{msg.content}}</p>
+                                        <span class="msg-time">{{getRelativeTime(msg.timestamp)}}</span>
+                                    </div>
+                                    <i class="fa-solid fa-check-double read-indicator" *ngIf="isMine(msg)"
+                                        [style.color]="msg.isRead ? '#3b82f6' : 'var(--text-muted)'"></i>
+                                </div>
+
+                                <div class="no-messages" *ngIf="messages.length === 0">
+                                    <p>No messages yet. Say hello! 👋</p>
+                                </div>
+                            </ng-container>
+
+                            <div #messagesEnd></div>
+                        </div>
+
+                        <!-- Message Input -->
+                        <div class="chat-input-area">
+                            <input type="text" class="chat-input" [(ngModel)]="newMessage"
+                                placeholder="Type a message..." (keyup.enter)="sendMessage()" [disabled]="isSending">
+                            <button class="send-btn btn-primary" (click)="sendMessage()"
+                                [disabled]="!newMessage.trim() || isSending">
+                                <i class="fa-solid fa-paper-plane" *ngIf="!isSending"></i>
+                                <i class="fa-solid fa-circle-notch fa-spin" *ngIf="isSending"></i>
+                            </button>
+                        </div>
+                    </ng-container>
+                </div>
+
+            </div>
+        </main>
+
+        <!-- Right Widgets Column -->
+        <aside class="widgets-column">
+            <div class="widget-card glass-card">
+                <div class="widget-header">
+                    <i class="fa-solid fa-comments"></i>
+                    <h3>Chat Tips</h3>
+                </div>
+                <div class="widget-content" style="padding: 1rem 0;">
+                    <p style="color: var(--text-secondary); font-size: 0.9rem; line-height: 1.5;">
+                        You can send images and share posts directly in chats to keep the conversation going!
+                    </p>
+                </div>
+            </div>
+        </aside>
+    </div>
+</div>
