@@ -688,8 +688,13 @@ export class FeedPage implements OnInit {
       next: () => {
         if (post) {
           post.shareCount++;
+          alert('Post shared successfully!');
           this.cdr.markForCheck();
         }
+      },
+      error: (err) => {
+        console.error('Error sharing post:', err);
+        alert('Failed to share post. You may have already shared it.');
       }
     });
   }
