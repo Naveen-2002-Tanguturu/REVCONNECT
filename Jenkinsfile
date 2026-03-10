@@ -29,7 +29,7 @@ pipeline {
             steps {
                 withCredentials([sshUserPrivateKey(credentialsId: 'aws-ec2-ssh-key', keyFileVariable: 'SSH_KEY', usernameVariable: 'SSH_USER')]) {
                     powershell '''
-                    $keyPath = "$env:WORKSPACE\\jenkins-key.pem"
+                    $keyPath = "$env:WORKSPACE\\jenkins-key-${env:BUILD_NUMBER}.pem"
                     Copy-Item -Path $env:SSH_KEY -Destination $keyPath -Force
 
                     $Acl = Get-Acl $keyPath
