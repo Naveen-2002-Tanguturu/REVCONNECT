@@ -486,7 +486,8 @@ export class FeedPage implements OnInit {
         },
         error: (err) => {
           console.error('Error scheduling post:', err);
-          alert('Failed to schedule post.');
+          const backendMsg = err.error?.message || err.message || 'Unknown error';
+          alert(`Failed to schedule post: ${backendMsg}`);
           this.isUploadingMedia = false;
           this.cdr.markForCheck();
         }
