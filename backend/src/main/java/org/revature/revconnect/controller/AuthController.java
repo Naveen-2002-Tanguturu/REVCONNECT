@@ -4,6 +4,8 @@ import org.revature.revconnect.dto.request.ForgotPasswordRequest;
 import org.revature.revconnect.dto.request.LoginRequest;
 import org.revature.revconnect.dto.request.RegisterRequest;
 import org.revature.revconnect.dto.request.ResetPasswordRequest;
+import org.revature.revconnect.dto.request.VerifyEmailRequest;
+import org.revature.revconnect.dto.request.ResendVerificationRequest;
 import org.revature.revconnect.dto.response.ApiResponse;
 import org.revature.revconnect.dto.response.AuthResponse;
 import org.revature.revconnect.service.AuthService;
@@ -43,6 +45,22 @@ public class AuthController {
         AuthResponse response = authService.login(request);
         log.info("Login successful for user: {}", response.getUsername());
         return ResponseEntity.ok(ApiResponse.success("Login successful", response));
+    }
+
+    @PostMapping("/verify-email")
+    @Operation(summary = "Verify Email", description = "Verify email using OTP from email")
+    public ResponseEntity<ApiResponse<AuthResponse>> verifyEmail(@Valid @RequestBody VerifyEmailRequest request) {
+        log.info("Verify email request received for: {}", request.getEmail());
+        AuthResponse response = authService.verifyEmail(request);
+        return ResponseEntity.ok(ApiResponse.success("Email verified successfully. You are now logged in.", response));
+    }
+
+    @PostMapping("/resend-verification")
+    @Operation(summary = "Resend Verification Email", description = "Resend a new 6-digit OTP to the user's email")
+    public ResponseEntity<ApiResponse<Void>> resendVerification(@Valid @RequestBody ResendVerificationRequest request) {
+        log.info("Resend verification config received for email: {}", request.getEmail());
+        authService.resendVerification(request);
+        return ResponseEntity.ok(ApiResponse.success("Verification email resent. Check your inbox.", null));
     }
 
     @PostMapping("/forgot-password")

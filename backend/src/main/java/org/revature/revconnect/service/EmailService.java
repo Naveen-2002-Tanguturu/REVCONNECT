@@ -45,4 +45,37 @@ public class EmailService {
             log.info("========================================");
         }
     }
+
+    /**
+     * Send an account verification email using Gmail SMTP.
+     *
+     * @param toEmail recipient email address
+     * @param otp     the 6-digit OTP
+     */
+    public void sendVerificationEmail(String toEmail, String otp) {
+        log.info("Attempting to send Verification OTP email to: {}", toEmail);
+
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom("ganeshchinamana39@gmail.com");
+            message.setTo(toEmail);
+            message.setSubject("RevConnect - Verify Your Account");
+            message.setText("Welcome to RevConnect!\n\n" +
+                    "To complete your registration and verify your email address, please use the following 6-digit OTP:\n\n"
+                    +
+                    "OTP: " + otp + "\n\n" +
+                    "This OTP is valid for 24 hours.\n\n" +
+                    "Best regards,\n" +
+                    "RevConnect Team");
+
+            mailSender.send(message);
+            log.info("Verification OTP email successfully sent to: {}", toEmail);
+
+        } catch (Exception e) {
+            log.error("CRITICAL ERROR: Failed to send verify email to {}: {}", toEmail, e.getMessage());
+            log.info("========================================");
+            log.info("FALLBACK VERIFY OTP (Console): {}", otp);
+            log.info("========================================");
+        }
+    }
 }

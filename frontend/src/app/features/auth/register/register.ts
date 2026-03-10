@@ -29,10 +29,15 @@ export class Register {
   };
 
   isLoading = false;
+  isVerifying = false;
+  isResending = false;
   errorMessage = '';
   passwordStrength = 0;
   showPassword = false;
   readonly emailPattern = '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$';
+
+  step: 'REGISTER' | 'VERIFY' = 'REGISTER';
+  otp: string = '';
 
   constructor(private authService: AuthService, private router: Router) { }
 
@@ -70,8 +75,8 @@ export class Register {
       next: (response) => {
         this.isLoading = false;
         if (response.success && response.data) {
-          alert('Registration successful! Redirecting to login.');
-          this.router.navigate(['/login']);
+          alert('Registration successful! Please check your email for the verification code.');
+          this.step = 'VERIFY';
         } else {
           this.errorMessage = response.message || 'Registration failed.';
         }
@@ -83,6 +88,51 @@ export class Register {
           error.error?.message ||
           `Registration failed (Status: ${error.status}). Please try again.`;
         alert('Error: ' + this.errorMessage);
+      }
+    });
+  }
+
+  onVerifySubmit(verifyForm: NgForm) {
+    if (verifyForm.invalid || !this.otp || this.otp.length !== 6) {
+      this.errorMessage = 'Please enter a valid 6-digit OTP.';
+      return;
+    }
+
+    this.isVerifying = true;
+    this.errorMessage = '';
+
+    this.authService.verifyEmail({ email: this.details.email, otp: this.otp }).subscribe({
+      next: (response) => {
+        this.isVerifying = false;
+        if (response.success && response.data) {
+          this.authService.storeToken(response.data.accessToken);
+          alert('Email verified successfully! You are now logged in.');
+          this.router.navigate(['/feed']);
+        } else {
+          this.errorMessage = response.message || 'Verification failed.';
+        }
+      },
+      error: (error) => {
+        this.isVerifying = false;
+        console.error('Verification error:', error);
+        this.errorMessage = error.error?.message || 'Verification request failed.';
+      }
+    });
+  }
+
+  resendOtp() {
+    this.isResending = true;
+    this.errorMessage = '';
+
+    this.authService.resendVerification({ email: this.details.email }).subscribe({
+      next: (response) => {
+        this.isResending = false;
+        alert('A new verification code has been sent to your email.');
+      },
+      error: (error) => {
+        this.isResending = false;
+        console.error('Resend error:', error);
+        this.errorMessage = error.error?.message || 'Failed to resend verification code.';
       }
     });
   }

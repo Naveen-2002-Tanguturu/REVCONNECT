@@ -12,6 +12,15 @@ export interface ResetPasswordRequest {
     newPassword: string;
 }
 
+export interface VerifyEmailRequest {
+    email: string;
+    otp: string;
+}
+
+export interface ResendVerificationRequest {
+    email: string;
+}
+
 export interface RegisterRequest {
     username: string;
     email: string;
@@ -65,6 +74,14 @@ export class AuthService {
 
     register(details: RegisterRequest): Observable<ApiResponse<AuthResponse>> {
         return this.http.post<ApiResponse<AuthResponse>>(`${this.apiUrl}/register`, details);
+    }
+
+    verifyEmail(request: VerifyEmailRequest): Observable<ApiResponse<AuthResponse>> {
+        return this.http.post<ApiResponse<AuthResponse>>(`${this.apiUrl}/verify-email`, request);
+    }
+
+    resendVerification(request: ResendVerificationRequest): Observable<ApiResponse<void>> {
+        return this.http.post<ApiResponse<void>>(`${this.apiUrl}/resend-verification`, request);
     }
 
     forgotPassword(email: string): Observable<ApiResponse<void>> {

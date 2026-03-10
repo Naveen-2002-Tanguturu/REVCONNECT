@@ -4,6 +4,8 @@ import org.revature.revconnect.dto.request.ForgotPasswordRequest;
 import org.revature.revconnect.dto.request.LoginRequest;
 import org.revature.revconnect.dto.request.RegisterRequest;
 import org.revature.revconnect.dto.request.ResetPasswordRequest;
+import org.revature.revconnect.dto.request.VerifyEmailRequest;
+import org.revature.revconnect.dto.request.ResendVerificationRequest;
 import org.revature.revconnect.dto.response.AuthResponse;
 import org.revature.revconnect.exception.BadRequestException;
 import org.revature.revconnect.exception.DuplicateResourceException;
@@ -75,11 +77,19 @@ public class AuthService {
                 .build();
         userSettingsRepository.save(settings);
 
-        // Generate JWT token
-        String token = jwtTokenProvider.generateToken(savedUser);
+        // Generate 6-digit OTP for Email Verification
+        String otp = String.format("%06d", (int) (Math.random() * 1000000));
+        PasswordResetToken verificationToken = PasswordResetToken.builder()
+                .token(otp)
+                .user(savedUser)
+                .expiryDate(LocalDateTime.now().plusHours(TOKEN_EXPIRY_HOURS))
+                .build();
+        passwordResetTokenRepository.save(verificationToken);
+
+        emailService.sendVerificationEmail(savedUser.getEmail(), otp);
 
         return AuthResponse.builder()
-                .accessToken(token)
+                .accessToken("") // no token until verified
                 .tokenType("Bearer")
                 .userId(savedUser.getId())
                 .username(savedUser.getUsername())
@@ -100,6 +110,10 @@ public class AuthService {
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         User user = (User) authentication.getPrincipal();
+        if (!user.getIsVerified()) {
+            throw new BadRequestException("Please verify your email before logging in.");
+        }
+
         String token = jwtTokenProvider.generateToken(user);
 
         log.info("User logged in successfully: {}", user.getUsername());
@@ -121,6 +135,74 @@ public class AuthService {
             throw new BadRequestException("No authenticated user found");
         }
         return (User) authentication.getPrincipal();
+    }
+
+    @Transactional
+    public AuthResponse verifyEmail(VerifyEmailRequest request) {
+        log.info("Processing email verification for email: {}", request.getEmail());
+
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new ResourceNotFoundException("User", "email", request.getEmail()));
+
+        if (user.getIsVerified()) {
+            throw new BadRequestException("Email is already verified");
+        }
+
+        PasswordResetToken token = passwordResetTokenRepository.findByUser(user)
+                .orElseThrow(() -> new BadRequestException("No verification token found"));
+
+        if (!token.getToken().equals(request.getOtp())) {
+            throw new BadRequestException("Invalid OTP");
+        }
+
+        if (token.isExpired()) {
+            passwordResetTokenRepository.delete(token);
+            throw new BadRequestException("Verification OTP has expired. Please request a new one.");
+        }
+
+        user.setIsVerified(true);
+        userRepository.save(user);
+        passwordResetTokenRepository.delete(token);
+
+        String jwt = jwtTokenProvider.generateToken(user);
+
+        log.info("Email verification successful for user: {}", user.getUsername());
+
+        return AuthResponse.builder()
+                .accessToken(jwt)
+                .tokenType("Bearer")
+                .userId(user.getId())
+                .username(user.getUsername())
+                .email(user.getEmail())
+                .name(user.getName())
+                .userType(user.getUserType())
+                .build();
+    }
+
+    @Transactional
+    public void resendVerification(ResendVerificationRequest request) {
+        log.info("Processing resend verification request for email: {}", request.getEmail());
+
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new ResourceNotFoundException("User", "email", request.getEmail()));
+
+        if (user.getIsVerified()) {
+            throw new BadRequestException("Email is already verified. Please log in.");
+        }
+
+        passwordResetTokenRepository.findByUser(user).ifPresent(passwordResetTokenRepository::delete);
+        passwordResetTokenRepository.flush();
+
+        String otp = String.format("%06d", (int) (Math.random() * 1000000));
+        PasswordResetToken newToken = PasswordResetToken.builder()
+                .token(otp)
+                .user(user)
+                .expiryDate(LocalDateTime.now().plusHours(TOKEN_EXPIRY_HOURS))
+                .build();
+        passwordResetTokenRepository.save(newToken);
+
+        emailService.sendVerificationEmail(user.getEmail(), otp);
+        log.info("Verification email resent for user: {}", user.getUsername());
     }
 
     @Transactional
