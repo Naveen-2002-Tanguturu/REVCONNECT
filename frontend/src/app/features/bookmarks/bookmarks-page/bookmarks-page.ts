@@ -14,7 +14,7 @@ import { HashtagTextComponent } from '../../../shared/components/hashtag-text/ha
     standalone: true,
     imports: [CommonModule, RouterModule, Navbar, Sidebar, HashtagTextComponent],
     templateUrl: './bookmarks-page.html',
-    styleUrls: ['./bookmarks-page.scss']
+    styleUrls: ['./bookmarks-page.css']
 })
 export class BookmarksPage implements OnInit {
     bookmarks: BookmarkResponse[] = [];

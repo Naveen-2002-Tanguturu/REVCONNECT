@@ -11,7 +11,7 @@ import { UserService, UserResponse } from '../../../core/services/user.service';
   standalone: true,
   imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './stories-feed.html',
-  styleUrls: ['./stories-feed.scss']
+  styleUrls: ['./stories-feed.css']
 })
 export class StoriesFeed implements OnInit {
   stories: StoryResponse[] = [];

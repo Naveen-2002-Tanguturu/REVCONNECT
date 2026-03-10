@@ -9,7 +9,7 @@ import { Router } from '@angular/router';
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './forgot-password.html',
-  styleUrls: ['./forgot-password.scss']
+  styleUrls: ['./forgot-password.css']
 })
 export class ForgotPassword {
   email: string = '';

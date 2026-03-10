@@ -14,13 +14,15 @@ import { UserService, UserResponse } from '../../../core/services/user.service';
 import { SearchService } from '../../../core/services/search.service';
 import { HashtagTextComponent } from '../../../shared/components/hashtag-text/hashtag-text.component';
 import { BottomNav } from '../../../core/components/bottom-nav/bottom-nav';
+import { ConnectionService } from '../../../core/services/connection.service';
+import { MessageService } from '../../../core/services/message.service';
 
 @Component({
   selector: 'app-feed-page',
   standalone: true,
   imports: [CommonModule, RouterModule, Navbar, Sidebar, FormsModule, StoriesFeed, HashtagTextComponent, BottomNav],
   templateUrl: './feed-page.html',
-  styleUrls: ['./feed-page.scss']
+  styleUrls: ['./feed-page.css']
 })
 export class FeedPage implements OnInit {
   posts: PostResponse[] = [];
@@ -81,6 +83,14 @@ export class FeedPage implements OnInit {
   commentReplyInputMap: { [commentId: number]: string } = {};
   commentRepliesLoadingMap: { [commentId: number]: boolean } = {};
 
+  // Share Modal State
+  shareModalOpen = false;
+  sharePostId: number | null = null;
+  followingUsers: { userId: number; username: string; name: string; profilePicture: string | null }[] = [];
+  shareUserSearch = '';
+  isSendingShare = false;
+  shareSuccessMap: { [userId: number]: boolean } = {};
+
   constructor(
     private postService: PostService,
     private interactionService: InteractionService,
@@ -89,6 +99,8 @@ export class FeedPage implements OnInit {
     private analyticsService: AnalyticsService,
     private userService: UserService,
     private searchService: SearchService,
+    private connectionService: ConnectionService,
+    private messageService: MessageService,
     private cdr: ChangeDetectorRef
   ) { }
 
@@ -682,20 +694,62 @@ export class FeedPage implements OnInit {
     });
   }
 
-  sharePost(postId: number) {
-    const post = this.posts.find(p => p.id === postId);
-    this.interactionService.sharePost(postId).subscribe({
-      next: () => {
-        if (post) {
-          post.shareCount++;
-          alert('Post shared successfully!');
+  openShareModal(postId: number) {
+    this.sharePostId = postId;
+    this.shareUserSearch = '';
+    this.shareSuccessMap = {};
+    this.followingUsers = [];
+    this.shareModalOpen = true;
+    const userId = this.currentUser?.id;
+    if (!userId) return;
+    this.connectionService.getFollowing(userId, 0, 100).subscribe({
+      next: (res) => {
+        if (res.success && res.data?.content) {
+          this.followingUsers = res.data.content.map((c: any) => ({
+            userId: c.userId,
+            username: c.username,
+            name: c.name,
+            profilePicture: c.profilePicture
+          }));
           this.cdr.markForCheck();
         }
       },
-      error: (err) => {
-        console.error('Error sharing post:', err);
-        alert('Failed to share post. You may have already shared it.');
-      }
+      error: (err) => console.error('Error fetching following users:', err)
+    });
+  }
+
+  closeShareModal() {
+    this.shareModalOpen = false;
+    this.sharePostId = null;
+  }
+
+  get filteredShareUsers() {
+    const q = this.shareUserSearch.toLowerCase();
+    if (!q) return this.followingUsers;
+    return this.followingUsers.filter(u =>
+      u.username.toLowerCase().includes(q) || u.name.toLowerCase().includes(q)
+    );
+  }
+
+  sendPostToUser(recipientId: number) {
+    if (!this.sharePostId || this.shareSuccessMap[recipientId]) return;
+    const postUrl = `${window.location.origin}/post/${this.sharePostId}`;
+    const message = `Check out this post: ${postUrl}`;
+
+    this.messageService.createConversation(recipientId).subscribe({
+      next: (res) => {
+        const conversationId = res.data?.userId ?? recipientId;
+        this.messageService.sendMessage(conversationId, message).subscribe({
+          next: () => {
+            this.shareSuccessMap[recipientId] = true;
+            const post = this.posts.find(p => p.id === this.sharePostId);
+            if (post) post.shareCount++;
+            this.cdr.markForCheck();
+          },
+          error: (err) => console.error('Error sending share message:', err)
+        });
+      },
+      error: (err) => console.error('Error creating conversation:', err)
     });
   }
 

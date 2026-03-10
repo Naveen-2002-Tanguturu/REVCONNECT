@@ -25,7 +25,7 @@ import { UserService } from '../../../core/services/user.service';
     standalone: true,
     imports: [CommonModule, FormsModule, RouterModule, Navbar, Sidebar],
     templateUrl: './messages-page.html',
-    styleUrls: ['./messages-page.scss']
+    styleUrls: ['./messages-page.css']
 })
 export class MessagesPage implements OnInit, OnDestroy {
     @ViewChild('messagesEnd') messagesEnd?: ElementRef;

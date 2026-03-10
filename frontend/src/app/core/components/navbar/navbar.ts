@@ -14,7 +14,7 @@ import { BottomNav } from '../bottom-nav/bottom-nav';
   standalone: true,
   imports: [CommonModule, RouterModule, FormsModule, BottomNav],
   templateUrl: './navbar.html',
-  styleUrls: ['./navbar.scss']
+  styleUrls: ['./navbar.css']
 })
 export class Navbar implements OnInit, OnDestroy {
   unreadNotificationCount = 0;
@@ -141,6 +141,47 @@ export class Navbar implements OnInit, OnDestroy {
           this.cdr.markForCheck();
         }
       });
+    }
+  }
+
+  navigateNotification(notification: NotificationResponse, event: Event) {
+    event.stopPropagation();
+    // Mark as read
+    if (!notification.isRead) {
+      notification.isRead = true;
+      this.unreadNotificationCount = Math.max(0, this.unreadNotificationCount - 1);
+      this.cdr.markForCheck();
+      this.notificationService.markAsRead(notification.id).subscribe();
+    }
+    this.notificationDropdownOpen = false;
+
+    // Navigate based on type
+    const type: string = (notification as any).type || '';
+    switch (type) {
+      case 'LIKE':
+      case 'COMMENT':
+      case 'SHARE':
+        const postId = (notification as any).postId;
+        if (postId) {
+          this.router.navigate(['/post', postId]);
+        } else {
+          this.router.navigate(['/feed']);
+        }
+        break;
+      case 'FOLLOW':
+      case 'NEW_FOLLOWER':
+      case 'CONNECTION_REQUEST':
+      case 'CONNECTION_ACCEPTED':
+        const senderId = (notification as any).senderId || (notification as any).actorId;
+        if (senderId) {
+          this.router.navigate(['/profile', senderId]);
+        } else {
+          this.router.navigate(['/notifications']);
+        }
+        break;
+      default:
+        this.router.navigate(['/notifications']);
+        break;
     }
   }
 

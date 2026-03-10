@@ -12,7 +12,7 @@ import { forkJoin } from 'rxjs';
   standalone: true,
   imports: [CommonModule, Navbar, Sidebar, RouterModule],
   templateUrl: './analytics-dashboard.html',
-  styleUrl: './analytics-dashboard.scss',
+  styleUrl: './analytics-dashboard.css',
 })
 export class AnalyticsDashboard implements OnInit {
   currentUser: UserResponse | null = null;

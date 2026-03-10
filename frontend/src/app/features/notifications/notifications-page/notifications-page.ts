@@ -15,7 +15,7 @@ import { BottomNav } from '../../../core/components/bottom-nav/bottom-nav';
   imports: [CommonModule, Navbar, Sidebar, RouterModule, BottomNav],
   providers: [DatePipe],
   templateUrl: './notifications-page.html',
-  styleUrls: ['./notifications-page.scss']
+  styleUrls: ['./notifications-page.css']
 })
 export class NotificationsPage implements OnInit {
   notifications: any[] = [];
@@ -77,6 +77,43 @@ export class NotificationsPage implements OnInit {
         this.cdr.detectChanges();
       }
     });
+  }
+
+  navigateNotification(notification: any) {
+    // Mark as read first
+    if (!notification.isRead) {
+      notification.isRead = true;
+      this.notifications = [...this.notifications];
+      this.cdr.detectChanges();
+      this.notificationService.markAsRead(notification.id).subscribe();
+    }
+
+    // Navigate based on type
+    const type: string = notification.type || '';
+    switch (type) {
+      case 'LIKE':
+      case 'COMMENT':
+      case 'SHARE':
+        if (notification.postId) {
+          this.router.navigate(['/post', notification.postId]);
+        } else {
+          this.router.navigate(['/feed']);
+        }
+        break;
+      case 'FOLLOW':
+      case 'NEW_FOLLOWER':
+      case 'CONNECTION_REQUEST':
+      case 'CONNECTION_ACCEPTED':
+        if (notification.senderId) {
+          this.router.navigate(['/profile', notification.senderId]);
+        } else if (notification.actorId) {
+          this.router.navigate(['/profile', notification.actorId]);
+        }
+        break;
+      default:
+        // No specific route, just mark read
+        break;
+    }
   }
 
   markAllAsRead() {

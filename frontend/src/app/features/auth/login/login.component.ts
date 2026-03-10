@@ -9,7 +9,7 @@ import { AuthService, LoginRequest } from '../../../core/services/auth.service';
     standalone: true,
     imports: [CommonModule, FormsModule],
     templateUrl: './login.component.html',
-    styleUrls: ['./login.component.scss']
+    styleUrls: ['./login.component.css']
 })
 export class LoginComponent {
     credentials: LoginRequest = {

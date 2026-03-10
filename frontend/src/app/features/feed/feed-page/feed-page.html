@@ -64,7 +64,7 @@
                     </div>
                     <!-- Video Preview -->
                     <div *ngIf="selectedMediaFile?.type?.startsWith('video/')">
-                        <video [src]="mediaPreviewUrl" controls style="max-width: 100%; border-radius: 8px;"></video>
+                        <video [src]="mediaPreviewUrl" controls class="media-preview-video"></video>
                     </div>
 
                     <button class="icon-btn"
@@ -239,18 +239,15 @@
 
                             @if (post.postType === 'VIDEO' || (post.mediaUrls && post.mediaUrls.length > 0 &&
                             (post.mediaUrls[0].includes('.mp4') || post.mediaUrls[0].includes('.webm')))) {
-                            <video [src]="post.mediaUrls[0]" controls class="post-image"
-                                style="width: 100%; border-radius: 8px; margin-top: 1rem;"></video>
+                            <video [src]="post.mediaUrls[0]" controls class="post-video"></video>
                             } @else if (post.mediaUrls && post.mediaUrls.length > 0 && post.postType !== 'REPOST') {
                             <img [src]="post.mediaUrls[0]" alt="Post attachment" class="post-image">
                             }
 
                             <!-- Business Call To Action -->
-                            <div class="post-cta" *ngIf="post.ctaLabel && post.ctaUrl" style="margin-top: 1.25rem;">
-                                <a [href]="post.ctaUrl" target="_blank" class="btn-primary"
-                                    style="display: block; text-align: center; text-decoration: none; padding: 0.8rem; border-radius: 8px; font-weight: 600; width: 100%;">
-                                    {{post.ctaLabel}} <i class="fa-solid fa-arrow-up-right-from-square"
-                                        style="margin-left: 0.5rem; opacity: 0.8;"></i>
+                            <div class="post-cta" *ngIf="post.ctaLabel && post.ctaUrl">
+                                <a [href]="post.ctaUrl" target="_blank" class="btn-primary post-cta-link">
+                                    {{post.ctaLabel}} <i class="fa-solid fa-arrow-up-right-from-square"></i>
                                 </a>
                             </div>
                         </div>
@@ -272,7 +269,7 @@
                         </button>
 
                         <!-- Share Button -->
-                        <button class="interaction-btn count-btn" (click)="sharePost(post.id)">
+                        <button class="interaction-btn count-btn" (click)="openShareModal(post.id)">
                             <i class="fa-solid fa-share-nodes"></i>
                             <span>{{post.shareCount}}</span>
                         </button>
@@ -504,5 +501,42 @@
                 </div>
             </div>
         </aside>
+    </div>
+</div>
+
+<!-- Share Modal -->
+<div *ngIf="shareModalOpen" class="share-modal-overlay" (click)="closeShareModal()">
+    <div class="share-modal glass-card" (click)="$event.stopPropagation()">
+        <div class="share-modal-header">
+            <h3><i class="fa-solid fa-paper-plane"></i> Send Post</h3>
+            <button class="share-modal-close" (click)="closeShareModal()">
+                <i class="fa-solid fa-times"></i>
+            </button>
+        </div>
+        <div class="share-modal-search">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" [(ngModel)]="shareUserSearch" placeholder="Search people you follow..." autofocus>
+        </div>
+        <div class="share-modal-list">
+            <div *ngIf="followingUsers.length === 0" class="share-empty">
+                <i class="fa-solid fa-circle-notch fa-spin"></i> Loading...
+            </div>
+            <div *ngIf="followingUsers.length > 0 && filteredShareUsers.length === 0" class="share-empty">
+                <i class="fa-solid fa-user-xmark"></i> No users found
+            </div>
+            <div class="share-user-row" *ngFor="let user of filteredShareUsers">
+                <img [src]="user.profilePicture || 'https://ui-avatars.com/api/?name=' + user.name + '&background=random'"
+                    class="share-user-avatar" [alt]="user.name">
+                <div class="share-user-info">
+                    <span class="share-user-name">{{user.name}}</span>
+                    <span class="share-user-handle">&#64;{{user.username}}</span>
+                </div>
+                <button class="share-send-btn" [class.sent]="shareSuccessMap[user.userId]"
+                    (click)="sendPostToUser(user.userId)">
+                    <i [class]="shareSuccessMap[user.userId] ? 'fa-solid fa-check' : 'fa-solid fa-paper-plane'"></i>
+                    {{ shareSuccessMap[user.userId] ? 'Sent' : 'Send' }}
+                </button>
+            </div>
+        </div>
     </div>
 </div>

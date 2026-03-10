@@ -12,7 +12,7 @@ import { AuthService } from '../../../core/services/auth.service';
   standalone: true,
   imports: [CommonModule, FormsModule, Navbar, Sidebar],
   templateUrl: './settings-page.html',
-  styleUrls: ['./settings-page.scss']
+  styleUrls: ['./settings-page.css']
 })
 export class SettingsPage {
   activeTab: 'account' | 'security' | 'links' | 'privacy' | 'notifications' | 'policy' = 'account';

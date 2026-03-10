@@ -40,7 +40,7 @@
 
                     <ng-container *ngIf="!isLoading && notifications.length > 0">
                         <div class="notification-card" *ngFor="let notification of notifications"
-                            [class.unread]="!notification.isRead" (click)="markAsRead(notification)">
+                            [class.unread]="!notification.isRead" (click)="navigateNotification(notification)">
 
                             <!-- Avatar with Integrated Type Badge -->
                             <div class="actor-avatar-wrap">

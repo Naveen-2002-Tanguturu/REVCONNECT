@@ -9,7 +9,7 @@ import { NotificationService } from '../../services/notification.service';
   standalone: true,
   imports: [CommonModule, RouterModule],
   templateUrl: './sidebar.html',
-  styleUrls: ['./sidebar.scss']
+  styleUrls: ['./sidebar.css']
 })
 export class Sidebar implements OnInit {
   currentUser: UserResponse | null = null;

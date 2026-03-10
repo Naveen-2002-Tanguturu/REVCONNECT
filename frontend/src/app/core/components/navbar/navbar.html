@@ -3,8 +3,8 @@
 
         <!-- Branding -->
         <div class="nav-brand" (click)="navigateTo('/feed')">
-            <div class="logo-circle-small">
-                <i class="fa-solid fa-bolt"></i>
+            <div class="logo-circle-small bolt-logo">
+                <div class="css-bolt"></div>
             </div>
             <span class="brand-name">RevConnect</span>
         </div>
@@ -55,11 +55,10 @@
 
                     <div class="notif-list" *ngIf="!notificationsLoading">
                         <div class="notif-item" *ngFor="let notif of notifications" [class.unread]="!notif.isRead"
-                            (click)="markAsRead(notif, $event)">
-                            <div class="notif-icon-wrap"
-                                [style.backgroundColor]="getNotificationIconColor(notif.type) + '15'">
-                                <i class="fa-solid {{getNotificationIcon(notif.type)}}"
-                                    [style.color]="getNotificationIconColor(notif.type)"></i>
+                            [attr.data-type]="notif.type" (click)="navigateNotification(notif, $event)"
+                            style="cursor: pointer">
+                            <div class="notif-icon-wrap" [ngClass]="notif.type.toLowerCase()">
+                                <i class="fa-solid {{getNotificationIcon(notif.type)}}"></i>
                             </div>
                             <div class="notif-body">
                                 <p>{{notif.message}}</p>

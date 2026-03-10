@@ -9,7 +9,7 @@ import { Router, ActivatedRoute } from '@angular/router';
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './reset-password.html',
-  styleUrls: ['./reset-password.scss']
+  styleUrls: ['./reset-password.css']
 })
 export class ResetPassword implements OnInit {
   otp = '';

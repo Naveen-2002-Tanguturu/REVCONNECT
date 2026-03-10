@@ -1,5 +1,5 @@
 
-import { Component } from '@angular/core';
+import { Component, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -10,7 +10,7 @@ import { AuthService, RegisterRequest } from '../../../core/services/auth.servic
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './register.html',
-  styleUrls: ['./register.scss']
+  styleUrls: ['./register.css']
 })
 export class Register {
 
@@ -39,7 +39,7 @@ export class Register {
   step: 'REGISTER' | 'VERIFY' = 'REGISTER';
   otp: string = '';
 
-  constructor(private authService: AuthService, private router: Router) { }
+  constructor(private authService: AuthService, private router: Router, private cdr: ChangeDetectorRef) { }
 
   onTypeChange() {
     this.details.category = '';
@@ -76,7 +76,10 @@ export class Register {
         this.isLoading = false;
         if (response.success) {
           alert('Registration successful! Please check your email for the verification code.');
-          this.step = 'VERIFY';
+          setTimeout(() => {
+            this.step = 'VERIFY';
+            this.cdr.detectChanges();
+          }, 100);
         } else {
           this.errorMessage = response.message || 'Registration failed.';
         }

@@ -21,7 +21,7 @@ import { BottomNav } from '../../../core/components/bottom-nav/bottom-nav';
     standalone: true,
     imports: [CommonModule, FormsModule, RouterModule, Navbar, Sidebar, HashtagTextComponent, BottomNav],
     templateUrl: './profile-page.html',
-    styleUrls: ['./profile-page.scss']
+    styleUrls: ['./profile-page.css']
 })
 export class ProfilePage implements OnInit {
     user: UserResponse | null = null;

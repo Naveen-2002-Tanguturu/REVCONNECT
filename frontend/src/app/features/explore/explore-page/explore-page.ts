@@ -15,7 +15,7 @@ import { HashtagTextComponent } from '../../../shared/components/hashtag-text/ha
     standalone: true,
     imports: [CommonModule, FormsModule, RouterModule, Navbar, Sidebar, HashtagTextComponent],
     templateUrl: './explore-page.html',
-    styleUrls: ['./explore-page.scss']
+    styleUrls: ['./explore-page.css']
 })
 export class ExplorePage implements OnInit {
     searchQuery = '';
