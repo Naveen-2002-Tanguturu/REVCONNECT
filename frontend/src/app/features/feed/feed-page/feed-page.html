@@ -57,12 +57,12 @@
                         <div class="picker-divider"></div>
                         
                         <i class="fa-regular fa-clock clock-icon"></i>
-                        <!-- Hour -->
+                        <!-- Hour (24h) -->
                         <input type="text" class="borderless-input time-number-input" 
                                [(ngModel)]="scheduleHourInput" 
                                maxlength="2" 
                                (blur)="formatScheduleTime()"
-                               placeholder="12">
+                               placeholder="00">
                         <span class="time-colon">:</span>
                         <!-- Minute -->
                         <input type="text" class="borderless-input time-number-input" 

@@ -38,9 +38,9 @@ export class FeedPage implements OnInit {
   ctaLabelInput = '';
   ctaUrlInput = '';
   scheduleDateOnlyInput = '';
-  scheduleHourInput = '12';
+  scheduleHourInput = '00';
   scheduleMinuteInput = '00';
-  scheduleAmPmInput = 'PM';
+  scheduleAmPmInput = 'AM';
   isPromotionalInput = false;
   partnerNameInput = '';
   postCategoryInput: 'STANDARD' | 'ANNOUNCEMENT' | 'UPDATE' = 'STANDARD';
@@ -493,7 +493,7 @@ export class FeedPage implements OnInit {
     }
 
     if ((this.showBusinessTools || this.showScheduleTool) && this.scheduleDateOnlyInput) {
-      // Build ISO string from custom 12-hour inputs
+      // Build ISO string from 12-hour inputs
       let hour = parseInt(this.scheduleHourInput, 10);
       if (this.scheduleAmPmInput === 'PM' && hour !== 12) {
         hour += 12;
@@ -520,9 +520,9 @@ export class FeedPage implements OnInit {
             this.ctaLabelInput = '';
             this.ctaUrlInput = '';
             this.scheduleDateOnlyInput = '';
-            this.scheduleHourInput = '12';
+            this.scheduleHourInput = '00';
             this.scheduleMinuteInput = '00';
-            this.scheduleAmPmInput = 'PM';
+            this.scheduleAmPmInput = 'AM';
             this.isPromotionalInput = false;
             this.partnerNameInput = '';
             this.productTagsInput = '';
@@ -559,9 +559,9 @@ export class FeedPage implements OnInit {
             this.ctaLabelInput = '';
             this.ctaUrlInput = '';
             this.scheduleDateOnlyInput = '';
-            this.scheduleHourInput = '12';
+            this.scheduleHourInput = '00';
             this.scheduleMinuteInput = '00';
-            this.scheduleAmPmInput = 'PM';
+            this.scheduleAmPmInput = 'AM';
             this.isPromotionalInput = false;
             this.partnerNameInput = '';
             this.productTagsInput = '';
