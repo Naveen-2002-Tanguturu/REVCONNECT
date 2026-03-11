@@ -38,7 +38,9 @@ export class FeedPage implements OnInit {
   ctaLabelInput = '';
   ctaUrlInput = '';
   scheduleDateOnlyInput = '';
-  scheduleTimeOnlyInput = '';
+  scheduleHourInput = '12';
+  scheduleMinuteInput = '00';
+  scheduleAmPmInput = 'PM';
   isPromotionalInput = false;
   partnerNameInput = '';
   postCategoryInput: 'STANDARD' | 'ANNOUNCEMENT' | 'UPDATE' = 'STANDARD';
@@ -478,9 +480,19 @@ export class FeedPage implements OnInit {
       postType = mediaUrl ? (this.selectedMediaFile?.type.startsWith('video/') ? 'VIDEO' : 'IMAGE') : 'TEXT';
     }
 
-    if ((this.showBusinessTools || this.showScheduleTool) && this.scheduleDateOnlyInput && this.scheduleTimeOnlyInput) {
+    if ((this.showBusinessTools || this.showScheduleTool) && this.scheduleDateOnlyInput) {
+      // Build ISO string from custom 12-hour inputs
+      let hour = parseInt(this.scheduleHourInput, 10);
+      if (this.scheduleAmPmInput === 'PM' && hour !== 12) {
+        hour += 12;
+      } else if (this.scheduleAmPmInput === 'AM' && hour === 12) {
+        hour = 0;
+      }
+      const hourStr = String(hour).padStart(2, '0');
+      const timeIso = `${hourStr}:${this.scheduleMinuteInput}:00`;
+
       // Build ISO string in local time, but ensure it's slightly in the future
-      const publishAtIso = this.scheduleDateOnlyInput + 'T' + this.scheduleTimeOnlyInput + ':00';
+      const publishAtIso = this.scheduleDateOnlyInput + 'T' + timeIso;
       const request = {
         content: finalContent,
         postType: postType as any,
@@ -495,7 +507,9 @@ export class FeedPage implements OnInit {
             this.ctaLabelInput = '';
             this.ctaUrlInput = '';
             this.scheduleDateOnlyInput = '';
-            this.scheduleTimeOnlyInput = '';
+            this.scheduleHourInput = '12';
+            this.scheduleMinuteInput = '00';
+            this.scheduleAmPmInput = 'PM';
             this.isPromotionalInput = false;
             this.partnerNameInput = '';
             this.productTagsInput = '';
@@ -532,7 +546,9 @@ export class FeedPage implements OnInit {
             this.ctaLabelInput = '';
             this.ctaUrlInput = '';
             this.scheduleDateOnlyInput = '';
-            this.scheduleTimeOnlyInput = '';
+            this.scheduleHourInput = '12';
+            this.scheduleMinuteInput = '00';
+            this.scheduleAmPmInput = 'PM';
             this.isPromotionalInput = false;
             this.partnerNameInput = '';
             this.productTagsInput = '';
