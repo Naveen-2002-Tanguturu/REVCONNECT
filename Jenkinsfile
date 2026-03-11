@@ -46,7 +46,7 @@ pipeline {
                     # Frontend Deployment
                     ssh -o StrictHostKeyChecking=no -i $keyPath ${env:SSH_USER}@65.2.37.229 "mkdir -p /tmp/frontend"
                     scp -o StrictHostKeyChecking=no -i $keyPath -pr frontend/dist/revconnect-ui/browser/* ${env:SSH_USER}@65.2.37.229:/tmp/frontend/
-                    ssh -o StrictHostKeyChecking=no -i $keyPath ${env:SSH_USER}@65.2.37.229 "sudo rm -rf /var/www/html/revconnect-ui/browser/*; sudo mkdir -p /var/www/html/revconnect-ui/browser/; sudo cp -r /tmp/frontend/* /var/www/html/revconnect-ui/browser/; sudo chown -R ec2-user:ec2-user /var/www/html/revconnect-ui; sudo systemctl restart nginx"
+                    ssh -o StrictHostKeyChecking=no -i $keyPath ${env:SSH_USER}@65.2.37.229 "sudo rm -rf /var/www/html/revconnect-ui/browser/*; sudo mkdir -p /var/www/html/revconnect-ui/browser/; sudo cp -r /tmp/frontend/* /var/www/html/revconnect-ui/browser/; sudo chown -R ec2-user:ec2-user /var/www/html/revconnect-ui; sudo chmod -R 755 /var/www/html/revconnect-ui/browser; sudo systemctl restart nginx"
 
                     Remove-Item -Path $keyPath -Force
                     '''
