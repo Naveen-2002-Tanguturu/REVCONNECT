@@ -48,10 +48,14 @@
                 <div class="schedule-tool-form" *ngIf="showScheduleTool">
                     <h5><i class="fa-regular fa-calendar-check" style="color: var(--accent-primary);"></i> Schedule Post
                     </h5>
-                    <div class="schedule-input-group">
-                        <div class="input-icon-wrap date-input-wrap">
+                    <div class="schedule-input-group dual-inputs" style="display: flex; gap: 1rem;">
+                        <div class="input-icon-wrap date-input-wrap" style="flex: 1;">
+                            <i class="fa-regular fa-calendar prefix-icon"></i>
+                            <input type="date" [(ngModel)]="scheduleDateOnlyInput" [min]="minDateString" max="9999-12-31">
+                        </div>
+                        <div class="input-icon-wrap time-input-wrap" style="flex: 1;">
                             <i class="fa-regular fa-clock prefix-icon"></i>
-                            <input type="datetime-local" [(ngModel)]="scheduleDateInput" max="9999-12-31T23:59">
+                            <input type="time" [(ngModel)]="scheduleTimeOnlyInput">
                         </div>
                     </div>
                 </div>

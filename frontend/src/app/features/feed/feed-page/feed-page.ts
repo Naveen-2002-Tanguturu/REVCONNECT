@@ -37,11 +37,20 @@ export class FeedPage implements OnInit {
   showScheduleTool = false;
   ctaLabelInput = '';
   ctaUrlInput = '';
-  scheduleDateInput = '';
+  scheduleDateOnlyInput = '';
+  scheduleTimeOnlyInput = '';
   isPromotionalInput = false;
   partnerNameInput = '';
   postCategoryInput: 'STANDARD' | 'ANNOUNCEMENT' | 'UPDATE' = 'STANDARD';
   productTagsInput = '';
+
+  get minDateString(): string {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
 
   // Like state: { postId -> true/false }
   likedMap: { [postId: number]: boolean } = {};
@@ -469,8 +478,9 @@ export class FeedPage implements OnInit {
       postType = mediaUrl ? (this.selectedMediaFile?.type.startsWith('video/') ? 'VIDEO' : 'IMAGE') : 'TEXT';
     }
 
-    if ((this.showBusinessTools || this.showScheduleTool) && this.scheduleDateInput) {
-      const publishAtIso = this.scheduleDateInput + ':00';
+    if ((this.showBusinessTools || this.showScheduleTool) && this.scheduleDateOnlyInput && this.scheduleTimeOnlyInput) {
+      // Build ISO string in local time, but ensure it's slightly in the future
+      const publishAtIso = this.scheduleDateOnlyInput + 'T' + this.scheduleTimeOnlyInput + ':00';
       const request = {
         content: finalContent,
         postType: postType as any,
@@ -480,11 +490,12 @@ export class FeedPage implements OnInit {
       this.postService.schedulePost(request).subscribe({
         next: (response) => {
           if (response.success) {
-            alert('Post scheduled successfully for ' + new Date(this.scheduleDateInput).toLocaleString());
+            alert('Post scheduled successfully for ' + new Date(publishAtIso).toLocaleString());
             this.newPostContent = '';
             this.ctaLabelInput = '';
             this.ctaUrlInput = '';
-            this.scheduleDateInput = '';
+            this.scheduleDateOnlyInput = '';
+            this.scheduleTimeOnlyInput = '';
             this.isPromotionalInput = false;
             this.partnerNameInput = '';
             this.productTagsInput = '';
@@ -520,7 +531,8 @@ export class FeedPage implements OnInit {
             this.newPostContent = '';
             this.ctaLabelInput = '';
             this.ctaUrlInput = '';
-            this.scheduleDateInput = '';
+            this.scheduleDateOnlyInput = '';
+            this.scheduleTimeOnlyInput = '';
             this.isPromotionalInput = false;
             this.partnerNameInput = '';
             this.productTagsInput = '';
