@@ -93,10 +93,17 @@
                             <div class="interaction-summary">
                                 <span><i class="fa-regular fa-heart"></i> {{bookmark.post.likeCount || 0}}</span>
                                 <span><i class="fa-regular fa-comment"></i> {{bookmark.post.commentCount || 0}}</span>
+                                <span><i class="fa-solid fa-share-nodes"></i> {{bookmark.post.shareCount || 0}}</span>
                             </div>
-                            <button class="btn-view-full" (click)="viewFullPost(bookmark.post.id)">
-                                View Full Post <i class="fa-solid fa-arrow-right-long"></i>
-                            </button>
+                            <div class="footer-actions" style="display: flex; gap: 0.8rem;">
+                                <button class="btn-share-alt" (click)="openShareModal(bookmark.post.id)"
+                                    title="Share with network">
+                                    <i class="fa-solid fa-share-nodes"></i>
+                                </button>
+                                <button class="btn-view-full" (click)="viewFullPost(bookmark.post.id)">
+                                    View Full Post <i class="fa-solid fa-arrow-right-long"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -129,5 +136,42 @@
                 </div>
             </div>
         </aside>
+    </div>
+</div>
+
+<!-- Share Modal -->
+<div *ngIf="shareModalOpen" class="share-modal-overlay" (click)="closeShareModal()">
+    <div class="share-modal glass-card" (click)="$event.stopPropagation()">
+        <div class="share-modal-header">
+            <h3><i class="fa-solid fa-paper-plane"></i> Send Post</h3>
+            <button class="share-modal-close" (click)="closeShareModal()">
+                <i class="fa-solid fa-times"></i>
+            </button>
+        </div>
+        <div class="share-modal-search">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" [(ngModel)]="shareUserSearch" placeholder="Search people you follow..." autofocus>
+        </div>
+        <div class="share-modal-list">
+            <div *ngIf="followingUsers.length === 0" class="share-empty">
+                <i class="fa-solid fa-circle-notch fa-spin"></i> Loading...
+            </div>
+            <div *ngIf="followingUsers.length > 0 && filteredShareUsers.length === 0" class="share-empty">
+                <i class="fa-solid fa-user-xmark"></i> No users found
+            </div>
+            <div class="share-user-row" *ngFor="let user of filteredShareUsers">
+                <img [src]="user.profilePicture || 'https://ui-avatars.com/api/?name=' + user.name + '&background=random'"
+                    class="share-user-avatar" [alt]="user.name">
+                <div class="share-user-info">
+                    <span class="share-user-name">{{user.name}}</span>
+                    <span class="share-user-handle">&#64;{{user.username}}</span>
+                </div>
+                <button class="share-send-btn" [class.sent]="shareSuccessMap[user.userId]"
+                    (click)="sendPostToUser(user.userId)">
+                    <i [class]="shareSuccessMap[user.userId] ? 'fa-solid fa-check' : 'fa-solid fa-paper-plane'"></i>
+                    {{ shareSuccessMap[user.userId] ? 'Sent' : 'Send' }}
+                </button>
+            </div>
+        </div>
     </div>
 </div>
