@@ -28,7 +28,6 @@ public class SchedulePostRequest {
     private List<String> mediaUrls;
 
     @NotNull(message = "publishAt is required")
-    @Future(message = "publishAt must be in the future")
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime publishAt;
 }
