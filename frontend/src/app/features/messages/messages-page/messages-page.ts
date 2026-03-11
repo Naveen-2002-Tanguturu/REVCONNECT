@@ -234,6 +234,14 @@ export class MessagesPage implements OnInit, OnDestroy {
         return 'just now';
     }
 
+    formatMessage(content: string): string {
+        if (!content) return '';
+        const urlRegex = /(https?:\/\/[^\s]+)/g;
+        return content.replace(urlRegex, (url) => {
+            return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="msg-link">${url}</a>`;
+        });
+    }
+
     scrollToBottom() {
         try {
             if (this.messagesEnd) {

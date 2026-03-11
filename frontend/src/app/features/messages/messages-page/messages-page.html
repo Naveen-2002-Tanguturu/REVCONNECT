@@ -74,7 +74,7 @@
                                 <div class="message-bubble" *ngFor="let msg of messages" [class.mine]="isMine(msg)"
                                     [class.theirs]="!isMine(msg)">
                                     <div class="bubble-content">
-                                        <p>{{msg.content}}</p>
+                                        <p [innerHTML]="formatMessage(msg.content)"></p>
                                         <span class="msg-time">{{getRelativeTime(msg.timestamp)}}</span>
                                     </div>
                                     <i class="fa-solid fa-check-double read-indicator" *ngIf="isMine(msg)"

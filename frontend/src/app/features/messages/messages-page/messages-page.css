@@ -243,6 +243,17 @@
     font-weight: 600;
 }
 
+/* Clickable links inside dynamically inserted HTML */
+::ng-deep .msg-link {
+    color: #60a5fa;
+    text-decoration: underline;
+    font-weight: 500;
+}
+
+::ng-deep .msg-link:hover {
+    color: #93c5fd;
+}
+
 .chat-panel .chat-input-area {
     display: flex;
     gap: 1rem;
