@@ -51,7 +51,6 @@ public class InteractionService {
     private final ShareMapper shareMapper;
     private final CommentLikeRepository commentLikeRepository;
 
-
     @Transactional
     public void likePost(long postId) {
         User currentUser = authService.getCurrentUser();
@@ -237,8 +236,6 @@ public class InteractionService {
         log.info("Comment {} and its replies deleted successfully", commentId);
     }
 
-
-
     @Transactional
     public CommentResponse updateComment(Long commentId, CommentRequest request) {
         User currentUser = authService.getCurrentUser();
@@ -360,11 +357,8 @@ public class InteractionService {
             throw new BadRequestException("You have already shared this post");
         }
 
-
-
         originalPost.setShareCount(originalPost.getShareCount() + 1);
         postRepository.save(originalPost);
-
 
         Post repost = Post.builder()
                 .content(request != null && request.getComment() != null ? request.getComment() : "Reposted this post")
@@ -374,7 +368,6 @@ public class InteractionService {
                 .build();
 
         Post savedRepost = postRepository.save(repost);
-
 
         Share share = Share.builder()
                 .user(currentUser)
@@ -387,5 +380,16 @@ public class InteractionService {
 
         log.info("User {} successfully reposted post {}", currentUser.getUsername(), postId);
         return shareMapper.toResponse(savedShare);
+    }
+
+    @Transactional
+    public void incrementShareCount(Long postId) {
+        Post originalPost = postRepository.findById(postId)
+                .orElseThrow(() -> new ResourceNotFoundException("Post", "id", postId));
+
+        // Just increment the counter when shared via Messages/DM
+        originalPost.setShareCount((originalPost.getShareCount() == null ? 0 : originalPost.getShareCount()) + 1);
+        postRepository.save(originalPost);
+        log.info("Post {} share count incremented", postId);
     }
 }

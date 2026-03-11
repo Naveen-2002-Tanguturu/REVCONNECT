@@ -735,6 +735,7 @@ export class FeedPage implements OnInit {
     if (!this.sharePostId || this.shareSuccessMap[recipientId]) return;
     const postUrl = `${window.location.origin}/post/${this.sharePostId}`;
     const message = `Check out this post: ${postUrl}`;
+    const currentSharePostId = this.sharePostId;
 
     this.messageService.createConversation(recipientId).subscribe({
       next: (res) => {
@@ -742,9 +743,16 @@ export class FeedPage implements OnInit {
         this.messageService.sendMessage(conversationId, message).subscribe({
           next: () => {
             this.shareSuccessMap[recipientId] = true;
-            const post = this.posts.find(p => p.id === this.sharePostId);
-            if (post) post.shareCount++;
-            this.cdr.markForCheck();
+
+            // Tell backend to increment the counter
+            this.interactionService.incrementShareCount(currentSharePostId).subscribe({
+              next: () => {
+                const post = this.posts.find(p => p.id === currentSharePostId);
+                if (post) post.shareCount++;
+                this.cdr.markForCheck();
+              },
+              error: (err) => console.error('Error incrementing share count:', err)
+            });
           },
           error: (err) => console.error('Error sending share message:', err)
         });

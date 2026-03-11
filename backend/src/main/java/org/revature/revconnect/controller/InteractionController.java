@@ -143,4 +143,12 @@ public class InteractionController {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Post shared successfully", share));
     }
+
+    @PostMapping("/posts/{postId}/share/increment")
+    @Operation(summary = "Increment share count for a post without reposting (e.g. DM share)")
+    public ResponseEntity<ApiResponse<Void>> incrementShareCount(@PathVariable Long postId) {
+        log.info("Increment share count request for post ID: {}", postId);
+        interactionService.incrementShareCount(postId);
+        return ResponseEntity.ok(ApiResponse.success("Post share count incremented", null));
+    }
 }

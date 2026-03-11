@@ -94,4 +94,8 @@ export class InteractionService {
         const body = comment ? { comment } : {};
         return this.http.post<ApiResponse<ShareResponse>>(`${this.api}/posts/${postId}/share`, body);
     }
+
+    incrementShareCount(postId: number): Observable<ApiResponse<void>> {
+        return this.http.post<ApiResponse<void>>(`${this.api}/posts/${postId}/share/increment`, {});
+    }
 }

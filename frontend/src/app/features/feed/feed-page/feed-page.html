@@ -241,7 +241,9 @@
                             (post.mediaUrls[0].includes('.mp4') || post.mediaUrls[0].includes('.webm')))) {
                             <video [src]="post.mediaUrls[0]" controls class="post-video"></video>
                             } @else if (post.mediaUrls && post.mediaUrls.length > 0 && post.postType !== 'REPOST') {
-                            <img [src]="post.mediaUrls[0]" alt="Post attachment" class="post-image">
+                            <a [routerLink]="['/post', post.id]">
+                                <img [src]="post.mediaUrls[0]" alt="Post attachment" class="post-image">
+                            </a>
                             }
 
                             <!-- Business Call To Action -->
