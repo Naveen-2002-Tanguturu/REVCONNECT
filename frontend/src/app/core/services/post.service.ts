@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, EMPTY } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { ApiResponse } from './auth.service';
 
 export interface PagedResponse<T> {
@@ -121,12 +122,16 @@ export class PostService {
 
     // POST /api/business/posts/{postId}/view
     recordView(postId: number): Observable<ApiResponse<void>> {
-        return this.http.post<ApiResponse<void>>(`/api/business/posts/${postId}/view`, {});
+        return this.http.post<ApiResponse<void>>(`/api/business/posts/${postId}/view`, {}).pipe(
+            catchError(() => EMPTY)
+        );
     }
 
     // POST /api/business/posts/{postId}/impression
     recordImpression(postId: number): Observable<ApiResponse<void>> {
-        return this.http.post<ApiResponse<void>>(`/api/business/posts/${postId}/impression`, {});
+        return this.http.post<ApiResponse<void>>(`/api/business/posts/${postId}/impression`, {}).pipe(
+            catchError(() => EMPTY)
+        );
     }
 
     // POST /api/posts/{postId}/cta
