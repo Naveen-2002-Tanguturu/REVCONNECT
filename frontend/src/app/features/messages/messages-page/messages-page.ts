@@ -6,6 +6,7 @@ import { Navbar } from '../../../core/components/navbar/navbar';
 import { Sidebar } from '../../../core/components/sidebar/sidebar';
 import { MessageService, ConversationPartner, MessageItem } from '../../../core/services/message.service';
 import { UserService } from '../../../core/services/user.service';
+import { LinkifyPipe } from '../../../shared/pipes/linkify-pipe';
 
 /**
  * HOW MESSAGES WORK (connected to backend MessageController):
@@ -23,7 +24,7 @@ import { UserService } from '../../../core/services/user.service';
 @Component({
     selector: 'app-messages-page',
     standalone: true,
-    imports: [CommonModule, FormsModule, RouterModule, Navbar, Sidebar],
+    imports: [CommonModule, FormsModule, RouterModule, Navbar, Sidebar, LinkifyPipe],
     templateUrl: './messages-page.html',
     styleUrls: ['./messages-page.css']
 })

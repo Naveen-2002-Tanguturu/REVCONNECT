@@ -46,6 +46,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/users/search/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/posts/trending/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/hashtags/trending/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/posts/*/share/increment").authenticated()
                         .requestMatchers("/uploads/**").permitAll()
                         // All other requests require authentication
                         .anyRequest().authenticated())
