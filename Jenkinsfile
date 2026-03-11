@@ -20,7 +20,8 @@ pipeline {
             steps {
                 dir('frontend') {
                     bat 'npm install --legacy-peer-deps'
-                    bat 'npm run build'
+                    bat 'if exist .angular\\cache rmdir /s /q .angular\\cache'
+                    bat 'set NODE_OPTIONS=--max_old_space_size=4096 && npm run build'
                 }
             }
         }
