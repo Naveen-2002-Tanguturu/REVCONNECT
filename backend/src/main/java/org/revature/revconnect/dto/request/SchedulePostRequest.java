@@ -18,7 +18,8 @@ import java.util.List;
 @Builder
 public class SchedulePostRequest {
 
-    @NotBlank(message = "Content is required")
+    // @NotBlank(message = "Content is required") -- Removed to allow media-only
+    // scheduled posts
     @Size(max = 5000, message = "Content must not exceed 5000 characters")
     private String content;
 
@@ -31,4 +32,3 @@ public class SchedulePostRequest {
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime publishAt;
 }
-
