@@ -43,7 +43,7 @@ pipeline {
                     ssh -o StrictHostKeyChecking=no -i $keyPath ${env:SSH_USER}@65.2.37.229 "mysql -u root -proot revconnect_db -e 'ALTER TABLE notifications MODIFY COLUMN type VARCHAR(50) NOT NULL;' 2>/dev/null || true"
 
                     # Backend Deployment
-                    scp -o StrictHostKeyChecking=no -i $keyPath backend/target/REVCONNECT-0.0.1-SNAPSHOT.jar ${env:SSH_USER}@65.2.37.229:/home/ec2-user/REVCONNECT-0.0.1-SNAPSHOT.jar
+                    scp -o StrictHostKeyChecking=no -i $keyPath backend/target/revconnect-1.0.0.jar ${env:SSH_USER}@65.2.37.229:/home/ec2-user/revconnect-1.0.0.jar
                     scp -o StrictHostKeyChecking=no -i $keyPath backend/deploy/revconnect-backend.service ${env:SSH_USER}@65.2.37.229:/tmp/
                     ssh -o StrictHostKeyChecking=no -i $keyPath ${env:SSH_USER}@65.2.37.229 "sudo mv /tmp/revconnect-backend.service /etc/systemd/system/revconnect-backend.service; sudo chown root:root /etc/systemd/system/revconnect-backend.service; sudo systemctl daemon-reload; sudo systemctl enable revconnect-backend; sudo systemctl restart revconnect-backend"
 
