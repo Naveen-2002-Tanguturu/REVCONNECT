@@ -182,9 +182,10 @@ export class ExplorePage implements OnInit {
     }
 
     checkFollowStatuses() {
-        // Fetch current user's following list and pending sent requests to cross-reference search results
+        // Use per-user isFollowing API which correctly handles bidirectional PERSONAL friendships
         if (!this.currentUserId) return;
 
+        // First get pending sent requests
         this.connectionService.getSentPendingRequests(0, 50).subscribe({
             next: (pendingRes) => {
                 const pendingIds = new Set<number>();
@@ -192,24 +193,28 @@ export class ExplorePage implements OnInit {
                     pendingRes.data.content.forEach((req: any) => pendingIds.add(req.userId));
                 }
 
-                this.connectionService.getFollowing(this.currentUserId!, 0, 100).subscribe({
-                    next: (followingRes) => {
-                        const followingIds = new Set<number>();
-                        if (followingRes.success && followingRes.data) {
-                            followingRes.data.content.forEach((user: any) => followingIds.add(user.userId));
-                        }
+                // For each user in results, check follow status via the isFollowing API
+                // which correctly handles PERSONAL-PERSONAL bidirectional friendships
+                this.usersResults.forEach(user => {
+                    if (user.id === this.currentUserId) return;
 
-                        this.usersResults.forEach(user => {
-                            if (user.id === this.currentUserId) return;
-
-                            if (followingIds.has(user.id)) {
-                                this.followStateMap[user.id] = 'following';
-                            } else if (pendingIds.has(user.id)) {
-                                this.followStateMap[user.id] = 'pending';
-                            } else {
+                    if (pendingIds.has(user.id)) {
+                        this.followStateMap[user.id] = 'pending';
+                        this.cdr.markForCheck();
+                    } else {
+                        this.connectionService.isFollowing(user.id).subscribe({
+                            next: (res) => {
+                                if (res.success) {
+                                    this.followStateMap[user.id] = res.data ? 'following' : 'none';
+                                } else {
+                                    this.followStateMap[user.id] = 'none';
+                                }
+                                this.cdr.markForCheck();
+                            },
+                            error: () => {
                                 this.followStateMap[user.id] = 'none';
+                                this.cdr.markForCheck();
                             }
-                            this.cdr.markForCheck();
                         });
                     }
                 });
