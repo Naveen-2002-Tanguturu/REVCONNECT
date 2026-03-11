@@ -54,6 +54,18 @@ export class FeedPage implements OnInit {
     return `${year}-${month}-${day}`;
   }
 
+  formatScheduleTime() {
+    let h = parseInt(this.scheduleHourInput, 10);
+    if (isNaN(h) || h < 1) h = 12;
+    if (h > 12) h = 12;
+    this.scheduleHourInput = String(h).padStart(2, '0');
+
+    let m = parseInt(this.scheduleMinuteInput, 10);
+    if (isNaN(m) || m < 0) m = 0;
+    if (m > 59) m = 59;
+    this.scheduleMinuteInput = String(m).padStart(2, '0');
+  }
+
   // Like state: { postId -> true/false }
   likedMap: { [postId: number]: boolean } = {};
 
@@ -489,7 +501,8 @@ export class FeedPage implements OnInit {
         hour = 0;
       }
       const hourStr = String(hour).padStart(2, '0');
-      const timeIso = `${hourStr}:${this.scheduleMinuteInput}:00`;
+      const minStr = String(parseInt(this.scheduleMinuteInput, 10) || 0).padStart(2, '0');
+      const timeIso = `${hourStr}:${minStr}:00`;
 
       // Build ISO string in local time, but ensure it's slightly in the future
       const publishAtIso = this.scheduleDateOnlyInput + 'T' + timeIso;

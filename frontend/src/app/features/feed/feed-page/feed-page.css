@@ -495,6 +495,12 @@ app-stories-feed {
     cursor: pointer;
 }
 
+.create-post-card .schedule-tool-form .combined-schedule-picker .time-number-input {
+    width: 2.2ch;
+    text-align: center;
+    cursor: text;
+}
+
 .create-post-card .schedule-tool-form .combined-schedule-picker .borderless-input::-webkit-calendar-picker-indicator {
     filter: var(--theme-filter, invert(0.8));
     cursor: pointer;
