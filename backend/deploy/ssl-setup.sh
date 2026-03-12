@@ -1,6 +1,6 @@
 #!/bin/bash
 export HOME=/home/ec2-user
-export DUCKDNS_Token=972cae05-c80e-480a-9e00-b4b1f4dad34f
+export DuckDNS_Token=972cae05-c80e-480a-9e00-b4b1f4dad34f
 
 echo "=== SSL Setup: Starting ==="
 
@@ -18,6 +18,9 @@ if [ ! -f "$HOME/.acme.sh/acme.sh" ]; then
     echo "ERROR: acme.sh not found after install - skipping SSL setup"
     exit 0
 fi
+
+# Save token directly to account.conf so acme.sh always finds it
+echo "export DuckDNS_Token='972cae05-c80e-480a-9e00-b4b1f4dad34f'" >> "$HOME/.acme.sh/account.conf"
 
 echo "=== Issuing cert via DuckDNS DNS-01 ==="
 "$HOME/.acme.sh/acme.sh" --issue --dns dns_duckdns -d revconnect.duckdns.org --force 2>&1 || true
