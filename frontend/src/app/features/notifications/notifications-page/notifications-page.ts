@@ -94,7 +94,9 @@ export class NotificationsPage implements OnInit {
       case 'LIKE':
       case 'COMMENT':
       case 'SHARE':
-        if (notification.postId) {
+        if (notification.referenceId) {
+          this.router.navigate(['/post', notification.referenceId]);
+        } else if (notification.postId) {
           this.router.navigate(['/post', notification.postId]);
         } else {
           this.router.navigate(['/feed']);
