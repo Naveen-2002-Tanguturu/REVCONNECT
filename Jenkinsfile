@@ -34,11 +34,7 @@ pipeline {
                     $keyPath = "$env:WORKSPACE\\jenkins-key-${env:BUILD_NUMBER}.pem"
                     Copy-Item -Path $env:SSH_KEY -Destination $keyPath -Force
 
-                    $Acl = Get-Acl $keyPath
-                    $Acl.SetAccessRuleProtection($true, $false)
-                    $Rule = New-Object System.Security.AccessControl.FileSystemAccessRule([System.Security.Principal.WindowsIdentity]::GetCurrent().Name, "Read", "Allow")
-                    $Acl.SetAccessRule($Rule)
-                    Set-Acl -Path $keyPath -AclObject $Acl
+                    icacls $keyPath /reset
 
                     # Database Migration — ensure notifications type column supports all enum values
                     ssh -o StrictHostKeyChecking=accept-new -i $keyPath ${env:SSH_USER}@52.66.177.34 "mysql -u root -proot revconnect_db -e 'ALTER TABLE notifications MODIFY COLUMN type VARCHAR(50) NOT NULL;' 2>/dev/null || true" 2>&1
@@ -53,7 +49,6 @@ pipeline {
                     scp -o StrictHostKeyChecking=accept-new -i $keyPath -pr frontend/dist/revconnect-ui/browser/* ${env:SSH_USER}@52.66.177.34:/tmp/frontend/ 2>&1
                     ssh -o StrictHostKeyChecking=accept-new -i $keyPath ${env:SSH_USER}@52.66.177.34 "sudo rm -rf /var/www/html/revconnect-ui/browser/*; sudo mkdir -p /var/www/html/revconnect-ui/browser/; sudo cp -r /tmp/frontend/* /var/www/html/revconnect-ui/browser/; sudo chown -R ec2-user:ec2-user /var/www/html/revconnect-ui; sudo chmod -R 755 /var/www/html/revconnect-ui/browser; sudo systemctl restart nginx" 2>&1
 
-                    (Get-Item $keyPath).IsReadOnly = $false
                     Remove-Item -Path $keyPath -Force
                     '''
                 }
