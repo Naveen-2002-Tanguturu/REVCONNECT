@@ -3873,3 +3873,9 @@ Unconditional classes:
 2026-03-12T14:52:11.336+05:30 DEBUG 37008 --- [http-nio-8080-exec-2] o.s.s.w.a.AnonymousAuthenticationFilter  : Set SecurityContextHolder to anonymous SecurityContext
 2026-03-12T14:52:11.338+05:30 DEBUG 37008 --- [http-nio-8080-exec-2] o.s.security.web.FilterChainProxy        : Securing POST /error
 2026-03-12T14:52:11.339+05:30 DEBUG 37008 --- [http-nio-8080-exec-2] o.s.s.w.a.AnonymousAuthenticationFilter  : Set SecurityContextHolder to anonymous SecurityContext
+2026-03-12T15:07:56.369+05:30  INFO 37008 --- [SpringApplicationShutdownHook] o.s.m.s.b.SimpleBrokerMessageHandler     : Stopping...
+2026-03-12T15:07:56.373+05:30  INFO 37008 --- [SpringApplicationShutdownHook] o.s.m.s.b.SimpleBrokerMessageHandler     : BrokerAvailabilityEvent[available=false, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@1ebd86f3]]
+2026-03-12T15:07:56.374+05:30  INFO 37008 --- [SpringApplicationShutdownHook] o.s.m.s.b.SimpleBrokerMessageHandler     : Stopped.
+2026-03-12T15:07:56.477+05:30  INFO 37008 --- [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-03-12T15:07:56.534+05:30  INFO 37008 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-5 - Shutdown initiated...
+2026-03-12T15:07:56.592+05:30  INFO 37008 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-5 - Shutdown completed.
