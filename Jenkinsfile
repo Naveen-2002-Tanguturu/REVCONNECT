@@ -49,10 +49,23 @@ pipeline {
                     scp -o StrictHostKeyChecking=accept-new -i $keyPath -pr frontend/dist/revconnect-ui/browser/* ${env:SSH_USER}@52.66.177.34:/tmp/frontend/ 2>&1
                     ssh -o StrictHostKeyChecking=accept-new -i $keyPath ${env:SSH_USER}@52.66.177.34 "sudo rm -rf /var/www/html/revconnect-ui/browser/*; sudo mkdir -p /var/www/html/revconnect-ui/browser/; sudo cp -r /tmp/frontend/* /var/www/html/revconnect-ui/browser/; sudo chown -R ec2-user:ec2-user /var/www/html/revconnect-ui; sudo chmod -R 755 /var/www/html/revconnect-ui/browser; sudo systemctl restart nginx" 2>&1
 
-                    # SSL Certificate Setup - DNS-01 challenge via DuckDNS plugin (bypasses DNS resolution issues)
-                    ssh -o StrictHostKeyChecking=accept-new -i $keyPath ${env:SSH_USER}@52.66.177.34 "sudo pip3 install certbot-dns-duckdns --break-system-packages 2>/dev/null || sudo pip3 install certbot-dns-duckdns 2>/dev/null || true" 2>&1
-                    ssh -o StrictHostKeyChecking=accept-new -i $keyPath ${env:SSH_USER}@52.66.177.34 "sudo certbot certonly --authenticator dns-duckdns --dns-duckdns-token=972cae05-c80e-480a-9e00-b4b1f4dad34f --dns-duckdns-propagation-seconds 60 -d revconnect.duckdns.org --non-interactive --agree-tos -m naveentanguturu4@gmail.com --keep-until-expiring 2>&1 || true" 2>&1
-                    ssh -o StrictHostKeyChecking=accept-new -i $keyPath ${env:SSH_USER}@52.66.177.34 "sudo systemctl reload nginx 2>/dev/null || true" 2>&1
+                    # SSL Certificate Setup - acme.sh with native DuckDNS DNS-01 support
+                    ssh -o StrictHostKeyChecking=accept-new -i $keyPath ${env:SSH_USER}@52.66.177.34 "curl -s https://get.acme.sh | sh -s email=naveentanguturu4@gmail.com 2>/dev/null || true" 2>&1
+                    ssh -o StrictHostKeyChecking=accept-new -i $keyPath ${env:SSH_USER}@52.66.177.34 "export DUCKDNS_Token=972cae05-c80e-480a-9e00-b4b1f4dad34f && ~/.acme.sh/acme.sh --issue --dns dns_duckdns -d revconnect.duckdns.org --force 2>&1 || true" 2>&1
+                    ssh -o StrictHostKeyChecking=accept-new -i $keyPath ${env:SSH_USER}@52.66.177.34 "sudo mkdir -p /etc/nginx/ssl && ~/.acme.sh/acme.sh --install-cert -d revconnect.duckdns.org --cert-file /etc/nginx/ssl/fullchain.pem --key-file /etc/nginx/ssl/privkey.pem 2>&1 || true" 2>&1
+                    ssh -o StrictHostKeyChecking=accept-new -i $keyPath ${env:SSH_USER}@52.66.177.34 "sudo tee /etc/nginx/conf.d/revconnect-ssl.conf > /dev/null << 'NGINXEOF'
+server {
+    listen 443 ssl;
+    server_name revconnect.duckdns.org;
+    ssl_certificate /etc/nginx/ssl/fullchain.pem;
+    ssl_certificate_key /etc/nginx/ssl/privkey.pem;
+    root /var/www/html/revconnect-ui/browser;
+    index index.html;
+    location / { try_files \$uri \$uri/ /index.html; }
+}
+server { listen 80; server_name revconnect.duckdns.org; return 301 https://\$host\$request_uri; }
+NGINXEOF
+sudo systemctl reload nginx 2>/dev/null || true" 2>&1
 
                     icacls $keyPath /reset
                     Remove-Item -Path $keyPath -Force -ErrorAction SilentlyContinue
