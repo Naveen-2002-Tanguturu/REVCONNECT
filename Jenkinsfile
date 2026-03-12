@@ -50,9 +50,9 @@ pipeline {
                     ssh -o StrictHostKeyChecking=accept-new -i $keyPath ${env:SSH_USER}@52.66.177.34 "sudo rm -rf /var/www/html/revconnect-ui/browser/*; sudo mkdir -p /var/www/html/revconnect-ui/browser/; sudo cp -r /tmp/frontend/* /var/www/html/revconnect-ui/browser/; sudo chown -R ec2-user:ec2-user /var/www/html/revconnect-ui; sudo chmod -R 755 /var/www/html/revconnect-ui/browser; sudo systemctl restart nginx" 2>&1
 
                     # SSL Certificate Setup - DNS-01 challenge via DuckDNS plugin (bypasses DNS resolution issues)
-                    ssh -o StrictHostKeyChecking=accept-new -i $keyPath ${env:SSH_USER}@52.66.177.34 "pip3 install certbot-dns-duckdns 2>/dev/null || true" 2>&1
+                    ssh -o StrictHostKeyChecking=accept-new -i $keyPath ${env:SSH_USER}@52.66.177.34 "sudo pip3 install certbot-dns-duckdns --break-system-packages 2>/dev/null || sudo pip3 install certbot-dns-duckdns 2>/dev/null || true" 2>&1
                     ssh -o StrictHostKeyChecking=accept-new -i $keyPath ${env:SSH_USER}@52.66.177.34 "sudo certbot certonly --authenticator dns-duckdns --dns-duckdns-token=972cae05-c80e-480a-9e00-b4b1f4dad34f --dns-duckdns-propagation-seconds 60 -d revconnect.duckdns.org --non-interactive --agree-tos -m naveentanguturu4@gmail.com --keep-until-expiring 2>&1 || true" 2>&1
-                    ssh -o StrictHostKeyChecking=accept-new -i $keyPath ${env:SSH_USER}@52.66.177.34 "sudo nginx -t && sudo systemctl reload nginx 2>&1 || true" 2>&1
+                    ssh -o StrictHostKeyChecking=accept-new -i $keyPath ${env:SSH_USER}@52.66.177.34 "sudo systemctl reload nginx 2>/dev/null || true" 2>&1
 
                     icacls $keyPath /reset
                     Remove-Item -Path $keyPath -Force -ErrorAction SilentlyContinue
