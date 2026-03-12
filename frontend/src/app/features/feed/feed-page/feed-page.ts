@@ -502,8 +502,9 @@ export class FeedPage implements OnInit {
       const minStr = String(parseInt(this.scheduleMinuteInput, 10) || 0).padStart(2, '0');
       const timeIso = `${hourStr}:${minStr}:00`;
 
-      // Build ISO string in local time, but ensure it's slightly in the future
-      const publishAtIso = this.scheduleDateOnlyInput + 'T' + timeIso;
+      // Parse the user's localized selection and emit it as an absolute UTC string without a zone suffix
+      const localDate = new Date(this.scheduleDateOnlyInput + 'T' + timeIso);
+      const publishAtIso = localDate.toISOString().substring(0, 19);
       const request = {
         content: finalContent,
         postType: postType as any,

@@ -1,0 +1,19 @@
+﻿[
+    [
+        "rtb-0e20c0e9dda51bf82",
+        [
+            {
+                "DestinationCidrBlock": "172.31.0.0/16",
+                "GatewayId": "local",
+                "Origin": "CreateRouteTable",
+                "State": "active"
+            },
+            {
+                "DestinationCidrBlock": "0.0.0.0/0",
+                "GatewayId": "igw-07f12b18781209022",
+                "Origin": "CreateRoute",
+                "State": "active"
+            }
+        ]
+    ]
+]

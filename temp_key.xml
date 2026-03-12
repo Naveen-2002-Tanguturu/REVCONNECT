@@ -1,0 +1,32 @@
+<?xml version='1.1' encoding='UTF-8'?>
+<com.cloudbees.plugins.credentials.SystemCredentialsProvider plugin="credentials@1491.v6d6145e96e1c">
+  <domainCredentialsMap class="hudson.util.CopyOnWriteMap$Hash">
+    <entry>
+      <com.cloudbees.plugins.credentials.domains.Domain>
+        <specifications/>
+      </com.cloudbees.plugins.credentials.domains.Domain>
+      <java.util.concurrent.CopyOnWriteArrayList>
+        <com.cloudbees.jenkins.plugins.sshcredentials.impl.BasicSSHUserPrivateKey plugin="ssh-credentials@361.vb_f6760818e8c">
+          <scope>GLOBAL</scope>
+          <id>bc027f6b-da11-483c-9b2f-cf3ac8fe961f</id>
+          <description></description>
+          <username></username>
+          <usernameSecret>false</usernameSecret>
+          <privateKeySource class="com.cloudbees.jenkins.plugins.sshcredentials.impl.BasicSSHUserPrivateKey$DirectEntryPrivateKeySource">
+            <privateKey>{AQAAABAAAAAQewcIbKjRC7PPhKEh993L7oWcJJQJfHoGVwR/fm9LuOs=}</privateKey>
+          </privateKeySource>
+        </com.cloudbees.jenkins.plugins.sshcredentials.impl.BasicSSHUserPrivateKey>
+        <com.cloudbees.jenkins.plugins.sshcredentials.impl.BasicSSHUserPrivateKey plugin="ssh-credentials@361.vb_f6760818e8c">
+          <scope>GLOBAL</scope>
+          <id>aws-ec2-ssh-key</id>
+          <description></description>
+          <username>ec2-user</username>
+          <usernameSecret>false</usernameSecret>
+          <privateKeySource class="com.cloudbees.jenkins.plugins.sshcredentials.impl.BasicSSHUserPrivateKey$DirectEntryPrivateKeySource">
+            <privateKey>{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}</privateKey>
+          </privateKeySource>
+        </com.cloudbees.jenkins.plugins.sshcredentials.impl.BasicSSHUserPrivateKey>
+      </java.util.concurrent.CopyOnWriteArrayList>
+    </entry>
+  </domainCredentialsMap>
+</com.cloudbees.plugins.credentials.SystemCredentialsProvider>

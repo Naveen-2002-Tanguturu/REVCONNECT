@@ -1,0 +1,133 @@
+﻿i-03d57875c71adf3a0	[2J[01;01H[=3h[2J[01;01H[2J[01;01H[=3h[2J[01;01H[2J[01;01H[=3h[2J[01;01H[0m[35m[40m[2J[01;01H[=3h[2J[01;01H[0m[37m[40m  Booting `Amazon Linux (6.12.73-95.123.amzn2023.x86_64) 2023'
+
+
+
+[    0.035174] RETBleed: WARNING: Spectre v2 mitigation leaves CPU vulnerable to RETBleed attacks, data leaks possible!
+
+[    2.651456] systemd[1]: Starting systemd-remount-fs.service - Remount Root and Kernel File Systems...
+
+[    2.668546] systemd[1]: Finished systemd-sysctl.service - Apply Kernel Variables.
+
+[    2.671122] systemd[1]: Finished systemd-remount-fs.service - Remount Root and Kernel File Systems.
+
+[    2.678372] systemd[1]: Started systemd-journald.service - Journal Service.
+
+[    2.727240] systemd-journald[1161]: Received client request to flush runtime journal.
+
+[    2.732617] systemd-journald[1161]: File /var/log/journal/ec262ea58a0e1f25316f3d80b46cb4f9/system.journal corrupted or uncleanly shut down, renaming and replacing.
+
+[    2.966178] RPC: Registered named UNIX socket transport module.
+
+[    2.966951] RPC: Registered udp transport module.
+
+[    2.967531] RPC: Registered tcp transport module.
+
+[    2.968163] RPC: Registered tcp-with-tls transport module.
+
+[    2.968905] RPC: Registered tcp NFSv4.1 backchannel transport module.
+
+[    3.088521] input: Power Button as /devices/LNXSYSTM:00/LNXPWRBN:00/input/input0
+
+[    3.101566] ena 0000:00:05.0: Elastic Network Adapter (ENA) v2.16.1g
+
+[    3.112146] i8042: PNP: PS/2 Controller [PNP0303:KBD,PNP0f13:MOU] at 0x60,0x64 irq 1,12
+
+[    3.113407] i8042: Warning: Keylock active
+
+[    3.113854] ena 0000:00:05.0: ENA device version: 0.10
+
+[    3.114556] ena 0000:00:05.0: ENA controller version: 0.0.1 implementation version 1
+
+[    3.116315] serio: i8042 KBD port at 0x60,0x64 irq 1
+
+[    3.116881] serio: i8042 AUX port at 0x60,0x64 irq 12
+
+[    3.123970] ACPI: button: Power Button [PWRF]
+
+[    3.124603] input: Sleep Button as /devices/LNXSYSTM:00/LNXSLPBN:00/input/input1
+
+[    3.128921] ACPI: button: Sleep Button [SLPF]
+
+[    3.203378] ena 0000:00:05.0: LLQ is not supported Fallback to host mode policy.
+
+[    3.216512] ena 0000:00:05.0: Elastic Network Adapter (ENA) found at mem 80400000, mac addr 0a:67:40:03:ed:93
+
+[    3.233956] ena 0000:00:05.0 ens5: renamed from eth0
+
+[    3.260912] nvme nvme0: using unchecked data buffer
+
+[    3.355792] zram_generator::config[1713]: zram0: system has too much memory (911MB), limit is 800MB, ignoring.
+
+[    3.737395] rm[1743]: removed '/var/lib/cloud/instance/boot-finished'
+
+[    3.738729] rm[1743]: removed '/var/lib/cloud/instance'
+
+[    5.033304] cloud-init[1873]: Cloud-init v. 22.2.2 running 'init' at Thu, 12 Mar 2026 09:41:09 +0000. Up 4.99 seconds.
+
+[    5.070111] cloud-init[1873]: ci-info: ++++++++++++++++++++++++++++++++++++++Net device info+++++++++++++++++++++++++++++++++++++++
+
+[    5.072479] cloud-init[1873]: ci-info: +--------+------+-----------------------------+---------------+--------+-------------------+
+
+[    5.074477] cloud-init[1873]: ci-info: | Device |  Up  |           Address           |      Mask     | Scope  |     Hw-Address    |
+
+[    5.076480] cloud-init[1873]: ci-info: +--------+------+-----------------------------+---------------+--------+-------------------+
+
+[    5.079833] cloud-init[1873]: ci-info: |  ens5  | True |          172.31.7.8         | 255.255.240.0 | global | 0a:67:40:03:ed:93 |
+
+[    5.081930] cloud-init[1873]: ci-info: |  ens5  | True | fe80::867:40ff:fe03:ed93/64 |       .       |  link  | 0a:67:40:03:ed:93 |
+
+[    5.083963] cloud-init[1873]: ci-info: |   lo   | True |          127.0.0.1          |   255.0.0.0   |  host  |         .         |
+
+[    5.086060] cloud-init[1873]: ci-info: |   lo   | True |           ::1/128           |       .       |  host  |         .         |
+
+[    5.088319] cloud-init[1873]: ci-info: +--------+------+-----------------------------+---------------+--------+-------------------+
+
+[    5.090377] cloud-init[1873]: ci-info: +++++++++++++++++++++++++++++Route IPv4 info++++++++++++++++++++++++++++++
+
+[    5.094187] cloud-init[1873]: ci-info: +-------+-------------+------------+-----------------+-----------+-------+
+
+[    5.096098] cloud-init[1873]: ci-info: | Route | Destination |  Gateway   |     Genmask     | Interface | Flags |
+
+[    5.097959] cloud-init[1873]: ci-info: +-------+-------------+------------+-----------------+-----------+-------+
+
+[    5.099924] cloud-init[1873]: ci-info: |   0   |   0.0.0.0   | 172.31.0.1 |     0.0.0.0     |    ens5   |   UG  |
+
+[    5.101766] cloud-init[1873]: ci-info: |   1   |  172.31.0.0 |  0.0.0.0   |  255.255.240.0  |    ens5   |   U   |
+
+[    5.103598] cloud-init[1873]: ci-info: |   2   |  172.31.0.1 |  0.0.0.0   | 255.255.255.255 |    ens5   |   UH  |
+
+[    5.105425] cloud-init[1873]: ci-info: |   3   |  172.31.0.2 |  0.0.0.0   | 255.255.255.255 |    ens5   |   UH  |
+
+[    5.107308] cloud-init[1873]: ci-info: +-------+-------------+------------+-----------------+-----------+-------+
+
+[    5.109166] cloud-init[1873]: ci-info: +++++++++++++++++++Route IPv6 info+++++++++++++++++++
+
+[    5.110669] cloud-init[1873]: ci-info: +-------+-------------+---------+-----------+-------+
+
+[    5.112250] cloud-init[1873]: ci-info: | Route | Destination | Gateway | Interface | Flags |
+
+[    5.113808] cloud-init[1873]: ci-info: +-------+-------------+---------+-----------+-------+
+
+[    5.116669] cloud-init[1873]: ci-info: |   0   |  fe80::/64  |    ::   |    ens5   |   U   |
+
+[    5.118184] cloud-init[1873]: ci-info: |   2   |    local    |    ::   |    ens5   |   U   |
+
+[    5.120895] cloud-init[1873]: ci-info: |   3   |  multicast  |    ::   |    ens5   |   U   |
+
+[    5.122423] cloud-init[1873]: ci-info: +-------+-------------+---------+-----------+-------+
+
+2026/03/12 09:41:10Z: SSM Agent unable to acquire credentials: <error>no valid credentials could be retrieved for ec2 identity. Default Host Management Err: error calling RequestManagedInstanceRoleToken: AccessDeniedException: Systems Manager's instance management role is not configured for account: 108750423267
+	status code: 400, request id: 39aab7fd-3692-47e9-a8eb-b4f2475eda20</error>
+[    6.799167] cloud-init[1976]: Cloud-init v. 22.2.2 running 'modules:config' at Thu, 12 Mar 2026 09:41:10 +0000. Up 6.68 seconds.
+[    7.764388] cloud-init[1983]: Cloud-init v. 22.2.2 running 'modules:final' at Thu, 12 Mar 2026 09:41:11 +0000. Up 7.65 seconds.
+[    7.886181] cloud-init[1983]: Cloud-init v. 22.2.2 finished at Thu, 12 Mar 2026 09:41:12 +0000. Datasource DataSourceEc2.  Up 7.86 seconds
+
+
+
+Amazon Linux 2023.10.20260302
+
+Kernel 6.12.73-95.123.amzn2023.x86_64 on an x86_64 (-)
+
+
+
+	2026-03-12T09:48:37+00:00

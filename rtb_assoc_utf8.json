@@ -1,0 +1,14 @@
+﻿[
+    [
+        [
+            {
+                "Main": true,
+                "RouteTableAssociationId": "rtbassoc-00b88bffe212014f3",
+                "RouteTableId": "rtb-0e20c0e9dda51bf82",
+                "AssociationState": {
+                    "State": "associated"
+                }
+            }
+        ]
+    ]
+]

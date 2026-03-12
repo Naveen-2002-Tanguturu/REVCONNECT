@@ -43,6 +43,13 @@ fi
 # Configure nginx HTTPS only if cert files exist
 if [ -f /etc/nginx/ssl/fullchain.pem ] && [ -f /etc/nginx/ssl/privkey.pem ]; then
     echo "=== Cert found - configuring nginx HTTPS ==="
+    
+    # Fix Nginx 403 Forbidden error: grant execute on user home directory so nginx can serve uploads
+    sudo chmod 755 /home/ec2-user
+    sudo chmod 755 /home/ec2-user/revconnect
+    sudo mkdir -p /home/ec2-user/revconnect/uploads
+    sudo chmod -R 755 /home/ec2-user/revconnect/uploads
+    
     cat > /tmp/revconnect-ssl.conf << 'NGINXEOF'
 server {
     listen 443 ssl;
