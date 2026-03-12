@@ -514,7 +514,7 @@ export class FeedPage implements OnInit {
       this.postService.schedulePost(request).subscribe({
         next: (response) => {
           if (response.success) {
-            alert('Post scheduled successfully for ' + new Date(publishAtIso).toLocaleString());
+            alert('Post scheduled successfully for ' + localDate.toLocaleString());
             this.newPostContent = '';
             this.ctaLabelInput = '';
             this.ctaUrlInput = '';
