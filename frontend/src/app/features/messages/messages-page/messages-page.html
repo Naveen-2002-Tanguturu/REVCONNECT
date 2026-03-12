@@ -9,7 +9,7 @@
 
         <!-- Main Content -->
         <main class="feed-column messages-column">
-            <div class="messages-layout glass-card">
+            <div class="messages-layout glass-card" [class.chat-active]="!!selectedConversation">
 
                 <!-- Left: Conversations List -->
                 <div class="conversations-panel">
@@ -61,6 +61,10 @@
                     <ng-container *ngIf="selectedConversation">
                         <!-- Chat Header -->
                         <div class="chat-header">
+                            <button class="mobile-back-btn"
+                                (click)="selectedConversation = null; $event.stopPropagation()">
+                                <i class="fa-solid fa-arrow-left"></i>
+                            </button>
                             <img [src]="getAvatarUrl(selectedConversation)" alt="{{selectedConversation.name}}">
                             <div class="chat-header-info">
                                 <strong>{{selectedConversation.name}}</strong>

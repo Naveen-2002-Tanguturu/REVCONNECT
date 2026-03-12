@@ -332,13 +332,11 @@ export class FeedPage implements OnInit {
       next: (response) => {
         if (response.success && response.data) {
           this.posts = response.data.content;
-          // Check like + bookmark status for all loaded posts
           this.posts.forEach(post => {
             this.checkLikeStatus(post.id);
             this.checkBookmarkStatus(post.id);
-            // Record impression and view
+            // Record impression only on load
             this.postService.recordImpression(post.id).subscribe();
-            this.postService.recordView(post.id).subscribe();
           });
         }
         this.isLoading = false;
@@ -612,8 +610,13 @@ export class FeedPage implements OnInit {
   toggleComments(postId: number) {
     this.commentOpenMap[postId] = !this.commentOpenMap[postId];
 
-    if (this.commentOpenMap[postId] && !this.commentsMap[postId]) {
-      this.loadComments(postId);
+    if (this.commentOpenMap[postId]) {
+      // Record view when user intentionally opens comments
+      this.postService.recordView(postId).subscribe();
+
+      if (!this.commentsMap[postId]) {
+        this.loadComments(postId);
+      }
     }
     this.cdr.markForCheck();
   }

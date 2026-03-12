@@ -288,20 +288,22 @@
 
 /* External Links Redesign */
 .settings-wrapper .settings-grid .settings-detail .settings-content .tab-pane .add-link-card {
-    background: var(--bg-secondary);
+    background: var(--bg-card);
     border-radius: 20px;
-    padding: 1.25rem;
+    padding: 0.8rem 0.8rem 0.8rem 1.25rem;
     display: flex;
     gap: 1rem;
     align-items: center;
-    border: 1px solid var(--border-light);
+    border: 1px solid var(--border-color);
     margin-bottom: 2rem;
     transition: var(--transition-bounce);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
 }
 
 .settings-wrapper .settings-grid .settings-detail .settings-content .tab-pane .add-link-card:focus-within {
     border-color: var(--accent-primary);
     box-shadow: 0 8px 30px var(--accent-glow);
+    transform: translateY(-2px);
 }
 
 .settings-wrapper .settings-grid .settings-detail .settings-content .tab-pane .add-link-card .input-wrapper {
@@ -309,7 +311,6 @@
     display: flex;
     align-items: center;
     gap: 1rem;
-    padding: 0.5rem 0.75rem;
 }
 
 .settings-wrapper .settings-grid .settings-detail .settings-content .tab-pane .add-link-card .input-wrapper i {
@@ -322,7 +323,7 @@
     background: transparent;
     border: none;
     color: var(--text-primary);
-    font-size: 1rem;
+    font-size: 1.05rem;
     width: 100%;
     font-weight: 500;
 }
@@ -331,41 +332,44 @@
     outline: none;
 }
 
+.settings-wrapper .settings-grid .settings-detail .settings-content .tab-pane .add-link-card .input-wrapper input::placeholder {
+    color: var(--text-muted);
+}
+
 .settings-wrapper .settings-grid .settings-detail .settings-content .tab-pane .add-link-card .btn-primary {
-    padding: 0.8rem 1.5rem;
+    padding: 0.8rem 1.75rem;
     border-radius: 14px;
     white-space: nowrap;
+    background: linear-gradient(135deg, var(--accent-primary) 0%, #06b6d4 100%);
+    box-shadow: 0 4px 15px var(--accent-glow);
+    font-weight: 700;
 }
 
 .settings-wrapper .settings-grid .settings-detail .settings-content .tab-pane .link-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    display: flex;
+    flex-direction: column;
     gap: 1rem;
 }
 
 .settings-wrapper .settings-grid .settings-detail .settings-content .tab-pane .link-grid .link-card {
     background: var(--bg-card);
-    border: 1px solid var(--border-light);
+    border: 1px solid var(--border-color);
     border-radius: 20px;
-    padding: 1.25rem;
+    padding: 1.25rem 1.5rem;
     display: flex;
     align-items: center;
-    gap: 1.25rem;
-    transition: var(--transition-fast);
+    gap: 1.5rem;
+    transition: var(--transition-bounce);
     position: relative;
     overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
 }
 
 .settings-wrapper .settings-grid .settings-detail .settings-content .tab-pane .link-grid .link-card:hover {
-    border-color: var(--accent-primary);
+    border-color: var(--border-light);
     transform: translateY(-3px);
-    background: var(--bg-primary);
-}
-
-.settings-wrapper .settings-grid .settings-detail .settings-content .tab-pane .link-grid .link-card:hover .link-icon {
-    background: var(--accent-primary);
-    color: white;
-    transform: scale(1.1);
+    background: var(--bg-secondary);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
 }
 
 .settings-wrapper .settings-grid .settings-detail .settings-content .tab-pane .link-grid .link-card:hover .delete-btn {
@@ -374,17 +378,24 @@
 }
 
 .settings-wrapper .settings-grid .settings-detail .settings-content .tab-pane .link-grid .link-card .link-icon {
-    width: 44px;
-    height: 44px;
-    border-radius: 14px;
-    background: var(--bg-secondary);
+    width: 50px;
+    height: 50px;
+    border-radius: 16px;
+    background: rgba(var(--accent-primary-rgb), 0.1);
     color: var(--accent-primary);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.1rem;
+    font-size: 1.2rem;
     transition: var(--transition-bounce);
     flex-shrink: 0;
+}
+
+.settings-wrapper .settings-grid .settings-detail .settings-content .tab-pane .link-grid .link-card:hover .link-icon {
+    background: var(--accent-primary);
+    color: white;
+    transform: scale(1.05) rotate(-5deg);
+    box-shadow: 0 4px 12px var(--accent-glow);
 }
 
 .settings-wrapper .settings-grid .settings-detail .settings-content .tab-pane .link-grid .link-card .link-info {
@@ -392,16 +403,18 @@
     flex-direction: column;
     min-width: 0;
     flex: 1;
+    gap: 0.1rem;
 }
 
 .settings-wrapper .settings-grid .settings-detail .settings-content .tab-pane .link-grid .link-card .link-info .link-title {
     color: var(--text-primary);
-    font-weight: 700;
-    font-size: 1rem;
+    font-weight: 800;
+    font-size: 1.1rem;
     text-decoration: none;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    transition: color 0.2s;
 }
 
 .settings-wrapper .settings-grid .settings-detail .settings-content .tab-pane .link-grid .link-card .link-info .link-title:hover {
@@ -410,19 +423,20 @@
 
 .settings-wrapper .settings-grid .settings-detail .settings-content .tab-pane .link-grid .link-card .link-info .link-url {
     color: var(--text-muted);
-    font-size: 0.8rem;
+    font-size: 0.85rem;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    font-weight: 500;
 }
 
 .settings-wrapper .settings-grid .settings-detail .settings-content .tab-pane .link-grid .link-card .delete-btn {
-    background: rgba(239, 68, 68, 0.1);
-    color: #ef4444;
+    background: transparent;
+    color: var(--text-muted);
     border: none;
-    width: 36px;
-    height: 36px;
-    border-radius: 10px;
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -430,11 +444,12 @@
     transition: var(--transition-fast);
     opacity: 0;
     transform: translateX(10px);
+    font-size: 1.1rem;
 }
 
 .settings-wrapper .settings-grid .settings-detail .settings-content .tab-pane .link-grid .link-card .delete-btn:hover {
-    background: #ef4444;
-    color: white;
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
 }
 
 .settings-wrapper .settings-grid .settings-detail .settings-content .tab-pane .empty-state {

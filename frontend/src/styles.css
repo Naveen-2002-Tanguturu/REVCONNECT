@@ -24,10 +24,10 @@
   --border-light: rgba(255, 255, 255, 0.04);
   --border-heavy: rgba(255, 255, 255, 0.15);
 
-  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.5);
-  --shadow-md: 0 10px 25px -5px rgba(0, 0, 0, 0.6);
-  --shadow-lg: 0 20px 50px -12px rgba(0, 0, 0, 0.7);
-  --shadow-xl: 0 35px 80px -20px rgba(0, 0, 0, 0.9);
+  --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 20px 50px -12px rgba(0, 0, 0, 0.6);
+  --shadow-xl: 0 30px 60px -15px rgba(0, 0, 0, 0.7);
   --shadow-accent: 0 0 30px rgba(139, 92, 246, 0.35);
 
   --radius-sm: 10px;
@@ -78,6 +78,26 @@ body:not(.light-theme) {
   box-sizing: border-box;
 }
 
+/* 💎 Premium Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(139, 92, 246, 0.2);
+  border-radius: 20px;
+  transition: var(--transition-smooth);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-primary);
+}
+
 body {
   font-family: 'Inter', sans-serif;
   background: radial-gradient(circle at 50% 0%, var(--bg-secondary) 0%, var(--bg-primary) 80%);
@@ -85,6 +105,8 @@ body {
   overflow-x: hidden;
   min-height: 100vh;
   background-attachment: fixed;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* 📱 CORE RESPONSIVE LAYOUT ENGINE */
@@ -136,7 +158,8 @@ body {
   .main-container {
     grid-template-columns: 280px 1fr 340px;
     grid-template-areas: "sidebar feed widgets";
-    max-width: 1520px !important;
+    max-width: 100% !important;
+    padding: 24px 3% 0;
     gap: 2.5rem;
   }
 

@@ -141,40 +141,44 @@
         <aside class="widgets-column">
 
             <!-- Suggestion Widget -->
-            <div class="widget-card glass-card">
+            <div class="widget-card glass-card suggestion-widget">
                 <div class="widget-header">
-                    <i class="fa-solid fa-sparkles" style="color: var(--accent-secondary)"></i>
-                    <h3>Suggestions</h3>
+                    <div class="header-left">
+                        <i class="fa-solid fa-sparkles" style="color: var(--accent-secondary)"></i>
+                        <h3>Suggestions</h3>
+                    </div>
                     <button class="refresh-btn" (click)="loadSuggestedUsers()" [disabled]="isLoadingSuggestions">
                         <i class="fa-solid fa-arrows-rotate" [class.fa-spin]="isLoadingSuggestions"></i>
                     </button>
                 </div>
                 <div class="widget-content">
                     <div *ngIf="isLoadingSuggestions && suggestedUsers.length === 0"
-                        style="text-align: center; padding: 1rem; color: var(--text-secondary);">
+                        style="text-align: center; padding: 1.5rem; color: var(--text-secondary);">
                         <i class="fa-solid fa-circle-notch fa-spin"></i>
                     </div>
 
                     <div class="suggestion-list" *ngIf="suggestedUsers.length > 0">
-                        <div class="suggestion-item" *ngFor="let sUser of suggestedUsers">
+                        <div class="suggestion-item glass-card" *ngFor="let sUser of suggestedUsers">
                             <div class="s-info" (click)="viewProfile(sUser.id)" style="cursor: pointer;">
-                                <img [src]="sUser.profilePicture || 'https://ui-avatars.com/api/?name=' + sUser.name + '&background=random'"
-                                    alt="Avatar">
+                                <div class="avatar-wrap">
+                                    <img [src]="sUser.profilePicture || 'https://ui-avatars.com/api/?name=' + sUser.name + '&background=random'"
+                                        alt="Avatar">
+                                </div>
                                 <div class="s-meta">
                                     <span class="s-name">{{sUser.name}}</span>
                                     <small class="s-username">@{{sUser.username}}</small>
                                 </div>
                             </div>
-                            <button class="s-follow-btn" (click)="followFromSuggestions(sUser)">
+                            <button class="s-follow-btn" (click)="followFromSuggestions(sUser)" title="Follow">
                                 <i class="fa-solid fa-plus"></i>
                             </button>
                         </div>
                     </div>
 
-                    <p class="no-suggestions" *ngIf="!isLoadingSuggestions && suggestedUsers.length === 0"
-                        style="text-align: center; color: var(--text-muted); padding: 1rem; font-style: italic;">
-                        No suggestions right now.
-                    </p>
+                    <div class="no-suggestions" *ngIf="!isLoadingSuggestions && suggestedUsers.length === 0">
+                        <i class="fa-regular fa-face-frown-open"></i>
+                        <p>No suggestions right now.</p>
+                    </div>
                 </div>
             </div>
         </aside>

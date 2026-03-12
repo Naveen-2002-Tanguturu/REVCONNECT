@@ -147,8 +147,14 @@ export class AnalyticsDashboard implements OnInit {
   }
 
   getCleanContent(content: string): string {
-    if (!content) return 'Untitled Content';
-    const clean = content.replace(/\[\[CTA\|.*?\|.*?\]\]/g, '').trim();
-    return clean || 'Promotional Post';
+    if (!content) return 'Media Post';
+    let clean = content.replace(/\[\[CTA\|.*?\|.*?\]\]/g, '')
+      .replace(/\[\[PROMO\|.*?\]\]/g, '')
+      .replace(/\[\[TAGS\|.*?\]\]/g, '')
+      .trim();
+    if (!clean) return 'Media Post';
+    // Trim length if it's too long
+    if (clean.length > 50) return clean.substring(0, 50) + '...';
+    return clean;
   }
 }

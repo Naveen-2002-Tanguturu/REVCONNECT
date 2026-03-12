@@ -46,36 +46,34 @@
 
                 <!-- Schedule Tool Form -->
                 <div class="schedule-tool-form" *ngIf="showScheduleTool">
-                    <h5><i class="fa-regular fa-calendar-check" style="color: var(--accent-primary);"></i> Schedule Post</h5>
-                    
-                    <div class="combined-schedule-picker glass-card">
-                        <i class="fa-regular fa-calendar-alt prefix-icon"></i>
-                        
+                    <h5><i class="fa-regular fa-calendar-check" style="color: var(--accent-primary);"></i> Schedule Post
+                    </h5>
+
+                    <div class="schedule-inputs-row">
                         <!-- Date -->
-                        <input type="date" class="borderless-input" [(ngModel)]="scheduleDateOnlyInput" [min]="minDateString" max="9999-12-31">
-                        
-                        <div class="picker-divider"></div>
-                        
-                        <i class="fa-regular fa-clock clock-icon"></i>
-                        <!-- Hour (24h) -->
-                        <input type="text" class="borderless-input time-number-input" 
-                               [(ngModel)]="scheduleHourInput" 
-                               maxlength="2" 
-                               (blur)="formatScheduleTime()"
-                               placeholder="00">
-                        <span class="time-colon">:</span>
-                        <!-- Minute -->
-                        <input type="text" class="borderless-input time-number-input" 
-                               [(ngModel)]="scheduleMinuteInput" 
-                               maxlength="2" 
-                               (blur)="formatScheduleTime()"
-                               placeholder="00">
-                        
-                        <!-- AM/PM -->
-                        <select class="borderless-select ampm-select" [(ngModel)]="scheduleAmPmInput">
-                            <option value="AM">AM</option>
-                            <option value="PM">PM</option>
-                        </select>
+                        <div class="schedule-pill glass-card date-pill">
+                            <i class="fa-regular fa-calendar-alt prefix-icon"></i>
+                            <input type="date" class="borderless-input" [(ngModel)]="scheduleDateOnlyInput"
+                                [min]="minDateString" max="9999-12-31">
+                        </div>
+
+                        <!-- Time -->
+                        <div class="schedule-pill glass-card time-pill">
+                            <i class="fa-regular fa-clock clock-icon"></i>
+                            <input type="text" class="borderless-input time-number-input"
+                                [(ngModel)]="scheduleHourInput" maxlength="2" (blur)="formatScheduleTime()"
+                                placeholder="00">
+                            <span class="time-colon">:</span>
+                            <input type="text" class="borderless-input time-number-input"
+                                [(ngModel)]="scheduleMinuteInput" maxlength="2" (blur)="formatScheduleTime()"
+                                placeholder="00">
+
+                            <select class="borderless-select ampm-select" [(ngModel)]="scheduleAmPmInput">
+                                <option value="AM">AM</option>
+                                <option value="PM">PM</option>
+                            </select>
+                            <i class="fa-solid fa-chevron-down arrow-icon"></i>
+                        </div>
                     </div>
                 </div>
                 <!-- Media Preview Section -->
@@ -176,18 +174,14 @@
                 </div>
 
                 @for (post of posts; track post.id) {
-                <div class="post-card glass-card" [class.pinned-post]="post.pinned">
+                <div class="post-card glass-card">
 
                     <div class="post-header">
                         <div class="author-info">
                             <img [src]="post.authorProfilePicture || 'https://ui-avatars.com/api/?name=' + post.authorName + '&background=random'"
                                 alt="{{post.authorName}}">
                             <div class="meta">
-                                <h4>
-                                    {{post.authorName}}
-                                    <i class="fa-solid fa-thumbtack pinned-icon" *ngIf="post.pinned"
-                                        title="Pinned Post"></i>
-                                </h4>
+                                <h4>{{post.authorName}}</h4>
                                 <span>&#64;{{post.authorUsername}} • {{getRelativeTime(post.createdAt)}}</span>
                                 <div class="partnership-badge" *ngIf="post.isPromotional">
                                     <i class="fa-solid fa-handshake"></i> Paid Partnership

@@ -216,10 +216,18 @@ export class SettingsPage {
       try {
         if (link.startsWith('{')) {
           const obj = JSON.parse(link.replace(/'/g, '"'));
-          return obj.title || obj.url || link;
+          return obj.title || obj.url || this.cleanUrlForDisplay(link);
         }
       } catch (e) { }
-      return link;
+
+      // Custom Regex for weird formats like {title:Nike and url:www.nike.com}
+      const titleMatch = link.match(/title:\s*([^,}\s]+)/i);
+      if (titleMatch) return titleMatch[1];
+
+      const urlMatch = link.match(/url:\s*([^,}\s]+)/i);
+      if (urlMatch) return this.cleanUrlForDisplay(urlMatch[1]);
+
+      return this.cleanUrlForDisplay(link);
     }
     return link.title || link.url || 'Link';
   }
@@ -232,9 +240,31 @@ export class SettingsPage {
           return obj.url || link;
         }
       } catch (e) { }
-      return link;
+
+      const urlMatch = link.match(/url:\s*([^,}\s]+)/i);
+      let extractedUrl = urlMatch ? urlMatch[1] : link;
+
+      extractedUrl = extractedUrl.replace(/[{}]/g, '').trim();
+
+      // Basic validation for clickability
+      if (!extractedUrl.startsWith('http') && extractedUrl.includes('.')) {
+        return 'https://' + extractedUrl;
+      }
+      return extractedUrl;
     }
     return link.url || '#';
+  }
+
+  private cleanUrlForDisplay(rawText: string): string {
+    let clean = rawText.replace(/[{}]/g, '').trim();
+    if (clean.includes('url:')) clean = clean.replace(/url:/gi, '');
+    if (clean.includes('title:')) clean = clean.replace(/title:/gi, '');
+
+    clean = clean.replace(/^https?:\/\//, '').replace(/^www\./, '');
+    if (clean.endsWith('/')) {
+      clean = clean.slice(0, -1);
+    }
+    return clean || rawText;
   }
 
   savePrivacy() {

@@ -6,21 +6,35 @@
 
 .profile-header-card {
     background: var(--bg-card);
-    backdrop-filter: blur(25px);
-    -webkit-backdrop-filter: blur(25px);
+    backdrop-filter: blur(25px) saturate(180%);
+    -webkit-backdrop-filter: blur(25px) saturate(180%);
     border: 1px solid var(--border-color);
     border-radius: 24px;
-    box-shadow: var(--shadow-md);
+    box-shadow: var(--shadow-xl);
     transition: var(--transition-bounce);
     position: relative;
     overflow: hidden;
     padding: 0;
+    z-index: 1;
+}
+
+.profile-header-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: inherit;
+    background: radial-gradient(1000px circle at top left, rgba(255, 255, 255, 0.05), transparent 40%);
+    z-index: -1;
+    pointer-events: none;
 }
 
 .profile-header-card:hover {
-    transform: translateY(-8px);
-    box-shadow: var(--shadow-xl), var(--shadow-accent);
-    border-color: var(--accent-glow);
+    transform: translateY(-6px);
+    box-shadow: 0 35px 80px -20px rgba(0, 0, 0, 0.9), var(--shadow-accent);
+    border-color: rgba(139, 92, 246, 0.3);
     background: var(--bg-glass-heavy);
 }
 
@@ -104,12 +118,18 @@
     width: 130px;
     height: 130px;
     border-radius: 50%;
-    border: 6px solid var(--bg-card);
+    border: 6px solid var(--bg-surface);
     background: var(--bg-secondary);
     overflow: hidden;
-    box-shadow: var(--shadow-lg);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), inset 0 0 15px rgba(139, 92, 246, 0.5);
     position: relative;
     z-index: 2;
+    transition: var(--transition-bounce);
+}
+
+.profile-header-card .profile-main-row .profile-avatar-wrapper .profile-avatar:hover {
+    transform: scale(1.05);
+    border-color: rgba(139, 92, 246, 0.4);
 }
 
 .profile-header-card .profile-main-row .profile-avatar-wrapper .profile-avatar img {
@@ -213,6 +233,7 @@
 
 .profile-header-card .profile-main-row .profile-actions .btn-primary {
     background: var(--accent-gradient);
+    background-size: 200% auto;
     color: #ffffff !important;
     border: none;
     padding: 0.75rem 1.75rem;
@@ -221,12 +242,12 @@
     font-weight: 700;
     font-family: 'Outfit', sans-serif;
     cursor: pointer;
-    transition: var(--transition-fast);
+    transition: var(--transition-bounce);
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 0.6rem;
-    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
     white-space: nowrap;
 }
 
@@ -288,6 +309,23 @@
     gap: 3.5rem;
     border-top: 1px solid var(--border-light);
     padding-top: 2rem;
+}
+
+@media (max-width: 576px) {
+    .profile-header-card .profile-details .profile-stats {
+        gap: 1.5rem;
+        justify-content: space-between;
+        padding-top: 1.5rem;
+    }
+
+    .profile-header-card .profile-details .profile-stats .stat .count {
+        font-size: 1.25rem;
+    }
+
+    .profile-header-card .profile-details .profile-stats .stat .label {
+        font-size: 0.75rem;
+        letter-spacing: 0.05em;
+    }
 }
 
 .profile-header-card .profile-details .profile-stats .stat {
@@ -389,14 +427,14 @@
 
 .feed-stream .post-card .post-header .author-info .meta h4 {
     margin: 0;
-    font-size: 1.2rem;
+    font-size: 1.25rem;
     font-weight: 800;
     color: var(--text-primary);
 }
 
 .feed-stream .post-card .post-header .author-info .meta span {
     color: var(--text-muted);
-    font-size: 0.9rem;
+    font-size: 1.05rem;
     font-weight: 500;
     margin-top: 0.15rem;
     display: block;
@@ -498,15 +536,29 @@
 
 .widget-card {
     background: var(--bg-card);
-    backdrop-filter: blur(25px);
-    -webkit-backdrop-filter: blur(25px);
+    backdrop-filter: blur(25px) saturate(180%);
+    -webkit-backdrop-filter: blur(25px) saturate(180%);
     border: 1px solid var(--border-color);
     border-radius: 24px;
-    box-shadow: var(--shadow-md);
+    box-shadow: var(--shadow-xl);
     transition: var(--transition-bounce);
     position: relative;
     overflow: hidden;
     padding: 2rem;
+    z-index: 1;
+}
+
+.widget-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: inherit;
+    background: radial-gradient(800px circle at bottom right, rgba(255, 255, 255, 0.05), transparent 40%);
+    z-index: -1;
+    pointer-events: none;
 }
 
 .widget-card .widget-header {

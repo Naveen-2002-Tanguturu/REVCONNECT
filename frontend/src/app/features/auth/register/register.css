@@ -4,12 +4,52 @@
     justify-content: center;
     min-height: 100vh;
     padding: 1rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.auth-container::before {
+    content: '';
+    position: absolute;
+    top: -10%;
+    left: -10%;
+    width: 50vw;
+    height: 50vw;
+    background: radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, transparent 60%);
+    border-radius: 50%;
+    z-index: 0;
+    pointer-events: none;
+    animation: drift 20s infinite alternate linear;
+}
+
+.auth-container::after {
+    content: '';
+    position: absolute;
+    bottom: -20%;
+    right: -10%;
+    width: 60vw;
+    height: 60vw;
+    background: radial-gradient(circle, rgba(6, 182, 212, 0.15) 0%, transparent 60%);
+    border-radius: 50%;
+    z-index: 0;
+    pointer-events: none;
+    animation: drift 25s infinite alternate-reverse linear;
+}
+
+@keyframes drift {
+    0% {
+        transform: translate(0, 0) scale(1);
+    }
+
+    100% {
+        transform: translate(5%, 5%) scale(1.1);
+    }
 }
 
 .auth-card {
     width: 100%;
     max-width: 520px;
-    padding: 3.5rem;
+    padding: 2.5rem 3rem;
     background: var(--bg-glass-heavy);
     backdrop-filter: blur(40px);
     -webkit-backdrop-filter: blur(40px);
@@ -17,8 +57,27 @@
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-xl), var(--shadow-accent);
     position: relative;
+    z-index: 10;
     overflow: hidden;
     animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (max-width: 576px) {
+    .auth-container {
+        padding: 0;
+        min-height: 100dvh;
+        align-items: stretch;
+    }
+
+    .auth-card {
+        padding: 2.5rem 1.5rem;
+        border-radius: 0;
+        border: none;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        max-width: none;
+    }
 }
 
 .auth-card::before {
@@ -47,7 +106,7 @@
 
 .auth-header {
     text-align: center;
-    margin-bottom: 2.5rem;
+    margin-bottom: 1.5rem;
 }
 
 .auth-header .logo-circle {
@@ -92,8 +151,8 @@
 
 .type-selector {
     display: flex;
-    gap: 1.25rem;
-    margin-bottom: 2.5rem;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
 }
 
 @media (max-width: 576px) {
@@ -110,8 +169,8 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 0.75rem;
-    padding: 1.25rem 1rem;
+    gap: 0.5rem;
+    padding: 0.8rem 0.5rem;
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid var(--border-light);
     border-radius: 20px;
@@ -169,10 +228,10 @@
 }
 
 .input-group {
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.25rem;
 }
 
 .input-group label {
@@ -180,6 +239,17 @@
     font-weight: 600;
     color: var(--text-primary);
     padding-left: 4px;
+}
+
+.terms-check {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    margin-top: 1rem;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    line-height: 1.5;
 }
 
 .divider {
@@ -213,8 +283,8 @@
 .media-links-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
 }
 
 @media (max-width: 480px) {
@@ -254,7 +324,7 @@
 
 .input-wrapper .icon {
     position: absolute;
-    left: 1.25rem;
+    left: 1rem;
     top: 50%;
     transform: translateY(-50%);
     color: var(--text-muted);
@@ -268,11 +338,11 @@
 .input-wrapper input,
 .input-wrapper select.form-select {
     width: 100%;
-    padding: 1rem 1rem 1rem 3rem;
+    padding: 0.7rem 1rem 0.7rem 2.5rem;
     background: transparent !important;
     border: none !important;
     color: var(--text-primary);
-    font-size: 1rem;
+    font-size: 0.95rem;
     border-radius: 12px;
 }
 
@@ -358,8 +428,8 @@
 
 .auth-btn {
     width: 100%;
-    padding: 1rem;
-    font-size: 1.1rem;
+    padding: 0.9rem;
+    font-size: 1.05rem;
     font-weight: 700;
     margin-bottom: 1.5rem;
     background: linear-gradient(135deg, #3b82f6, #6366f1);
