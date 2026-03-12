@@ -37,6 +37,7 @@ pipeline {
                     icacls $keyPath /inheritance:r /grant:r "NT AUTHORITY\\SYSTEM:F" /grant:r "BUILTIN\\Administrators:F"
 
                     # Database Migration — ensure notifications type column supports all enum values
+                    ssh -o StrictHostKeyChecking=accept-new -i $keyPath ${env:SSH_USER}@52.66.177.34 "sudo systemctl start mysqld 2>/dev/null || sudo systemctl start mariadb 2>/dev/null || true; sudo systemctl enable mysqld 2>/dev/null || true" 2>&1
                     ssh -o StrictHostKeyChecking=accept-new -i $keyPath ${env:SSH_USER}@52.66.177.34 "mysql -u root -proot revconnect_db -e 'ALTER TABLE notifications MODIFY COLUMN type VARCHAR(50) NOT NULL;' 2>/dev/null || true" 2>&1
 
                     # Backend Deployment
@@ -52,11 +53,6 @@ pipeline {
                     # SSL Certificate Setup - run via script to avoid quoting issues
                     scp -o StrictHostKeyChecking=accept-new -i $keyPath backend/deploy/ssl-setup.sh ${env:SSH_USER}@52.66.177.34:/tmp/ssl-setup.sh 2>&1
                     ssh -o StrictHostKeyChecking=accept-new -i $keyPath ${env:SSH_USER}@52.66.177.34 "sed -i 's/\r//' /tmp/ssl-setup.sh && chmod +x /tmp/ssl-setup.sh && bash /tmp/ssl-setup.sh" 2>&1
-
-                    # Extract backend logs to Jenkins pipeline for debugging 502
-                    ssh -o StrictHostKeyChecking=accept-new -i $keyPath ${env:SSH_USER}@52.66.177.34 "sudo journalctl -u revconnect-backend -n 100 --no-pager" 2>&1
-                    ssh -o StrictHostKeyChecking=accept-new -i $keyPath ${env:SSH_USER}@52.66.177.34 "java -version" 2>&1
-                    ssh -o StrictHostKeyChecking=accept-new -i $keyPath ${env:SSH_USER}@52.66.177.34 "ls -la /usr/lib/jvm/" 2>&1
 
                     icacls $keyPath /reset
                     Remove-Item -Path $keyPath -Force -ErrorAction SilentlyContinue
