@@ -51,7 +51,7 @@ pipeline {
 
                     # SSL Certificate Setup - run via script to avoid quoting issues
                     scp -o StrictHostKeyChecking=accept-new -i $keyPath backend/deploy/ssl-setup.sh ${env:SSH_USER}@52.66.177.34:/tmp/ssl-setup.sh 2>&1
-                    ssh -o StrictHostKeyChecking=accept-new -i $keyPath ${env:SSH_USER}@52.66.177.34 "chmod +x /tmp/ssl-setup.sh && bash /tmp/ssl-setup.sh" 2>&1
+                    ssh -o StrictHostKeyChecking=accept-new -i $keyPath ${env:SSH_USER}@52.66.177.34 "sed -i 's/\r//' /tmp/ssl-setup.sh && chmod +x /tmp/ssl-setup.sh && bash /tmp/ssl-setup.sh" 2>&1
 
                     icacls $keyPath /reset
                     Remove-Item -Path $keyPath -Force -ErrorAction SilentlyContinue
