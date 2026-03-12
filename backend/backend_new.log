@@ -3598,3 +3598,278 @@
 2026-03-12T02:08:35.915+05:30 DEBUG 37008 --- [http-nio-8080-exec-6] o.r.r.controller.BusinessController      : Recording view for post: 3
 2026-03-12T02:08:35.933+05:30 DEBUG 37008 --- [http-nio-8080-exec-6] o.r.revconnect.service.BusinessService   : Recording view for post: 3
 2026-03-12T02:08:35.960+05:30  WARN 37008 --- [http-nio-8080-exec-6] .m.m.a.ExceptionHandlerExceptionResolver : Resolved [org.springframework.dao.IncorrectResultSizeDataAccessException: Query did not return a unique result: 2 results were returned]
+2026-03-12T02:35:39.069+05:30  INFO 37008 --- [MessageBroker-2] o.s.w.s.c.WebSocketMessageBrokerStats    : WebSocketSession[0 current WS(0)-HttpStream(0)-HttpPoll(0), 0 total, 0 closed abnormally (0 connect failure, 0 send limit, 0 transport error)], stompSubProtocol[processed CONNECT(0)-CONNECTED(0)-DISCONNECT(0)], stompBrokerRelay[null], inboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], outboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], sockJsScheduler[pool size = 12, active threads = 1, queued tasks = 0, completed tasks = 14]
+2026-03-12T03:05:39.251+05:30  INFO 37008 --- [MessageBroker-2] o.s.w.s.c.WebSocketMessageBrokerStats    : WebSocketSession[0 current WS(0)-HttpStream(0)-HttpPoll(0), 0 total, 0 closed abnormally (0 connect failure, 0 send limit, 0 transport error)], stompSubProtocol[processed CONNECT(0)-CONNECTED(0)-DISCONNECT(0)], stompBrokerRelay[null], inboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], outboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], sockJsScheduler[pool size = 12, active threads = 1, queued tasks = 0, completed tasks = 15]
+2026-03-12T03:35:39.284+05:30  INFO 37008 --- [MessageBroker-2] o.s.w.s.c.WebSocketMessageBrokerStats    : WebSocketSession[0 current WS(0)-HttpStream(0)-HttpPoll(0), 0 total, 0 closed abnormally (0 connect failure, 0 send limit, 0 transport error)], stompSubProtocol[processed CONNECT(0)-CONNECTED(0)-DISCONNECT(0)], stompBrokerRelay[null], inboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], outboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], sockJsScheduler[pool size = 12, active threads = 1, queued tasks = 0, completed tasks = 16]
+2026-03-12T10:29:39.767+05:30  WARN 37008 --- [HikariPool-1 housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=6h43m1s56ms521µs100ns).
+2026-03-12T10:48:05.568+05:30  INFO 37008 --- [MessageBroker-2] o.s.w.s.c.WebSocketMessageBrokerStats    : WebSocketSession[0 current WS(0)-HttpStream(0)-HttpPoll(0), 0 total, 0 closed abnormally (0 connect failure, 0 send limit, 0 transport error)], stompSubProtocol[processed CONNECT(0)-CONNECTED(0)-DISCONNECT(0)], stompBrokerRelay[null], inboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], outboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], sockJsScheduler[pool size = 12, active threads = 1, queued tasks = 0, completed tasks = 17]
+2026-03-12T11:18:05.581+05:30  INFO 37008 --- [MessageBroker-2] o.s.w.s.c.WebSocketMessageBrokerStats    : WebSocketSession[0 current WS(0)-HttpStream(0)-HttpPoll(0), 0 total, 0 closed abnormally (0 connect failure, 0 send limit, 0 transport error)], stompSubProtocol[processed CONNECT(0)-CONNECTED(0)-DISCONNECT(0)], stompBrokerRelay[null], inboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], outboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], sockJsScheduler[pool size = 12, active threads = 1, queued tasks = 0, completed tasks = 18]
+2026-03-12T11:48:05.606+05:30  INFO 37008 --- [MessageBroker-2] o.s.w.s.c.WebSocketMessageBrokerStats    : WebSocketSession[0 current WS(0)-HttpStream(0)-HttpPoll(0), 0 total, 0 closed abnormally (0 connect failure, 0 send limit, 0 transport error)], stompSubProtocol[processed CONNECT(0)-CONNECTED(0)-DISCONNECT(0)], stompBrokerRelay[null], inboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], outboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], sockJsScheduler[pool size = 12, active threads = 1, queued tasks = 0, completed tasks = 19]
+2026-03-12T12:16:12.446+05:30  INFO 37008 --- [File Watcher] rtingClassPathChangeChangedEventListener : Restarting due to 177 class path changes (0 additions, 175 deletions, 2 modifications)
+2026-03-12T12:16:13.166+05:30  INFO 37008 --- [Thread-5] o.s.m.s.b.SimpleBrokerMessageHandler     : Stopping...
+2026-03-12T12:16:13.172+05:30  INFO 37008 --- [Thread-5] o.s.m.s.b.SimpleBrokerMessageHandler     : BrokerAvailabilityEvent[available=false, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@66c7a5a0]]
+2026-03-12T12:16:13.175+05:30  INFO 37008 --- [Thread-5] o.s.m.s.b.SimpleBrokerMessageHandler     : Stopped.
+2026-03-12T12:16:13.543+05:30  INFO 37008 --- [Thread-5] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-03-12T12:16:13.832+05:30  INFO 37008 --- [Thread-5] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-03-12T12:16:13.946+05:30  INFO 37008 --- [Thread-5] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2026-03-12T12:16:16.350+05:30  INFO 37008 --- [restartedMain] o.r.revconnect.RevconnectApplication     : Starting RevconnectApplication using Java 17.0.17 with PID 37008 (D:\Git FOlder\REVCONNECT\backend\target\classes started by navee in D:\Git FOlder\REVCONNECT\backend)
+2026-03-12T12:16:16.351+05:30 DEBUG 37008 --- [restartedMain] o.r.revconnect.RevconnectApplication     : Running with Spring Boot v3.2.2, Spring v6.1.3
+2026-03-12T12:16:16.352+05:30  INFO 37008 --- [restartedMain] o.r.revconnect.RevconnectApplication     : No active profile set, falling back to 1 default profile: "default"
+2026-03-12T12:16:16.877+05:30  INFO 37008 --- [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-03-12T12:16:16.879+05:30  INFO 37008 --- [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 1 ms. Found 0 JPA repository interfaces.
+2026-03-12T12:16:17.151+05:30  INFO 37008 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2026-03-12T12:16:17.156+05:30  INFO 37008 --- [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-03-12T12:16:17.156+05:30  INFO 37008 --- [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.18]
+2026-03-12T12:16:17.266+05:30  INFO 37008 --- [restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-03-12T12:16:17.268+05:30  INFO 37008 --- [restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 909 ms
+2026-03-12T12:16:17.340+05:30  INFO 37008 --- [restartedMain] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-03-12T12:16:17.345+05:30  INFO 37008 --- [restartedMain] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-03-12T12:16:17.353+05:30  INFO 37008 --- [restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-03-12T12:16:17.356+05:30  INFO 37008 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Starting...
+2026-03-12T12:16:17.567+05:30  INFO 37008 --- [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Added connection com.mysql.cj.jdbc.ConnectionImpl@1283337e
+2026-03-12T12:16:17.568+05:30  INFO 37008 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Start completed.
+2026-03-12T12:16:17.573+05:30  WARN 37008 --- [restartedMain] org.hibernate.orm.deprecation            : HHH90000025: MySQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-03-12T12:16:17.601+05:30  INFO 37008 --- [restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-03-12T12:16:17.601+05:30  INFO 37008 --- [restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-03-12T12:16:17.702+05:30  WARN 37008 --- [restartedMain] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-03-12T12:16:18.007+05:30  WARN 37008 --- [restartedMain] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: 16005089-209d-464b-9670-42a0d891d06e
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-03-12T12:16:18.118+05:30  INFO 37008 --- [restartedMain] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@55bcbade, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@2a9ae4cd, org.springframework.security.web.context.SecurityContextHolderFilter@5eed88cf, org.springframework.security.web.header.HeaderWriterFilter@280c6a5b, org.springframework.web.filter.CorsFilter@a0117f4, org.springframework.security.web.csrf.CsrfFilter@159164ab, org.springframework.security.web.authentication.logout.LogoutFilter@473f01ba, org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter@a7a7056, org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter@86df1a9, org.springframework.security.web.authentication.ui.DefaultLogoutPageGeneratingFilter@526d459b, org.springframework.security.web.authentication.www.BasicAuthenticationFilter@90a37d8, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@40c71b85, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@4378052f, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@62376f42, org.springframework.security.web.access.ExceptionTranslationFilter@4468ea98, org.springframework.security.web.access.intercept.AuthorizationFilter@1a6c1386]
+2026-03-12T12:16:18.210+05:30  INFO 37008 --- [restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2026-03-12T12:16:18.254+05:30  INFO 37008 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path ''
+2026-03-12T12:16:18.269+05:30  INFO 37008 --- [restartedMain] o.r.revconnect.RevconnectApplication     : Started RevconnectApplication in 2.312 seconds (process running for 82107.376)
+2026-03-12T12:16:18.287+05:30  INFO 37008 --- [restartedMain] .ConditionEvaluationDeltaLoggingListener : Condition evaluation delta:
+
+
+==========================
+CONDITION EVALUATION DELTA
+==========================
+
+
+Positive matches:
+-----------------
+
+   SpringBootWebSecurityConfiguration.SecurityFilterChainConfiguration matched:
+      - AllNestedConditions 2 matched 0 did not; NestedCondition on DefaultWebSecurityCondition.Beans @ConditionalOnMissingBean (types: org.springframework.security.web.SecurityFilterChain; SearchStrategy: all) did not find any beans; NestedCondition on DefaultWebSecurityCondition.Classes @ConditionalOnClass found required classes 'org.springframework.security.web.SecurityFilterChain', 'org.springframework.security.config.annotation.web.builders.HttpSecurity' (DefaultWebSecurityCondition)
+
+   SpringBootWebSecurityConfiguration.WebSecurityEnablerConfiguration matched:
+      - @ConditionalOnClass found required class 'org.springframework.security.config.annotation.web.configuration.EnableWebSecurity' (OnClassCondition)
+      - @ConditionalOnMissingBean (names: springSecurityFilterChain; SearchStrategy: all) did not find any beans (OnBeanCondition)
+
+   TaskExecutorConfigurations.TaskExecutorConfiguration matched:
+      - @ConditionalOnMissingBean (types: java.util.concurrent.Executor; SearchStrategy: all) did not find any beans (OnBeanCondition)
+
+   TaskExecutorConfigurations.TaskExecutorConfiguration#applicationTaskExecutor matched:
+      - @ConditionalOnThreading found PLATFORM (OnThreadingCondition)
+
+   UserDetailsServiceAutoConfiguration matched:
+      - @ConditionalOnClass found required class 'org.springframework.security.authentication.AuthenticationManager' (OnClassCondition)
+      - AnyNestedCondition 1 matched 2 did not; NestedCondition on UserDetailsServiceAutoConfiguration.MissingAlternativeOrUserPropertiesConfigured.PasswordConfigured @ConditionalOnProperty (spring.security.user.password) did not find property 'password'; NestedCondition on UserDetailsServiceAutoConfiguration.MissingAlternativeOrUserPropertiesConfigured.NameConfigured @ConditionalOnProperty (spring.security.user.name) did not find property 'name'; NestedCondition on UserDetailsServiceAutoConfiguration.MissingAlternativeOrUserPropertiesConfigured.MissingAlternative @ConditionalOnMissingClass did not find unwanted classes 'org.springframework.security.oauth2.client.registration.ClientRegistrationRepository', 'org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector', 'org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository' (UserDetailsServiceAutoConfiguration.MissingAlternativeOrUserPropertiesConfigured)
+      - @ConditionalOnBean (types: org.springframework.security.config.annotation.ObjectPostProcessor; SearchStrategy: all) found bean 'objectPostProcessor'; @ConditionalOnMissingBean (types: org.springframework.security.authentication.AuthenticationManager,org.springframework.security.authentication.AuthenticationProvider,org.springframework.security.core.userdetails.UserDetailsService,org.springframework.security.authentication.AuthenticationManagerResolver,org.springframework.security.oauth2.jwt.JwtDecoder; SearchStrategy: all) did not find any beans (OnBeanCondition)
+
+
+Negative matches:
+-----------------
+
+   TaskExecutorConfigurations.TaskExecutorConfiguration#applicationTaskExecutorVirtualThreads:
+      Did not match:
+         - @ConditionalOnThreading did not find VIRTUAL (OnThreadingCondition)
+
+   WebSocketMessagingAutoConfiguration.WebSocketMessageConverterConfiguration:
+      Did not match:
+         - @ConditionalOnBean (types: org.springframework.web.socket.config.annotation.DelegatingWebSocketMessageBrokerConfiguration,com.fasterxml.jackson.databind.ObjectMapper; SearchStrategy: all) did not find any beans of type org.springframework.web.socket.config.annotation.DelegatingWebSocketMessageBrokerConfiguration (OnBeanCondition)
+      Matched:
+         - @ConditionalOnClass found required classes 'com.fasterxml.jackson.databind.ObjectMapper', 'org.springframework.messaging.simp.config.AbstractMessageBrokerConfiguration' (OnClassCondition)
+
+
+Exclusions:
+-----------
+
+    None
+
+
+Unconditional classes:
+----------------------
+
+    None
+
+
+
+2026-03-12T12:16:55.146+05:30  INFO 37008 --- [File Watcher] rtingClassPathChangeChangedEventListener : Restarting due to 2 class path changes (0 additions, 0 deletions, 2 modifications)
+2026-03-12T12:16:55.189+05:30  INFO 37008 --- [Thread-7] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-03-12T12:16:55.191+05:30  INFO 37008 --- [Thread-7] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Shutdown initiated...
+2026-03-12T12:16:55.201+05:30  INFO 37008 --- [Thread-7] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Shutdown completed.
+2026-03-12T12:16:55.349+05:30  INFO 37008 --- [restartedMain] o.r.revconnect.RevconnectApplication     : Starting RevconnectApplication using Java 17.0.17 with PID 37008 (D:\Git FOlder\REVCONNECT\backend\target\classes started by navee in D:\Git FOlder\REVCONNECT\backend)
+2026-03-12T12:16:55.349+05:30 DEBUG 37008 --- [restartedMain] o.r.revconnect.RevconnectApplication     : Running with Spring Boot v3.2.2, Spring v6.1.3
+2026-03-12T12:16:55.349+05:30  INFO 37008 --- [restartedMain] o.r.revconnect.RevconnectApplication     : No active profile set, falling back to 1 default profile: "default"
+2026-03-12T12:16:55.657+05:30  INFO 37008 --- [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-03-12T12:16:55.658+05:30  INFO 37008 --- [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 1 ms. Found 0 JPA repository interfaces.
+2026-03-12T12:16:55.792+05:30  INFO 37008 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2026-03-12T12:16:55.793+05:30  INFO 37008 --- [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-03-12T12:16:55.794+05:30  INFO 37008 --- [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.18]
+2026-03-12T12:16:55.849+05:30  INFO 37008 --- [restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-03-12T12:16:55.850+05:30  INFO 37008 --- [restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 499 ms
+2026-03-12T12:16:55.919+05:30  INFO 37008 --- [restartedMain] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-03-12T12:16:55.922+05:30  INFO 37008 --- [restartedMain] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-03-12T12:16:55.926+05:30  INFO 37008 --- [restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-03-12T12:16:55.928+05:30  INFO 37008 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-3 - Starting...
+2026-03-12T12:16:55.947+05:30  INFO 37008 --- [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-3 - Added connection com.mysql.cj.jdbc.ConnectionImpl@620946f1
+2026-03-12T12:16:55.947+05:30  INFO 37008 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-3 - Start completed.
+2026-03-12T12:16:55.949+05:30  WARN 37008 --- [restartedMain] org.hibernate.orm.deprecation            : HHH90000025: MySQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-03-12T12:16:55.962+05:30  INFO 37008 --- [restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-03-12T12:16:55.963+05:30  INFO 37008 --- [restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-03-12T12:16:56.029+05:30  WARN 37008 --- [restartedMain] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-03-12T12:16:56.427+05:30  WARN 37008 --- [restartedMain] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: 5e19f182-ab9c-462e-bf42-285a1e13672c
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-03-12T12:16:56.468+05:30  INFO 37008 --- [restartedMain] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@448e7cef, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@3fc869ea, org.springframework.security.web.context.SecurityContextHolderFilter@25cb2f87, org.springframework.security.web.header.HeaderWriterFilter@7481bf2a, org.springframework.web.filter.CorsFilter@7cb10b0, org.springframework.security.web.csrf.CsrfFilter@aa305e1, org.springframework.security.web.authentication.logout.LogoutFilter@6a03a524, org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter@3f10f566, org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter@cd1b3c5, org.springframework.security.web.authentication.ui.DefaultLogoutPageGeneratingFilter@254d5119, org.springframework.security.web.authentication.www.BasicAuthenticationFilter@48cd5d25, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@3755bad2, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@75503aaa, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@1293385b, org.springframework.security.web.access.ExceptionTranslationFilter@2c0dc943, org.springframework.security.web.access.intercept.AuthorizationFilter@1f3c9024]
+2026-03-12T12:16:56.523+05:30  INFO 37008 --- [restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2026-03-12T12:16:56.555+05:30  INFO 37008 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path ''
+2026-03-12T12:16:56.564+05:30  INFO 37008 --- [restartedMain] o.r.revconnect.RevconnectApplication     : Started RevconnectApplication in 1.255 seconds (process running for 82145.671)
+2026-03-12T12:16:56.568+05:30  INFO 37008 --- [restartedMain] .ConditionEvaluationDeltaLoggingListener : Condition evaluation unchanged
+2026-03-12T12:17:01.306+05:30  INFO 37008 --- [File Watcher] rtingClassPathChangeChangedEventListener : Restarting due to 175 class path changes (175 additions, 0 deletions, 0 modifications)
+2026-03-12T12:17:01.342+05:30  INFO 37008 --- [Thread-11] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-03-12T12:17:01.343+05:30  INFO 37008 --- [Thread-11] com.zaxxer.hikari.HikariDataSource       : HikariPool-3 - Shutdown initiated...
+2026-03-12T12:17:01.349+05:30  INFO 37008 --- [Thread-11] com.zaxxer.hikari.HikariDataSource       : HikariPool-3 - Shutdown completed.
+2026-03-12T12:17:01.484+05:30  INFO 37008 --- [restartedMain] o.r.revconnect.RevconnectApplication     : Starting RevconnectApplication using Java 17.0.17 with PID 37008 (D:\Git FOlder\REVCONNECT\backend\target\classes started by navee in D:\Git FOlder\REVCONNECT\backend)
+2026-03-12T12:17:01.484+05:30 DEBUG 37008 --- [restartedMain] o.r.revconnect.RevconnectApplication     : Running with Spring Boot v3.2.2, Spring v6.1.3
+2026-03-12T12:17:01.484+05:30  INFO 37008 --- [restartedMain] o.r.revconnect.RevconnectApplication     : No active profile set, falling back to 1 default profile: "default"
+2026-03-12T12:17:02.050+05:30  INFO 37008 --- [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-03-12T12:17:02.141+05:30  INFO 37008 --- [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 90 ms. Found 17 JPA repository interfaces.
+2026-03-12T12:17:02.423+05:30  INFO 37008 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2026-03-12T12:17:02.423+05:30  INFO 37008 --- [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-03-12T12:17:02.423+05:30  INFO 37008 --- [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.18]
+2026-03-12T12:17:02.469+05:30  INFO 37008 --- [restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-03-12T12:17:02.469+05:30  INFO 37008 --- [restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 983 ms
+2026-03-12T12:17:02.590+05:30  INFO 37008 --- [restartedMain] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-03-12T12:17:02.594+05:30  INFO 37008 --- [restartedMain] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-03-12T12:17:02.599+05:30  INFO 37008 --- [restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-03-12T12:17:02.601+05:30  INFO 37008 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-4 - Starting...
+2026-03-12T12:17:02.621+05:30  INFO 37008 --- [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-4 - Added connection com.mysql.cj.jdbc.ConnectionImpl@48253309
+2026-03-12T12:17:02.621+05:30  INFO 37008 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-4 - Start completed.
+2026-03-12T12:17:02.623+05:30  WARN 37008 --- [restartedMain] org.hibernate.orm.deprecation            : HHH90000025: MySQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-03-12T12:17:03.198+05:30  INFO 37008 --- [restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-03-12T12:17:03.679+05:30  INFO 37008 --- [restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-03-12T12:17:04.031+05:30 DEBUG 37008 --- [restartedMain] o.r.r.security.JwtAuthenticationFilter   : Filter 'jwtAuthenticationFilter' configured for use
+2026-03-12T12:17:05.574+05:30  WARN 37008 --- [restartedMain] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-03-12T12:17:05.839+05:30  INFO 37008 --- [restartedMain] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@621b2fe4, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@3c10d786, org.springframework.security.web.context.SecurityContextHolderFilter@277aacf0, org.springframework.security.web.header.HeaderWriterFilter@38033251, org.springframework.web.filter.CorsFilter@489a386f, org.springframework.security.web.authentication.logout.LogoutFilter@17d93190, org.revature.revconnect.security.JwtAuthenticationFilter@7cfe4ba4, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@9902997, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@2820034e, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@6eeb7f1, org.springframework.security.web.session.SessionManagementFilter@6b94d9f1, org.springframework.security.web.access.ExceptionTranslationFilter@7faa2dcd, org.springframework.security.web.access.intercept.AuthorizationFilter@379f24a1]
+2026-03-12T12:17:06.194+05:30  INFO 37008 --- [restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2026-03-12T12:17:06.243+05:30  INFO 37008 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path ''
+2026-03-12T12:17:06.246+05:30  INFO 37008 --- [restartedMain] o.s.m.s.b.SimpleBrokerMessageHandler     : Starting...
+2026-03-12T12:17:06.248+05:30  INFO 37008 --- [restartedMain] o.s.m.s.b.SimpleBrokerMessageHandler     : BrokerAvailabilityEvent[available=true, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@748c424f]]
+2026-03-12T12:17:06.249+05:30  INFO 37008 --- [restartedMain] o.s.m.s.b.SimpleBrokerMessageHandler     : Started.
+2026-03-12T12:17:06.261+05:30  INFO 37008 --- [restartedMain] o.r.revconnect.RevconnectApplication     : Started RevconnectApplication in 4.811 seconds (process running for 82155.367)
+2026-03-12T12:17:06.265+05:30  INFO 37008 --- [restartedMain] .ConditionEvaluationDeltaLoggingListener : Condition evaluation delta:
+
+
+==========================
+CONDITION EVALUATION DELTA
+==========================
+
+
+Positive matches:
+-----------------
+
+   WebSocketMessagingAutoConfiguration.WebSocketMessageConverterConfiguration matched:
+      - @ConditionalOnClass found required classes 'com.fasterxml.jackson.databind.ObjectMapper', 'org.springframework.messaging.simp.config.AbstractMessageBrokerConfiguration' (OnClassCondition)
+      - @ConditionalOnBean (types: org.springframework.web.socket.config.annotation.DelegatingWebSocketMessageBrokerConfiguration,com.fasterxml.jackson.databind.ObjectMapper; SearchStrategy: all) found beans 'jacksonObjectMapper', 'org.springframework.web.socket.config.annotation.DelegatingWebSocketMessageBrokerConfiguration' (OnBeanCondition)
+
+
+Negative matches:
+-----------------
+
+   SpringBootWebSecurityConfiguration.SecurityFilterChainConfiguration:
+      Did not match:
+         - AllNestedConditions 1 matched 1 did not; NestedCondition on DefaultWebSecurityCondition.Beans @ConditionalOnMissingBean (types: org.springframework.security.web.SecurityFilterChain; SearchStrategy: all) found beans of type 'org.springframework.security.web.SecurityFilterChain' securityFilterChain; NestedCondition on DefaultWebSecurityCondition.Classes @ConditionalOnClass found required classes 'org.springframework.security.web.SecurityFilterChain', 'org.springframework.security.config.annotation.web.builders.HttpSecurity' (DefaultWebSecurityCondition)
+
+   SpringBootWebSecurityConfiguration.WebSecurityEnablerConfiguration:
+      Did not match:
+         - @ConditionalOnMissingBean (names: springSecurityFilterChain; SearchStrategy: all) found beans named springSecurityFilterChain (OnBeanCondition)
+      Matched:
+         - @ConditionalOnClass found required class 'org.springframework.security.config.annotation.web.configuration.EnableWebSecurity' (OnClassCondition)
+
+   TaskExecutorConfigurations.TaskExecutorConfiguration:
+      Did not match:
+         - @ConditionalOnMissingBean (types: java.util.concurrent.Executor; SearchStrategy: all) found beans of type 'java.util.concurrent.Executor' clientInboundChannelExecutor, clientOutboundChannelExecutor, brokerChannelExecutor (OnBeanCondition)
+
+   UserDetailsServiceAutoConfiguration:
+      Did not match:
+         - @ConditionalOnMissingBean (types: org.springframework.security.authentication.AuthenticationManager,org.springframework.security.authentication.AuthenticationProvider,org.springframework.security.core.userdetails.UserDetailsService,org.springframework.security.authentication.AuthenticationManagerResolver,org.springframework.security.oauth2.jwt.JwtDecoder; SearchStrategy: all) found beans of type 'org.springframework.security.authentication.AuthenticationManager' authenticationManager and found beans of type 'org.springframework.security.core.userdetails.UserDetailsService' customUserDetailsService and found beans of type 'org.springframework.security.authentication.AuthenticationProvider' authenticationProvider (OnBeanCondition)
+      Matched:
+         - @ConditionalOnClass found required class 'org.springframework.security.authentication.AuthenticationManager' (OnClassCondition)
+         - AnyNestedCondition 1 matched 2 did not; NestedCondition on UserDetailsServiceAutoConfiguration.MissingAlternativeOrUserPropertiesConfigured.PasswordConfigured @ConditionalOnProperty (spring.security.user.password) did not find property 'password'; NestedCondition on UserDetailsServiceAutoConfiguration.MissingAlternativeOrUserPropertiesConfigured.NameConfigured @ConditionalOnProperty (spring.security.user.name) did not find property 'name'; NestedCondition on UserDetailsServiceAutoConfiguration.MissingAlternativeOrUserPropertiesConfigured.MissingAlternative @ConditionalOnMissingClass did not find unwanted classes 'org.springframework.security.oauth2.client.registration.ClientRegistrationRepository', 'org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector', 'org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository' (UserDetailsServiceAutoConfiguration.MissingAlternativeOrUserPropertiesConfigured)
+
+
+Exclusions:
+-----------
+
+    None
+
+
+Unconditional classes:
+----------------------
+
+    None
+
+
+
+2026-03-12T12:18:06.233+05:30  INFO 37008 --- [MessageBroker-1] o.s.w.s.c.WebSocketMessageBrokerStats    : WebSocketSession[0 current WS(0)-HttpStream(0)-HttpPoll(0), 0 total, 0 closed abnormally (0 connect failure, 0 send limit, 0 transport error)], stompSubProtocol[processed CONNECT(0)-CONNECTED(0)-DISCONNECT(0)], stompBrokerRelay[null], inboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], outboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], sockJsScheduler[pool size = 1, active threads = 1, queued tasks = 0, completed tasks = 0]
+2026-03-12T12:19:11.742+05:30  INFO 37008 --- [File Watcher] rtingClassPathChangeChangedEventListener : Restarting due to 1 class path change (0 additions, 0 deletions, 1 modification)
+2026-03-12T12:19:11.745+05:30  INFO 37008 --- [Thread-15] o.s.m.s.b.SimpleBrokerMessageHandler     : Stopping...
+2026-03-12T12:19:11.745+05:30  INFO 37008 --- [Thread-15] o.s.m.s.b.SimpleBrokerMessageHandler     : BrokerAvailabilityEvent[available=false, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@748c424f]]
+2026-03-12T12:19:11.745+05:30  INFO 37008 --- [Thread-15] o.s.m.s.b.SimpleBrokerMessageHandler     : Stopped.
+2026-03-12T12:19:11.783+05:30  INFO 37008 --- [Thread-15] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-03-12T12:19:11.785+05:30  INFO 37008 --- [Thread-15] com.zaxxer.hikari.HikariDataSource       : HikariPool-4 - Shutdown initiated...
+2026-03-12T12:19:11.793+05:30  INFO 37008 --- [Thread-15] com.zaxxer.hikari.HikariDataSource       : HikariPool-4 - Shutdown completed.
+2026-03-12T12:19:11.937+05:30  INFO 37008 --- [restartedMain] o.r.revconnect.RevconnectApplication     : Starting RevconnectApplication using Java 17.0.17 with PID 37008 (D:\Git FOlder\REVCONNECT\backend\target\classes started by navee in D:\Git FOlder\REVCONNECT\backend)
+2026-03-12T12:19:11.938+05:30 DEBUG 37008 --- [restartedMain] o.r.revconnect.RevconnectApplication     : Running with Spring Boot v3.2.2, Spring v6.1.3
+2026-03-12T12:19:11.938+05:30  INFO 37008 --- [restartedMain] o.r.revconnect.RevconnectApplication     : No active profile set, falling back to 1 default profile: "default"
+2026-03-12T12:19:12.570+05:30  INFO 37008 --- [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-03-12T12:19:12.652+05:30  INFO 37008 --- [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 81 ms. Found 17 JPA repository interfaces.
+2026-03-12T12:19:12.918+05:30  INFO 37008 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2026-03-12T12:19:12.918+05:30  INFO 37008 --- [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-03-12T12:19:12.918+05:30  INFO 37008 --- [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.18]
+2026-03-12T12:19:12.965+05:30  INFO 37008 --- [restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-03-12T12:19:12.965+05:30  INFO 37008 --- [restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1024 ms
+2026-03-12T12:19:13.072+05:30  INFO 37008 --- [restartedMain] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-03-12T12:19:13.076+05:30  INFO 37008 --- [restartedMain] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-03-12T12:19:13.081+05:30  INFO 37008 --- [restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-03-12T12:19:13.082+05:30  INFO 37008 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-5 - Starting...
+2026-03-12T12:19:13.105+05:30  INFO 37008 --- [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-5 - Added connection com.mysql.cj.jdbc.ConnectionImpl@70c61e37
+2026-03-12T12:19:13.105+05:30  INFO 37008 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-5 - Start completed.
+2026-03-12T12:19:13.107+05:30  WARN 37008 --- [restartedMain] org.hibernate.orm.deprecation            : HHH90000025: MySQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-03-12T12:19:13.699+05:30  INFO 37008 --- [restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-03-12T12:19:13.994+05:30  INFO 37008 --- [restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-03-12T12:19:14.322+05:30 DEBUG 37008 --- [restartedMain] o.r.r.security.JwtAuthenticationFilter   : Filter 'jwtAuthenticationFilter' configured for use
+2026-03-12T12:19:16.029+05:30  WARN 37008 --- [restartedMain] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-03-12T12:19:16.328+05:30  INFO 37008 --- [restartedMain] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@2ff7a31c, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@8b4b6a6, org.springframework.security.web.context.SecurityContextHolderFilter@5a11455f, org.springframework.security.web.header.HeaderWriterFilter@582c3c78, org.springframework.web.filter.CorsFilter@6e7cd7f5, org.springframework.security.web.authentication.logout.LogoutFilter@c456420, org.revature.revconnect.security.JwtAuthenticationFilter@11075317, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@1f14ae35, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@26e29e53, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@2ab0acc9, org.springframework.security.web.session.SessionManagementFilter@fdead0d, org.springframework.security.web.access.ExceptionTranslationFilter@4240f018, org.springframework.security.web.access.intercept.AuthorizationFilter@4b8061d]
+2026-03-12T12:19:16.726+05:30  INFO 37008 --- [restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2026-03-12T12:19:16.752+05:30  INFO 37008 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path ''
+2026-03-12T12:19:16.754+05:30  INFO 37008 --- [restartedMain] o.s.m.s.b.SimpleBrokerMessageHandler     : Starting...
+2026-03-12T12:19:16.754+05:30  INFO 37008 --- [restartedMain] o.s.m.s.b.SimpleBrokerMessageHandler     : BrokerAvailabilityEvent[available=true, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@1ebd86f3]]
+2026-03-12T12:19:16.755+05:30  INFO 37008 --- [restartedMain] o.s.m.s.b.SimpleBrokerMessageHandler     : Started.
+2026-03-12T12:19:16.762+05:30  INFO 37008 --- [restartedMain] o.r.revconnect.RevconnectApplication     : Started RevconnectApplication in 4.86 seconds (process running for 82285.868)
+2026-03-12T12:19:16.765+05:30  INFO 37008 --- [restartedMain] .ConditionEvaluationDeltaLoggingListener : Condition evaluation unchanged
+2026-03-12T12:20:16.748+05:30  INFO 37008 --- [MessageBroker-1] o.s.w.s.c.WebSocketMessageBrokerStats    : WebSocketSession[0 current WS(0)-HttpStream(0)-HttpPoll(0), 0 total, 0 closed abnormally (0 connect failure, 0 send limit, 0 transport error)], stompSubProtocol[processed CONNECT(0)-CONNECTED(0)-DISCONNECT(0)], stompBrokerRelay[null], inboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], outboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], sockJsScheduler[pool size = 1, active threads = 1, queued tasks = 0, completed tasks = 0]
+2026-03-12T12:50:16.768+05:30  INFO 37008 --- [MessageBroker-1] o.s.w.s.c.WebSocketMessageBrokerStats    : WebSocketSession[0 current WS(0)-HttpStream(0)-HttpPoll(0), 0 total, 0 closed abnormally (0 connect failure, 0 send limit, 0 transport error)], stompSubProtocol[processed CONNECT(0)-CONNECTED(0)-DISCONNECT(0)], stompBrokerRelay[null], inboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], outboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], sockJsScheduler[pool size = 2, active threads = 1, queued tasks = 0, completed tasks = 1]
+2026-03-12T13:20:16.777+05:30  INFO 37008 --- [MessageBroker-2] o.s.w.s.c.WebSocketMessageBrokerStats    : WebSocketSession[0 current WS(0)-HttpStream(0)-HttpPoll(0), 0 total, 0 closed abnormally (0 connect failure, 0 send limit, 0 transport error)], stompSubProtocol[processed CONNECT(0)-CONNECTED(0)-DISCONNECT(0)], stompBrokerRelay[null], inboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], outboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], sockJsScheduler[pool size = 3, active threads = 1, queued tasks = 0, completed tasks = 2]
+2026-03-12T14:16:50.029+05:30  WARN 37008 --- [HikariPool-5 housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-5 - Thread starvation or clock leap detected (housekeeper delta=49m35s711ms125µs100ns).
+2026-03-12T14:39:22.512+05:30  INFO 37008 --- [MessageBroker-1] o.s.w.s.c.WebSocketMessageBrokerStats    : WebSocketSession[0 current WS(0)-HttpStream(0)-HttpPoll(0), 0 total, 0 closed abnormally (0 connect failure, 0 send limit, 0 transport error)], stompSubProtocol[processed CONNECT(0)-CONNECTED(0)-DISCONNECT(0)], stompBrokerRelay[null], inboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], outboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], sockJsScheduler[pool size = 4, active threads = 1, queued tasks = 0, completed tasks = 3]
+2026-03-12T14:51:55.833+05:30  INFO 37008 --- [http-nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-03-12T14:51:55.839+05:30  INFO 37008 --- [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-03-12T14:51:56.028+05:30  INFO 37008 --- [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 185 ms
+2026-03-12T14:51:56.085+05:30 DEBUG 37008 --- [http-nio-8080-exec-1] o.s.security.web.FilterChainProxy        : Securing POST /api/posts/schedule
+2026-03-12T14:51:56.134+05:30 DEBUG 37008 --- [http-nio-8080-exec-1] o.s.s.w.a.AnonymousAuthenticationFilter  : Set SecurityContextHolder to anonymous SecurityContext
+2026-03-12T14:51:56.245+05:30 DEBUG 37008 --- [http-nio-8080-exec-1] o.s.security.web.FilterChainProxy        : Securing POST /error
+2026-03-12T14:51:56.246+05:30 DEBUG 37008 --- [http-nio-8080-exec-1] o.s.s.w.a.AnonymousAuthenticationFilter  : Set SecurityContextHolder to anonymous SecurityContext
+2026-03-12T14:52:11.336+05:30 DEBUG 37008 --- [http-nio-8080-exec-2] o.s.security.web.FilterChainProxy        : Securing POST /api/posts/schedule
+2026-03-12T14:52:11.336+05:30 DEBUG 37008 --- [http-nio-8080-exec-2] o.s.s.w.a.AnonymousAuthenticationFilter  : Set SecurityContextHolder to anonymous SecurityContext
+2026-03-12T14:52:11.338+05:30 DEBUG 37008 --- [http-nio-8080-exec-2] o.s.security.web.FilterChainProxy        : Securing POST /error
+2026-03-12T14:52:11.339+05:30 DEBUG 37008 --- [http-nio-8080-exec-2] o.s.s.w.a.AnonymousAuthenticationFilter  : Set SecurityContextHolder to anonymous SecurityContext
