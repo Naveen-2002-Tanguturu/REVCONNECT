@@ -49,9 +49,27 @@ server {
     server_name revconnect.duckdns.org;
     ssl_certificate /etc/nginx/ssl/fullchain.pem;
     ssl_certificate_key /etc/nginx/ssl/privkey.pem;
+    client_max_body_size 50M;
+
     root /var/www/html/revconnect-ui/browser;
     index index.html;
-    location / { try_files $uri $uri/ /index.html; }
+
+    location / { 
+        try_files $uri $uri/ /index.html; 
+    }
+
+    location /api/ {
+        proxy_pass http://localhost:8080/api/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    location /uploads/ {
+        alias /home/ec2-user/uploads/;
+        autoindex off;
+    }
 }
 server {
     listen 80;
