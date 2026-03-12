@@ -7,7 +7,7 @@ echo "=== SSL Setup: Starting ==="
 # Install acme.sh if not already installed
 if [ ! -f "$HOME/.acme.sh/acme.sh" ]; then
     echo "Installing acme.sh..."
-    curl -fsSL https://get.acme.sh | sh -s email=naveentanguturu4@gmail.com --nocron 2>&1 || true
+    curl -fsSL https://get.acme.sh | sh -s email=coorgfrnd@gmail.com --nocron 2>&1 || true
 fi
 
 # Source acme.sh environment
