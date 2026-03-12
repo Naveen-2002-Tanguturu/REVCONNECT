@@ -34,7 +34,7 @@ pipeline {
                     $keyPath = "$env:WORKSPACE\\jenkins-key-${env:BUILD_NUMBER}.pem"
                     Copy-Item -Path $env:SSH_KEY -Destination $keyPath -Force
 
-                    icacls $keyPath /inheritance:r /grant:r "NT AUTHORITY\SYSTEM:F" /grant:r "BUILTIN\Administrators:F"
+                    icacls $keyPath /inheritance:r /grant:r "NT AUTHORITY\\SYSTEM:F" /grant:r "BUILTIN\\Administrators:F"
 
                     # Database Migration — ensure notifications type column supports all enum values
                     ssh -o StrictHostKeyChecking=accept-new -i $keyPath ${env:SSH_USER}@52.66.177.34 "mysql -u root -proot revconnect_db -e 'ALTER TABLE notifications MODIFY COLUMN type VARCHAR(50) NOT NULL;' 2>/dev/null || true" 2>&1
