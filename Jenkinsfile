@@ -36,6 +36,11 @@ pipeline {
 
                     icacls $keyPath /inheritance:r /grant:r "NT AUTHORITY\\SYSTEM:F" /grant:r "BUILTIN\\Administrators:F"
 
+                    # Absorb the first-time SSH known_hosts warning to prevent PowerShell from throwing a fatal stderr exception
+                    $ErrorActionPreference = "Continue"
+                    ssh -o StrictHostKeyChecking=accept-new -i $keyPath ${env:SSH_USER}@13.126.2.73 "echo 'Initializing SSH known_hosts...'" 2>&1 | Out-Null
+                    $ErrorActionPreference = "Stop"
+
                     # Allocate 2GB Swap Memory to prevent t3.micro (1GB RAM) from freezing (OOM death)
                     ssh -o StrictHostKeyChecking=accept-new -i $keyPath ${env:SSH_USER}@13.126.2.73 "sudo fallocate -l 2G /swapfile 2>/dev/null || true; sudo chmod 600 /swapfile 2>/dev/null || true; sudo mkswap /swapfile 2>/dev/null || true; sudo swapon /swapfile 2>/dev/null || true" 2>&1
 
