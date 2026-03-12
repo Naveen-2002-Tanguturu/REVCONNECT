@@ -61,10 +61,10 @@
                         <div class="schedule-pill glass-card time-pill">
                             <i class="fa-regular fa-clock clock-icon"></i>
                             <input type="text" class="borderless-input time-number-input"
-                                [(ngModel)]="scheduleHourInput" maxlength="2" (blur)="formatScheduleTime()"
+                                [(ngModel)]="scheduleHourInput" maxlength="2" (keyup)="focusNextIfFull(scheduleHourInput, minuteInput)" (blur)="formatScheduleTime()"
                                 placeholder="00">
                             <span class="time-colon">:</span>
-                            <input type="text" class="borderless-input time-number-input"
+                            <input #minuteInput type="text" class="borderless-input time-number-input"
                                 [(ngModel)]="scheduleMinuteInput" maxlength="2" (blur)="formatScheduleTime()"
                                 placeholder="00">
 

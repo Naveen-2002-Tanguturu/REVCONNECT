@@ -38,8 +38,8 @@ export class FeedPage implements OnInit {
   ctaLabelInput = '';
   ctaUrlInput = '';
   scheduleDateOnlyInput = '';
-  scheduleHourInput = '00';
-  scheduleMinuteInput = '00';
+  scheduleHourInput = '';
+  scheduleMinuteInput = '';
   scheduleAmPmInput = 'AM';
   isPromotionalInput = false;
   partnerNameInput = '';
@@ -55,15 +55,25 @@ export class FeedPage implements OnInit {
   }
 
   formatScheduleTime() {
-    let h = parseInt(this.scheduleHourInput, 10);
-    if (isNaN(h) || h < 1) h = 12;
-    if (h > 12) h = 12;
-    this.scheduleHourInput = String(h).padStart(2, '0');
+    if (this.scheduleHourInput) {
+      let h = parseInt(this.scheduleHourInput, 10);
+      if (isNaN(h) || h < 1) h = 12;
+      if (h > 12) h = 12;
+      this.scheduleHourInput = String(h).padStart(2, '0');
+    }
 
-    let m = parseInt(this.scheduleMinuteInput, 10);
-    if (isNaN(m) || m < 0) m = 0;
-    if (m > 59) m = 59;
-    this.scheduleMinuteInput = String(m).padStart(2, '0');
+    if (this.scheduleMinuteInput) {
+      let m = parseInt(this.scheduleMinuteInput, 10);
+      if (isNaN(m) || m < 0) m = 0;
+      if (m > 59) m = 59;
+      this.scheduleMinuteInput = String(m).padStart(2, '0');
+    }
+  }
+
+  focusNextIfFull(value: string, nextElement: HTMLInputElement) {
+    if (value && value.length === 2) {
+      nextElement.focus();
+    }
   }
 
   // Like state: { postId -> true/false }
@@ -492,7 +502,7 @@ export class FeedPage implements OnInit {
 
     if ((this.showBusinessTools || this.showScheduleTool) && this.scheduleDateOnlyInput) {
       // Build ISO string from 12-hour inputs
-      let hour = parseInt(this.scheduleHourInput, 10);
+      let hour = parseInt(this.scheduleHourInput, 10) || 12;
       if (this.scheduleAmPmInput === 'PM' && hour !== 12) {
         hour += 12;
       } else if (this.scheduleAmPmInput === 'AM' && hour === 12) {
@@ -519,8 +529,8 @@ export class FeedPage implements OnInit {
             this.ctaLabelInput = '';
             this.ctaUrlInput = '';
             this.scheduleDateOnlyInput = '';
-            this.scheduleHourInput = '00';
-            this.scheduleMinuteInput = '00';
+            this.scheduleHourInput = '';
+            this.scheduleMinuteInput = '';
             this.scheduleAmPmInput = 'AM';
             this.isPromotionalInput = false;
             this.partnerNameInput = '';
@@ -558,8 +568,8 @@ export class FeedPage implements OnInit {
             this.ctaLabelInput = '';
             this.ctaUrlInput = '';
             this.scheduleDateOnlyInput = '';
-            this.scheduleHourInput = '00';
-            this.scheduleMinuteInput = '00';
+            this.scheduleHourInput = '';
+            this.scheduleMinuteInput = '';
             this.scheduleAmPmInput = 'AM';
             this.isPromotionalInput = false;
             this.partnerNameInput = '';
