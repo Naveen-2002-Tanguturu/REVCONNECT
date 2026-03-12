@@ -23,7 +23,7 @@ fi
 echo "export DuckDNS_Token='972cae05-c80e-480a-9e00-b4b1f4dad34f'" >> "$HOME/.acme.sh/account.conf"
 
 echo "=== Issuing cert via DuckDNS DNS-01 ==="
-"$HOME/.acme.sh/acme.sh" --issue --dns dns_duckdns -d revconnect.duckdns.org --force 2>&1 || true
+"$HOME/.acme.sh/acme.sh" --issue --dns dns_duckdns -d revconnect.duckdns.org --force --dnssleep 120 --server letsencrypt 2>&1 || true
 
 # Install cert to nginx if obtained - use sudo tee for permission
 echo "=== Installing cert to nginx ==="
