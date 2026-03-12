@@ -67,7 +67,7 @@ server {
     }
 
     location /uploads/ {
-        alias /home/ec2-user/uploads/;
+        alias /home/ec2-user/revconnect/uploads/;
         autoindex off;
     }
 }
