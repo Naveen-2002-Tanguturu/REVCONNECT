@@ -36,6 +36,9 @@ pipeline {
 
                     icacls $keyPath /inheritance:r /grant:r "NT AUTHORITY\\SYSTEM:F" /grant:r "BUILTIN\\Administrators:F"
 
+                    # Allocate 2GB Swap Memory to prevent t3.micro (1GB RAM) from freezing (OOM death)
+                    ssh -o StrictHostKeyChecking=accept-new -i $keyPath ${env:SSH_USER}@52.66.177.34 "sudo fallocate -l 2G /swapfile 2>/dev/null || true; sudo chmod 600 /swapfile 2>/dev/null || true; sudo mkswap /swapfile 2>/dev/null || true; sudo swapon /swapfile 2>/dev/null || true" 2>&1
+
                     # Database Migration — ensure notifications type column supports all enum values
                     ssh -o StrictHostKeyChecking=accept-new -i $keyPath ${env:SSH_USER}@52.66.177.34 "sudo systemctl start mysqld 2>/dev/null || sudo systemctl start mariadb 2>/dev/null || true; sudo systemctl enable mysqld 2>/dev/null || true" 2>&1
                     ssh -o StrictHostKeyChecking=accept-new -i $keyPath ${env:SSH_USER}@52.66.177.34 "mysql -u root -proot revconnect_db -e 'ALTER TABLE notifications MODIFY COLUMN type VARCHAR(50) NOT NULL;' 2>/dev/null || true" 2>&1
