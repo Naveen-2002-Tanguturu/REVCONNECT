@@ -47,18 +47,18 @@ pipeline {
                     # Frontend Deployment
                     ssh -o StrictHostKeyChecking=accept-new -i $keyPath ${env:SSH_USER}@52.66.177.34 "mkdir -p /tmp/frontend" 2>&1
                     scp -o StrictHostKeyChecking=accept-new -i $keyPath -pr frontend/dist/revconnect-ui/browser/* ${env:SSH_USER}@52.66.177.34:/tmp/frontend/ 2>&1
-                    ssh -o StrictHostKeyChecking=accept-new -i $keyPath ${env:SSH_USER}@52.66.177.34 "sudo rm -rf /var/www/html/revconnect-ui/browser/*; sudo mkdir -p /var/www/html/revconnect-ui/browser/; sudo cp -r /tmp/frontend/* /var/www/html/revconnect-ui/browser/; sudo chown -R ec2-user:ec2-user /var/www/html/revconnect-ui; sudo chmod -R 755 /var/www/html/revconnect-ui/browser; sudo systemctl restart nginx" 2>&1
+                    ssh -o StrictHostKeyChecking=accept-new -i $keyPath ${env:SSH_USER}@52.66.177.34 "sudo rm -f /etc/nginx/conf.d/revconnect-ssl.conf; sudo rm -rf /var/www/html/revconnect-ui/browser/*; sudo mkdir -p /var/www/html/revconnect-ui/browser/; sudo cp -r /tmp/frontend/* /var/www/html/revconnect-ui/browser/; sudo chown -R ec2-user:ec2-user /var/www/html/revconnect-ui; sudo chmod -R 755 /var/www/html/revconnect-ui/browser; sudo systemctl restart nginx" 2>&1
 
                     # SSL Certificate Setup - all steps in one SSH session to avoid timing issues
                     ssh -o StrictHostKeyChecking=accept-new -i $keyPath ${env:SSH_USER}@52.66.177.34 @"
-set -e
-curl -s https://get.acme.sh | sh -s email=naveentanguturu4@gmail.com
-source ~/.acme.sh/acme.sh.env
+curl -s https://get.acme.sh | sh -s email=naveentanguturu4@gmail.com || true
+source ~/.acme.sh/acme.sh.env 2>/dev/null || true
 export DUCKDNS_Token=972cae05-c80e-480a-9e00-b4b1f4dad34f
 ~/.acme.sh/acme.sh --issue --dns dns_duckdns -d revconnect.duckdns.org --force 2>&1 || true
 sudo mkdir -p /etc/nginx/ssl
 ~/.acme.sh/acme.sh --install-cert -d revconnect.duckdns.org --cert-file /etc/nginx/ssl/fullchain.pem --key-file /etc/nginx/ssl/privkey.pem 2>&1 || true
-sudo tee /etc/nginx/conf.d/revconnect-ssl.conf > /dev/null << 'NGINXEOF'
+if [ -f /etc/nginx/ssl/fullchain.pem ] && [ -f /etc/nginx/ssl/privkey.pem ]; then
+  sudo tee /etc/nginx/conf.d/revconnect-ssl.conf > /dev/null << 'NGINXEOF'
 server {
     listen 443 ssl;
     server_name revconnect.duckdns.org;
@@ -70,7 +70,10 @@ server {
 }
 server { listen 80; server_name revconnect.duckdns.org; return 301 https://`$host`$request_uri; }
 NGINXEOF
-sudo systemctl reload nginx 2>/dev/null || true
+  sudo systemctl reload nginx 2>/dev/null || true
+else
+  echo 'SSL cert not ready yet - skipping HTTPS config'
+fi
 "@ 2>&1
 
                     icacls $keyPath /reset
