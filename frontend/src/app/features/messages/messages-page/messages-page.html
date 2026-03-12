@@ -30,6 +30,10 @@
                                 <strong>{{partner.name}}</strong>
                                 <span>&#64;{{partner.username}}</span>
                             </div>
+                            <!-- Unread badge -->
+                            <div class="unread-badge" *ngIf="partner.unreadCount && partner.unreadCount > 0">
+                                {{partner.unreadCount > 99 ? '99+' : partner.unreadCount}}
+                            </div>
                         </div>
 
                         <div class="conv-empty" *ngIf="conversations.length === 0">

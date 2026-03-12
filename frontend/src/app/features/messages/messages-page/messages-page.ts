@@ -223,11 +223,9 @@ export class MessagesPage implements OnInit, OnDestroy {
 
     getRelativeTime(dateString: string): string {
         if (!dateString) return '';
-        // Append 'Z' if no timezone info, so JS treats it as UTC
-        const utcString = dateString.endsWith('Z') || dateString.includes('+') || dateString.includes('-', 10) ? dateString : dateString + 'Z';
-        const date = new Date(utcString);
+        const date = new Date(dateString);
         const now = new Date();
-        const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+        const seconds = Math.max(0, Math.floor((now.getTime() - date.getTime()) / 1000));
         let interval = seconds / 86400;
         if (interval > 1) return Math.floor(interval) + 'd ago';
         interval = seconds / 3600;

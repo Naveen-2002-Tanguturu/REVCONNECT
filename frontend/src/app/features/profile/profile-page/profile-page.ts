@@ -783,11 +783,9 @@ export class ProfilePage implements OnInit {
 
     getRelativeTime(dateString: string): string {
         if (!dateString) return '';
-        // Append 'Z' if no timezone info, so JS treats it as UTC
-        const utcString = dateString.endsWith('Z') || dateString.includes('+') || dateString.includes('-', 10) ? dateString : dateString + 'Z';
-        const date = new Date(utcString);
+        const date = new Date(dateString);
         const now = new Date();
-        const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+        const seconds = Math.max(0, Math.floor((now.getTime() - date.getTime()) / 1000));
 
         let interval = seconds / 31536000;
         if (interval > 1) return Math.floor(interval) + 'y';
@@ -991,6 +989,13 @@ export class ProfilePage implements OnInit {
         const message = `Check out this post: ${postUrl}`;
         const currentSharePostId = this.sharePostId;
 
+        // Optimistic UI update
+        const postToUpdate = this.posts.find(p => p.id === currentSharePostId) || this.likedPosts?.find(p => p.id === currentSharePostId);
+        if (postToUpdate) {
+            postToUpdate.shareCount++;
+            this.cdr.markForCheck();
+        }
+
         this.messageService.createConversation(recipientId).subscribe({
             next: (res) => {
                 const conversationId = res.data?.userId ?? recipientId;
@@ -1001,17 +1006,26 @@ export class ProfilePage implements OnInit {
                         // Tell backend to increment the counter
                         this.interactionService.incrementShareCount(currentSharePostId).subscribe({
                             next: () => {
-                                const post = this.posts.find(p => p.id === currentSharePostId);
-                                if (post) post.shareCount++;
-                                this.cdr.markForCheck();
                             },
                             error: (err) => console.error('Error incrementing share count:', err)
                         });
                     },
-                    error: (err) => console.error('Error sending share message:', err)
+                    error: (err) => {
+                        console.error('Error sending share message:', err);
+                        if (postToUpdate) {
+                            postToUpdate.shareCount = Math.max(0, postToUpdate.shareCount - 1);
+                            this.cdr.markForCheck();
+                        }
+                    }
                 });
             },
-            error: (err) => console.error('Error creating conversation:', err)
+            error: (err) => {
+                console.error('Error creating conversation:', err);
+                if (postToUpdate) {
+                    postToUpdate.shareCount = Math.max(0, postToUpdate.shareCount - 1);
+                    this.cdr.markForCheck();
+                }
+            }
         });
     }
 

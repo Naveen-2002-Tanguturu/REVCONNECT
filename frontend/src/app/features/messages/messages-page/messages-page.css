@@ -111,6 +111,17 @@
     font-weight: 500;
 }
 
+.conversations-panel .conv-item .unread-badge {
+    background: #ef4444;
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 0.2rem 0.5rem;
+    border-radius: 999px;
+    margin-left: auto;
+    box-shadow: 0 4px 10px rgba(239, 68, 68, 0.4);
+}
+
 .conversations-panel .conv-empty {
     display: flex;
     flex-direction: column;

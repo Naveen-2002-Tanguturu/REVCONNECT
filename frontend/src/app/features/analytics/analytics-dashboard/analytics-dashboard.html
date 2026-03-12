@@ -98,7 +98,7 @@
                             <span class="col-num">Engagement</span>
                         </div>
                         <div class="table-row" *ngFor="let post of postPerformance">
-                            <span class="col-main truncate">{{post.content || 'Untitled Content'}}</span>
+                            <span class="col-main truncate">{{getCleanContent(post.content)}}</span>
                             <span class="col-num">{{post.views.toLocaleString()}}</span>
                             <span class="col-num">{{post.likes.toLocaleString()}}</span>
                             <span class="col-num accent-val">{{ ((post.likes + post.comments) / (post.views || 1) *

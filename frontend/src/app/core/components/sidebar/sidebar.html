@@ -29,6 +29,12 @@
             <span *ngIf="item.label === 'Notifications' && unreadNotifications > 0" class="notification-badge">
                 {{ unreadNotifications > 99 ? '99+' : unreadNotifications }}
             </span>
+            <span *ngIf="item.label === 'Messages' && unreadMessages > 0" class="notification-badge">
+                {{ unreadMessages > 99 ? '99+' : unreadMessages }}
+            </span>
+            <span *ngIf="item.label === 'Profile' && pendingRequests > 0" class="notification-badge">
+                {{ pendingRequests > 99 ? '99+' : pendingRequests }}
+            </span>
 
             <div class="active-indicator"></div>
         </a>

@@ -99,6 +99,11 @@ public class MessageService {
         return messageRepository.countByReceiverAndIsReadFalse(currentUser);
     }
 
+    public long getUnreadCountWithPartner(User partner) {
+        User currentUser = authService.getCurrentUser();
+        return messageRepository.countBySenderAndReceiverAndIsReadFalse(partner, currentUser);
+    }
+
     public Page<Message> searchMessages(String query, Pageable pageable) {
         User currentUser = authService.getCurrentUser();
         return messageRepository.searchMessages(currentUser, query, pageable);

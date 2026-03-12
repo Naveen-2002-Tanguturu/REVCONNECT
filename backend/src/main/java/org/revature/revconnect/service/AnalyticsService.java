@@ -45,11 +45,15 @@ public class AnalyticsService {
         long totalLikes = valueOrZero(postRepository.getTotalLikesByUserId(userId));
         long totalFollowers = connectionRepository.countByFollowingIdAndStatus(
                 userId, org.revature.revconnect.enums.ConnectionStatus.ACCEPTED);
+        long totalShares = valueOrZero(postRepository.getTotalSharesByUserId(userId));
+        long totalComments = valueOrZero(postRepository.getTotalCommentsByUserId(userId));
 
         Map<String, Object> overview = new HashMap<>();
         overview.put("totalViews", totalViews);
         overview.put("totalLikes", totalLikes);
         overview.put("totalFollowers", totalFollowers);
+        overview.put("totalShares", totalShares);
+        overview.put("totalComments", totalComments);
         overview.put("totalPosts", postRepository.findByUserIdOrderByCreatedAtDesc(userId, PageRequest.of(0, 1))
                 .getTotalElements());
         return overview;
@@ -90,7 +94,8 @@ public class AnalyticsService {
                 postId, start, end);
 
         long totalViews = analytics.stream().mapToLong(a -> a.getViews() == null ? 0 : a.getViews()).sum();
-        long totalImpressions = analytics.stream().mapToLong(a -> a.getImpressions() == null ? 0 : a.getImpressions()).sum();
+        long totalImpressions = analytics.stream().mapToLong(a -> a.getImpressions() == null ? 0 : a.getImpressions())
+                .sum();
 
         Map<String, Object> map = new HashMap<>();
         map.put("post", postMapper.toResponse(post));
@@ -152,12 +157,12 @@ public class AnalyticsService {
         User currentUser = authService.getCurrentUser();
         List<Long> followerIds = connectionRepository.findFollowerUserIds(currentUser.getId());
 
-        long personal = followerIds.isEmpty() ? 0 :
-                userRepository.countByIdInAndUserType(followerIds, org.revature.revconnect.enums.UserType.PERSONAL);
-        long creator = followerIds.isEmpty() ? 0 :
-                userRepository.countByIdInAndUserType(followerIds, org.revature.revconnect.enums.UserType.CREATOR);
-        long business = followerIds.isEmpty() ? 0 :
-                userRepository.countByIdInAndUserType(followerIds, org.revature.revconnect.enums.UserType.BUSINESS);
+        long personal = followerIds.isEmpty() ? 0
+                : userRepository.countByIdInAndUserType(followerIds, org.revature.revconnect.enums.UserType.PERSONAL);
+        long creator = followerIds.isEmpty() ? 0
+                : userRepository.countByIdInAndUserType(followerIds, org.revature.revconnect.enums.UserType.CREATOR);
+        long business = followerIds.isEmpty() ? 0
+                : userRepository.countByIdInAndUserType(followerIds, org.revature.revconnect.enums.UserType.BUSINESS);
 
         Map<String, Object> map = new HashMap<>();
         map.put("totalFollowers", followerIds.size());

@@ -351,6 +351,11 @@ app-stories-feed {
     padding-right: 3.5rem !important;
 }
 
+.create-post-card .business-tools-form .input-icon-wrap select option {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+}
+
 .create-post-card .business-tools-form .input-icon-wrap .arrow-icon {
     position: absolute;
     right: 1.25rem;

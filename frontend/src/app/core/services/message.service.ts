@@ -20,6 +20,7 @@ export interface ConversationPartner {
     username: string;
     name: string;
     profilePicture?: string; // may be null from backend
+    unreadCount?: number;
 }
 
 export interface MessageItem {

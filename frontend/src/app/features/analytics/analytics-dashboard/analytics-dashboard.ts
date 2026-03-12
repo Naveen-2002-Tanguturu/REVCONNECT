@@ -145,4 +145,10 @@ export class AnalyticsDashboard implements OnInit {
     if (!this.followerGrowth || this.followerGrowth.length === 0) return 0;
     return Math.max(...this.followerGrowth.map(g => g.followers));
   }
+
+  getCleanContent(content: string): string {
+    if (!content) return 'Untitled Content';
+    const clean = content.replace(/\[\[CTA\|.*?\|.*?\]\]/g, '').trim();
+    return clean || 'Promotional Post';
+  }
 }

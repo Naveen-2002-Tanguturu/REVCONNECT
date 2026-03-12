@@ -138,6 +138,13 @@ export class BookmarksPage implements OnInit {
         const message = `Check out this post: ${postUrl}`;
         const currentSharePostId = this.sharePostId;
 
+        // Optimistic UI update
+        const bookmarkToUpdate = this.bookmarks.find(b => b.post.id === currentSharePostId);
+        if (bookmarkToUpdate?.post) {
+            bookmarkToUpdate.post.shareCount++;
+            this.cdr.markForCheck();
+        }
+
         this.messageService.createConversation(recipientId).subscribe({
             next: (res) => {
                 const conversationId = res.data?.userId ?? recipientId;
@@ -148,27 +155,34 @@ export class BookmarksPage implements OnInit {
                         // Tell backend to increment the counter
                         this.interactionService.incrementShareCount(currentSharePostId).subscribe({
                             next: () => {
-                                const bookmark = this.bookmarks.find(b => b.post.id === currentSharePostId);
-                                if (bookmark?.post) bookmark.post.shareCount++;
-                                this.cdr.markForCheck();
                             },
                             error: (err) => console.error('Error incrementing share count:', err)
                         });
                     },
-                    error: (err) => console.error('Error sending share message:', err)
+                    error: (err) => {
+                        console.error('Error sending share message:', err);
+                        if (bookmarkToUpdate?.post) {
+                            bookmarkToUpdate.post.shareCount = Math.max(0, bookmarkToUpdate.post.shareCount - 1);
+                            this.cdr.markForCheck();
+                        }
+                    }
                 });
             },
-            error: (err) => console.error('Error creating conversation:', err)
+            error: (err) => {
+                console.error('Error creating conversation:', err);
+                if (bookmarkToUpdate?.post) {
+                    bookmarkToUpdate.post.shareCount = Math.max(0, bookmarkToUpdate.post.shareCount - 1);
+                    this.cdr.markForCheck();
+                }
+            }
         });
     }
 
     getRelativeTime(dateString: string | undefined): string {
         if (!dateString) return '';
-        // Append 'Z' if no timezone info, so JS treats it as UTC
-        const utcString = dateString.endsWith('Z') || dateString.includes('+') || dateString.includes('-', 10) ? dateString : dateString + 'Z';
-        const date = new Date(utcString);
+        const date = new Date(dateString);
         const now = new Date();
-        const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+        const seconds = Math.max(0, Math.floor((now.getTime() - date.getTime()) / 1000));
         let interval = seconds / 31536000;
         if (interval > 1) return Math.floor(interval) + 'y';
         interval = seconds / 2592000;

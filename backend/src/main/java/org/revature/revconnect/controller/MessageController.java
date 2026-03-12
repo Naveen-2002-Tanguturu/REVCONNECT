@@ -38,7 +38,11 @@ public class MessageController {
             @RequestParam(defaultValue = "20") int size) {
         log.info("[TRACE] Incoming Get Conversations request");
         List<Map<String, Object>> conversations = messageService.getConversationPartners().stream()
-                .map(this::toUserMap)
+                .map(partner -> {
+                    Map<String, Object> map = toUserMap(partner);
+                    map.put("unreadCount", messageService.getUnreadCountWithPartner(partner));
+                    return map;
+                })
                 .toList();
         log.info("[TRACE] Found {} conversations", conversations.size());
         return ResponseEntity.ok(ApiResponse.success(conversations));
