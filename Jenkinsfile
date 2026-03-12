@@ -49,32 +49,9 @@ pipeline {
                     scp -o StrictHostKeyChecking=accept-new -i $keyPath -pr frontend/dist/revconnect-ui/browser/* ${env:SSH_USER}@52.66.177.34:/tmp/frontend/ 2>&1
                     ssh -o StrictHostKeyChecking=accept-new -i $keyPath ${env:SSH_USER}@52.66.177.34 "sudo rm -f /etc/nginx/conf.d/revconnect-ssl.conf; sudo rm -rf /var/www/html/revconnect-ui/browser/*; sudo mkdir -p /var/www/html/revconnect-ui/browser/; sudo cp -r /tmp/frontend/* /var/www/html/revconnect-ui/browser/; sudo chown -R ec2-user:ec2-user /var/www/html/revconnect-ui; sudo chmod -R 755 /var/www/html/revconnect-ui/browser; sudo systemctl restart nginx" 2>&1
 
-                    # SSL Certificate Setup - all steps in one SSH session to avoid timing issues
-                    ssh -o StrictHostKeyChecking=accept-new -i $keyPath ${env:SSH_USER}@52.66.177.34 @"
-curl -s https://get.acme.sh | sh -s email=naveentanguturu4@gmail.com || true
-source ~/.acme.sh/acme.sh.env 2>/dev/null || true
-export DUCKDNS_Token=972cae05-c80e-480a-9e00-b4b1f4dad34f
-~/.acme.sh/acme.sh --issue --dns dns_duckdns -d revconnect.duckdns.org --force 2>&1 || true
-sudo mkdir -p /etc/nginx/ssl
-~/.acme.sh/acme.sh --install-cert -d revconnect.duckdns.org --cert-file /etc/nginx/ssl/fullchain.pem --key-file /etc/nginx/ssl/privkey.pem 2>&1 || true
-if [ -f /etc/nginx/ssl/fullchain.pem ] && [ -f /etc/nginx/ssl/privkey.pem ]; then
-  sudo tee /etc/nginx/conf.d/revconnect-ssl.conf > /dev/null << 'NGINXEOF'
-server {
-    listen 443 ssl;
-    server_name revconnect.duckdns.org;
-    ssl_certificate /etc/nginx/ssl/fullchain.pem;
-    ssl_certificate_key /etc/nginx/ssl/privkey.pem;
-    root /var/www/html/revconnect-ui/browser;
-    index index.html;
-    location / { try_files `$uri `$uri/ /index.html; }
-}
-server { listen 80; server_name revconnect.duckdns.org; return 301 https://`$host`$request_uri; }
-NGINXEOF
-  sudo systemctl reload nginx 2>/dev/null || true
-else
-  echo 'SSL cert not ready yet - skipping HTTPS config'
-fi
-"@ 2>&1
+                    # SSL Certificate Setup - run via script to avoid quoting issues
+                    scp -o StrictHostKeyChecking=accept-new -i $keyPath backend/deploy/ssl-setup.sh ${env:SSH_USER}@52.66.177.34:/tmp/ssl-setup.sh 2>&1
+                    ssh -o StrictHostKeyChecking=accept-new -i $keyPath ${env:SSH_USER}@52.66.177.34 "chmod +x /tmp/ssl-setup.sh && bash /tmp/ssl-setup.sh" 2>&1
 
                     icacls $keyPath /reset
                     Remove-Item -Path $keyPath -Force -ErrorAction SilentlyContinue
