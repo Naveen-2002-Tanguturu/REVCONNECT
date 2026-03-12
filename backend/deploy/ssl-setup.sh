@@ -22,12 +22,20 @@ fi
 echo "=== Issuing cert via DuckDNS DNS-01 ==="
 "$HOME/.acme.sh/acme.sh" --issue --dns dns_duckdns -d revconnect.duckdns.org --force 2>&1 || true
 
-# Install cert to nginx if obtained
+# Install cert to nginx if obtained - use sudo tee for permission
 echo "=== Installing cert to nginx ==="
 sudo mkdir -p /etc/nginx/ssl
-"$HOME/.acme.sh/acme.sh" --install-cert -d revconnect.duckdns.org \
-    --cert-file /etc/nginx/ssl/fullchain.pem \
-    --key-file /etc/nginx/ssl/privkey.pem 2>&1 || true
+if [ -f "$HOME/.acme.sh/revconnect.duckdns.org_ecc/fullchain.cer" ]; then
+    sudo cp "$HOME/.acme.sh/revconnect.duckdns.org_ecc/fullchain.cer" /etc/nginx/ssl/fullchain.pem
+    sudo cp "$HOME/.acme.sh/revconnect.duckdns.org_ecc/revconnect.duckdns.org.key" /etc/nginx/ssl/privkey.pem
+    echo "=== Cert files copied manually ==="
+else
+    "$HOME/.acme.sh/acme.sh" --install-cert -d revconnect.duckdns.org \
+        --cert-file /tmp/fullchain.pem \
+        --key-file /tmp/privkey.pem 2>&1 || true
+    sudo mv /tmp/fullchain.pem /etc/nginx/ssl/fullchain.pem 2>/dev/null || true
+    sudo mv /tmp/privkey.pem /etc/nginx/ssl/privkey.pem 2>/dev/null || true
+fi
 
 # Configure nginx HTTPS only if cert files exist
 if [ -f /etc/nginx/ssl/fullchain.pem ] && [ -f /etc/nginx/ssl/privkey.pem ]; then
