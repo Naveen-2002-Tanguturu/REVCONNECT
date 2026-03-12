@@ -295,7 +295,7 @@ export class ExplorePage implements OnInit {
 
     getRelativeTime(dateString: string): string {
         if (!dateString) return '';
-        const date = new Date(dateString);
+        const date = new Date((dateString || '').endsWith('Z') ? dateString : dateString + 'Z');
         const now = new Date();
         const seconds = Math.max(0, Math.floor((now.getTime() - date.getTime()) / 1000));
 

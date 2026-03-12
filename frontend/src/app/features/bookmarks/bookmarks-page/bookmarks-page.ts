@@ -180,7 +180,7 @@ export class BookmarksPage implements OnInit {
 
     getRelativeTime(dateString: string | undefined): string {
         if (!dateString) return '';
-        const date = new Date(dateString);
+        const date = new Date((dateString || '').endsWith('Z') ? dateString : dateString + 'Z');
         const now = new Date();
         const seconds = Math.max(0, Math.floor((now.getTime() - date.getTime()) / 1000));
         let interval = seconds / 31536000;

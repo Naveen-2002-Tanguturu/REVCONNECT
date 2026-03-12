@@ -236,7 +236,7 @@ export class Navbar implements OnInit, OnDestroy {
 
   getRelativeTime(dateString: string): string {
     if (!dateString) return '';
-    const date = new Date(dateString);
+    const date = new Date((dateString || '').endsWith('Z') ? dateString : dateString + 'Z');
     const now = new Date();
     const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
     let interval = seconds / 3600;
