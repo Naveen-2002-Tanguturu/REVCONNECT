@@ -180,7 +180,8 @@ export class BookmarksPage implements OnInit {
 
     getRelativeTime(dateString: string | undefined): string {
         if (!dateString) return '';
-        const date = new Date(dateString);
+    const utcString = dateString.endsWith('Z') || dateString.includes('+') ? dateString : dateString + 'Z';
+    const date = new Date(utcString);
         const now = new Date();
         const seconds = Math.max(0, Math.floor((now.getTime() - date.getTime()) / 1000));
         if (seconds < 60) return 'just now';

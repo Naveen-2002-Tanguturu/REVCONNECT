@@ -467,7 +467,8 @@ export class MessagesPage implements OnInit, OnDestroy {
 
     getRelativeTime(dateString: string): string {
         if (!dateString) return '';
-        const date = new Date(dateString);
+        const utcString = dateString.endsWith('Z') || dateString.includes('+') ? dateString : dateString + 'Z';
+        const date = new Date(utcString);
         if (isNaN(date.getTime())) return '';
         const now = new Date();
         const diffMs = now.getTime() - date.getTime();
